@@ -1,0 +1,41 @@
+{
+  "name": "typescript-ephemeris",
+  "version": "1.0.0",
+  "description": "High-performance TypeScript astronomical ephemeris calculator",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc && vite build",
+    "build:fast": "vite build",
+    "dev": "tsx watch src/example.ts",
+    "start": "tsx src/example.ts",
+    "verify": "tsx src/verify-bodies.ts",
+    "verify-simple": "tsx src/verify-simple.ts",
+    "test": "vitest",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist .tsbuildinfo"
+  },
+  "keywords": [
+    "astronomy",
+    "ephemeris",
+    "typescript",
+    "celestial-mechanics",
+    "astronomical-calculations"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^24.0.15",
+    "nodemon": "^3.1.10",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.5",
+    "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "astronomy-engine": "^2.1.19"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

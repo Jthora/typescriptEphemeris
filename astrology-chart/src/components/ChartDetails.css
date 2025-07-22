@@ -1,0 +1,292 @@
+/* Chart Details Component Styles */
+
+.chart-details {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.details-section {
+  margin-bottom: 2.5rem;
+}
+
+.details-section:last-child {
+  margin-bottom: 0;
+}
+
+.details-section h3 {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+  color: #333;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Planets Grid */
+.planets-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.planet-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.planet-row:hover {
+  background: #e9ecef;
+}
+
+.planet-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.planet-symbol {
+  font-size: 1.2rem;
+  font-weight: bold;
+  width: 1.5rem;
+  text-align: center;
+}
+
+.planet-name {
+  font-weight: 600;
+  color: #333;
+}
+
+.retrograde {
+  color: #dc3545;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.position-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.sign {
+  font-weight: 600;
+  color: #495057;
+}
+
+.house {
+  font-size: 0.85rem;
+  color: #6c757d;
+  background: #dee2e6;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+/* Houses Grid */
+.houses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.5rem;
+}
+
+.house-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background: #f8f9fa;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.house-number {
+  font-weight: 600;
+  color: #495057;
+}
+
+.house-sign {
+  color: #6c757d;
+}
+
+/* Aspects Grid */
+.aspects-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.aspect-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.aspect-row:hover {
+  background: #e9ecef;
+}
+
+.aspect-bodies {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.aspect-symbol {
+  font-size: 1.1rem;
+  font-weight: bold;
+  padding: 0.25rem;
+}
+
+.aspect-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.aspect-type {
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.aspect-orb {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+/* Nodes Grid */
+.nodes-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.node-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.node-symbol {
+  font-size: 1.2rem;
+  color: #6c757d;
+  width: 1.5rem;
+  text-align: center;
+}
+
+.node-name {
+  font-weight: 600;
+  color: #333;
+}
+
+.node-position {
+  color: #495057;
+  font-weight: 500;
+}
+
+/* Summary Grid */
+.summary-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.summary-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 0.75rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.summary-label {
+  font-weight: 600;
+  color: #495057;
+}
+
+.summary-value {
+  color: #333;
+  text-align: right;
+  font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .chart-details {
+    padding: 1.5rem;
+  }
+  
+  .planet-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  
+  .position-info {
+    align-items: flex-start;
+  }
+  
+  .houses-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .aspect-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  
+  .aspect-details {
+    align-items: flex-start;
+  }
+  
+  .node-row {
+    grid-template-columns: auto 1fr;
+    gap: 0.75rem;
+  }
+  
+  .node-position {
+    grid-column: 1 / -1;
+    text-align: center;
+    margin-top: 0.25rem;
+  }
+  
+  .summary-item {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+  
+  .summary-value {
+    text-align: left;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .chart-details {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+  
+  .planet-row:hover,
+  .aspect-row:hover {
+    background: #f8f9fa !important;
+  }
+}

@@ -1,0 +1,30 @@
+# VSCode Performance Exclusions
+.vscode/
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+*.log
+.DS_Store
+Thumbs.db
+
+# Development files that can cause indexing overhead
+*.min.js
+*.min.css
+*.map
+*.d.ts.map
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+.parcel-cache/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
