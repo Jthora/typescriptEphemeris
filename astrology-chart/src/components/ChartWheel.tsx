@@ -507,20 +507,19 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
             .attr('transform', `translate(${x},${y})`)
             .attr('class', 'chart-angle fallback');
             
-          // Draw a colored circle
+          // Draw a white circle without border
           fallbackGroup.append('circle')
-            .attr('r', 28)
+            .attr('r', 24)
             .attr('fill', 'white')
-            .attr('stroke', fallbackColor)
-            .attr('stroke-width', 3);
+            .attr('stroke', 'none');
             
-          // Add the symbol text
+          // Add the angle text (ASC, DSC, MC, IC)
           fallbackGroup.append('text')
             .attr('x', 0)
-            .attr('y', 5)
+            .attr('y', 0)
             .attr('text-anchor', 'middle')
             .attr('dominant-baseline', 'middle')
-            .attr('font-size', '14px')
+            .attr('font-size', '16px')
             .attr('font-weight', 'bold')
             .attr('fill', fallbackColor)
             .text(symbolKey);
@@ -528,57 +527,30 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
           return;
         }
         
-        // Create image group for the angle
+        // Create symbol group for the angle
         const angleGroup = g.append('g')
           .attr('transform', `translate(${x},${y})`)
           .attr('class', 'chart-angle');
-          
-        // Calculate rotation to point symbol outward
-        const rotationDegrees = (angle.longitude + 90) % 360;
         
-        // Render the angle symbol as an image
-        angleGroup.append('image')
-          .attr('href', angleSymbol.image)
-          .attr('x', -angleSymbol.size / 2)
-          .attr('y', -angleSymbol.size / 2)
-          .attr('width', angleSymbol.size)
-          .attr('height', angleSymbol.size)
-          .attr('transform', `rotate(${rotationDegrees})`)
-          .attr('class', 'angle-symbol')
-          .on('error', function() {
-            console.error(`❌ Failed to load angle symbol image for ${key}:`, angleSymbol.image);
-            // Add a visual placeholder for the missing image
-            angleGroup.append('circle')
-              .attr('r', angleSymbol.size / 2)
-              .attr('fill', 'none')
-              .attr('stroke', angleSymbol.color)
-              .attr('stroke-width', 2);
-          });
-        
-        // Add angle name with a subtle background to improve visibility
-        // First, add a semi-transparent background behind the text
-        angleGroup.append('rect')
-          .attr('x', -15)
-          .attr('y', angleSymbol.size * 0.6 - 8)
-          .attr('width', 30)
-          .attr('height', 16)
-          .attr('rx', 4)
-          .attr('ry', 4)
+        // Add a white circle background without border
+        angleGroup.append('circle')
+          .attr('r', 24)
           .attr('fill', 'white')
-          .attr('fill-opacity', 0.7);
+          .attr('stroke', 'none');
           
-        // Then add the angle symbol text
+        // Render the angle text (ASC, DSC, MC, IC)
         angleGroup.append('text')
           .attr('x', 0)
-          .attr('y', angleSymbol.size * 0.7)
+          .attr('y', 0)
           .attr('text-anchor', 'middle')
           .attr('dominant-baseline', 'middle')
-          .attr('font-size', '12px')
-          .attr('font-family', fonts.display)
+          .attr('font-size', angleSymbol.fontSize || '16px')
+          .attr('font-weight', angleSymbol.fontWeight || 'bold')
           .attr('fill', angleSymbol.color)
-          .attr('font-weight', 'bold')
-          .text(angle.symbol);
-          
+          .text(angleSymbol.symbol);
+        
+        // Remove the rectangle and second text element for a cleaner look
+        
         // Add a line connecting from the wheel to the angle symbol for better visibility
         const lineStartRadius = radius * 0.95;
         const lineStartX = Math.cos(anglePos) * lineStartRadius;
