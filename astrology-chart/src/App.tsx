@@ -147,11 +147,6 @@ function App() {
 
   return (
     <div className="app">
-      <header className="app-header">
-        <h1>✨ Astrology Birth Chart Calculator</h1>
-        <p>Calculate accurate birth charts using astronomical ephemeris data</p>
-      </header>
-
       <main className="app-main">
         <div className="input-section">        <div className="form-card">
           <div className="form-header">
