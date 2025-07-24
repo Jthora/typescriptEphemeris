@@ -79,9 +79,10 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
         .attr('stroke-width', 1.5)
         .attr('opacity', 0.7);
 
-      // Add cosmic modality symbols for zodiac signs
+      // Add cosmic modality symbols for zodiac signs (Base12)
+      // Place on outer rim
       const symbolAngle = ((i * 30) + 15 - 90) * (Math.PI / 180);
-      const symbolRadius = radius - 20;
+      const symbolRadius = radius * 0.95; // Outer rim for Base12 zodiac symbols
       const symbolX = Math.cos(symbolAngle) * symbolRadius;
       const symbolY = Math.sin(symbolAngle) * symbolRadius;
       
@@ -140,8 +141,9 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
       const cuspData = findAppropriateCuspSymbol(cosmicSymbols.cusps, currentModality, nextModality, currentElement, nextElement, i);
       
       // Position cusp symbol exactly between two zodiac signs
+      // Place on a middle rim (Base24)
       const cuspAngle = ((i * 30) + 30 - 90) * (Math.PI / 180); // +30 to place between signs
-      const cuspRadius = radius - 20; // Same radius as zodiac symbols
+      const cuspRadius = radius * 0.85; // Middle rim for Base24 cusp symbols
       const cuspX = Math.cos(cuspAngle) * cuspRadius;
       const cuspY = Math.sin(cuspAngle) * cuspRadius;
       
@@ -182,8 +184,9 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
         
         // Position the decan symbol with 5-degree adjustment
         // 0° decan aligns with zodiac sign, others are placed at their respective positions
+        // Place on inner rim (Base36)
         const decanAngle = ((i * 30) + (decanIndex * 10) + 5 - 90) * (Math.PI / 180); // +5 to adjust offset
-        const decanRadius = radius - 20; // Same radius as zodiac and cusp symbols
+        const decanRadius = radius * 0.75; // Inner rim for Base36 decan symbols
         const decanX = Math.cos(decanAngle) * decanRadius;
         const decanY = Math.sin(decanAngle) * decanRadius;
         
@@ -256,9 +259,9 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
         .text((i + 1).toString());
     }
 
-    // Draw planets
+    // Draw planets - place on their own innermost rim
     chart.bodies.forEach((body, index) => {
-      const planetRadius = radius * 0.85;
+      const planetRadius = radius * 0.65; // Innermost rim for planets
       const angle = (body.longitude - 90) * (Math.PI / 180);
       let x = Math.cos(angle) * planetRadius;
       let y = Math.sin(angle) * planetRadius;
@@ -303,10 +306,10 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
           .text('℞');
       }
 
-      // Draw line from planet to center (optional)
+      // Draw line from planet to center (optional, but stops at aspect area boundary)
       g.append('line')
-        .attr('x1', 0)
-        .attr('y1', 0)
+        .attr('x1', Math.cos(angle) * (aspectAreaRadius))
+        .attr('y1', Math.sin(angle) * (aspectAreaRadius))
         .attr('x2', Math.cos(angle) * (houseRadius + 5))
         .attr('y2', Math.sin(angle) * (houseRadius + 5))
         .attr('stroke', planetColor)
@@ -314,9 +317,9 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
         .attr('opacity', 0.3);
     });
 
-    // Draw lunar nodes
+    // Draw lunar nodes - place them on a specific rim between planets and decans
     if (chart.nodes.northNode) {
-      const nodeRadius = radius * 0.9;
+      const nodeRadius = radius * 0.7; // Between planets and decans
       
       // North Node
       const northAngle = (chart.nodes.northNode.longitude - 90) * (Math.PI / 180);
@@ -349,6 +352,17 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
         .text(chart.nodes.southNode.symbol);
     }
 
+    // Draw white background circle for aspect lines area
+    // This will be placed above house/zodiac lines but underneath the aspect lines
+    // to make aspects more visible by hiding the lines in the center
+    const aspectAreaRadius = houseRadius * 0.5; // Large enough to cover all center lines
+    g.append('circle')
+      .attr('r', aspectAreaRadius)
+      .attr('fill', 'white')  // White fill to cover the underlying lines
+      .attr('stroke', '#333') // Black border
+      .attr('stroke-width', 1)
+      .attr('opacity', 0.9);  // Slightly transparent
+
     // Draw major aspects
     chart.aspects.forEach(aspect => {
       if (['Conjunction', 'Opposition', 'Trine', 'Square', 'Sextile'].includes(aspect.type)) {
@@ -359,7 +373,7 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
         if (body1 && body2) {
           const angle1 = (body1.longitude - 90) * (Math.PI / 180);
           const angle2 = (body2.longitude - 90) * (Math.PI / 180);
-          const aspectRadius = houseRadius * 0.3;
+          const aspectRadius = houseRadius * 0.4; // Slightly larger aspect area
           
           const x1 = Math.cos(angle1) * aspectRadius;
           const y1 = Math.sin(angle1) * aspectRadius;
@@ -416,6 +430,58 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
       .attr('font-family', 'sans-serif')
       .attr('fill', '#999')
       .text(`${chart.birthData.latitude.toFixed(2)}°, ${chart.birthData.longitude.toFixed(2)}°`);
+
+    // Draw chart angles (ASC, DSC, MC, IC) if available
+    if (chart.angles) {
+      // Reference to the cosmic symbols for angles
+      const angleSymbols = cosmicSymbols.angles;
+      
+      // Draw each angle symbol
+      Object.entries(chart.angles).forEach(([key, angle]) => {
+        const angleRadius = radius * 0.98; // Outermost rim (slightly outside zodiac symbols)
+        const anglePos = (angle.longitude - 90) * (Math.PI / 180);
+        const x = Math.cos(anglePos) * angleRadius;
+        const y = Math.sin(anglePos) * angleRadius;
+        
+        // Get the angle symbol details
+        const angleSymbol = angleSymbols[key.toUpperCase() as keyof typeof angleSymbols];
+        if (!angleSymbol) return;
+        
+        // Create image group for the angle
+        const angleGroup = g.append('g')
+          .attr('transform', `translate(${x},${y})`)
+          .attr('class', 'chart-angle');
+          
+        // Calculate rotation to point symbol outward
+        const rotationDegrees = (angle.longitude + 90) % 360;
+        
+        // Render the angle symbol as an image
+        angleGroup.append('image')
+          .attr('href', angleSymbol.image)
+          .attr('x', -angleSymbol.size / 2)
+          .attr('y', -angleSymbol.size / 2)
+          .attr('width', angleSymbol.size)
+          .attr('height', angleSymbol.size)
+          .attr('transform', `rotate(${rotationDegrees})`)
+          .attr('class', 'angle-symbol')
+          .on('error', function() {
+            console.error(`Failed to load angle symbol: ${key}`);
+            d3.select(this).remove();
+          });
+        
+        // Add angle name
+        angleGroup.append('text')
+          .attr('x', 0)
+          .attr('y', angleSymbol.size * 0.7)
+          .attr('text-anchor', 'middle')
+          .attr('dominant-baseline', 'middle')
+          .attr('font-size', '10px')
+          .attr('font-family', fonts.display)
+          .attr('fill', angleSymbol.color)
+          .attr('font-weight', 'bold')
+          .text(angle.symbol);
+      });
+    }
 
     // Return cleanup function to remove tooltips when component unmounts
     return () => {
