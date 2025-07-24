@@ -17,6 +17,20 @@ import waterCardinal from './symbols/cosmic/base12-water-active-256x-glow.png';
 import waterFixed from './symbols/cosmic/base12-water-static-256x-glow.png';
 import waterMutable from './symbols/cosmic/base12-water-reactive-256x-glow.png';
 
+// Import base24 cusp symbols
+import chaosActiveReactive from './symbols/cosmic/base24-chaos-active-reactive-256x-glow.png';
+import chaosReactiveStatic from './symbols/cosmic/base24-chaos-reactive-static-256x-glow.png';
+import chaosStaticActive from './symbols/cosmic/base24-chaos-static-active-256x-glow.png';
+import coreActiveStatic from './symbols/cosmic/base24-core-active-static-256x-glow.png';
+import coreReactiveActive from './symbols/cosmic/base24-core-reactive-active-256x-glow.png';
+import coreStaticReactive from './symbols/cosmic/base24-core-static-reactive-256x-glow.png';
+import orderActiveReactive from './symbols/cosmic/base24-order-active-reactive-256x-glow.png';
+import orderReactiveStatic from './symbols/cosmic/base24-order-reactive-static-256x-glow.png';
+import orderStaticActive from './symbols/cosmic/base24-order-static-active-256x-glow.png';
+import voidActiveStatic from './symbols/cosmic/base24-void-active-static-256x-glow.png';
+import voidReactiveActive from './symbols/cosmic/base24-void-reactive-active-256x-glow.png';
+import voidStaticReactive from './symbols/cosmic/base24-void-static-reactive-256x-glow.png';
+
 // Define the mapping of zodiac signs to their element/modality classification
 export const ZODIAC_COSMIC_SYMBOLS = {
   'Libra': {
@@ -126,5 +140,82 @@ export const MODALITY_TYPES = {
   fixed: 'Static (Fixed)',
   mutable: 'Reactive (Mutable)',
 };
+
+// Cusps are the intersections between zodiac signs
+// Base24 symbols represent these transitional points
+export const CUSPS_COSMIC_SYMBOLS = [
+  {
+    image: chaosActiveReactive,
+    force: 'chaos',
+    combo: 'active-reactive',
+    size: 40 // Slightly smaller than zodiac symbols
+  },
+  {
+    image: chaosReactiveStatic,
+    force: 'chaos',
+    combo: 'reactive-static',
+    size: 40
+  },
+  {
+    image: chaosStaticActive,
+    force: 'chaos',
+    combo: 'static-active',
+    size: 40
+  },
+  {
+    image: coreActiveStatic,
+    force: 'core',
+    combo: 'active-static',
+    size: 40
+  },
+  {
+    image: coreReactiveActive,
+    force: 'core',
+    combo: 'reactive-active',
+    size: 40
+  },
+  {
+    image: coreStaticReactive,
+    force: 'core',
+    combo: 'static-reactive',
+    size: 40
+  },
+  {
+    image: orderActiveReactive,
+    force: 'order',
+    combo: 'active-reactive',
+    size: 40
+  },
+  {
+    image: orderReactiveStatic,
+    force: 'order',
+    combo: 'reactive-static',
+    size: 40
+  },
+  {
+    image: orderStaticActive,
+    force: 'order',
+    combo: 'static-active',
+    size: 40
+  },
+  {
+    image: voidActiveStatic,
+    force: 'void',
+    combo: 'active-static',
+    size: 40
+  },
+  {
+    image: voidReactiveActive,
+    force: 'void',
+    combo: 'reactive-active',
+    size: 40
+  },
+  {
+    image: voidStaticReactive,
+    force: 'void',
+    combo: 'static-reactive',
+    size: 40
+  }
+];
 
 export default ZODIAC_COSMIC_SYMBOLS;

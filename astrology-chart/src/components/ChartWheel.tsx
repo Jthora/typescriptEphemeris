@@ -119,15 +119,46 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
         .attr('preserveAspectRatio', 'xMidYMid meet')
         .attr('transform', `rotate(${rotationAngle}, ${symbolX}, ${symbolY})`);
         
-        
-      // Add error handling for images
+      // Add error handling for image loading
       image.on('error', function() {
-        console.error(`Failed to load zodiac image for ${signName}: ${imageUrl}`);
-        // Remove the image element on error, no fallback
-        d3.select(this).remove();
+        console.error(`Failed to load image for ${signName}`);
       });
+
+      // Add cusp symbol (base24) between this zodiac sign and the next
+      const cuspIndex = i % cosmicSymbols.cusps.length; // Use modulo to cycle through available cusp symbols
+      const cuspData = cosmicSymbols.cusps[cuspIndex];
       
-      // No hover effects or tooltips for zodiac symbols
+      // Position cusp symbol exactly between two zodiac signs
+      const cuspAngle = ((i * 30) + 30 - 90) * (Math.PI / 180); // +30 to place between signs
+      const cuspRadius = radius - 20; // Same radius as zodiac symbols
+      const cuspX = Math.cos(cuspAngle) * cuspRadius;
+      const cuspY = Math.sin(cuspAngle) * cuspRadius;
+      
+      // Scale the cusp symbol size
+      const cuspSize = scaleImageSizeForViewport(cuspData.size, width);
+      
+      // Cusp rotation angle - ensure it points outward like zodiac symbols
+      const cuspRotationAngle = ((i * 30) + 30 + 180 + 180) % 360;
+      
+      // Add the cusp symbol
+      const cuspGroup = g.append('g')
+        .attr('class', 'cusp-symbol')
+        .attr('data-force', cuspData.force)
+        .attr('data-combo', cuspData.combo);
+        
+      const cuspImage = cuspGroup.append('image')
+        .attr('href', cuspData.image)
+        .attr('x', cuspX - cuspSize/2)
+        .attr('y', cuspY - cuspSize/2)
+        .attr('width', cuspSize)
+        .attr('height', cuspSize)
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .attr('transform', `rotate(${cuspRotationAngle}, ${cuspX}, ${cuspY})`);
+        
+      // Add error handling for cusp image loading
+      cuspImage.on('error', function() {
+        console.error(`Failed to load cusp image: ${cuspData.force}-${cuspData.combo}`);
+      });
     }
 
     // Draw house divisions

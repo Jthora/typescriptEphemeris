@@ -7,7 +7,7 @@ import * as buttonsImport from './buttons';
 import * as gradientsImport from './gradients';
 import * as symbolsImport from './symbols';
 import * as backgroundsImport from './backgrounds';
-import ZODIAC_COSMIC_SYMBOLS, { ELEMENT_COLOR_MAP, MODALITY_TYPES } from './cosmic-symbols';
+import ZODIAC_COSMIC_SYMBOLS, { ELEMENT_COLOR_MAP, MODALITY_TYPES, CUSPS_COSMIC_SYMBOLS } from './cosmic-symbols';
 
 // Import specific image assets
 import cosmicAlignmentDiskAwesome from './CosmicAlignmentDisk_awesome1.png';
@@ -60,8 +60,10 @@ export const customButtons = {
   resonantFinderCircle: resonantFinderCircleButton,
 };
 
+// Create composite objects for export
 export const cosmicSymbols = {
   zodiac: ZODIAC_COSMIC_SYMBOLS,
   elementColors: ELEMENT_COLOR_MAP,
-  modalityTypes: MODALITY_TYPES
+  modalityTypes: MODALITY_TYPES,
+  cusps: CUSPS_COSMIC_SYMBOLS // Export cusp symbols
 };
