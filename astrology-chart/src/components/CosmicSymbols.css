@@ -1,0 +1,11 @@
+/* Styles for cosmic symbols in the chart wheel */
+
+.cosmic-symbol image {
+  opacity: 1; /* Full opacity */
+}
+
+/* Removed hover animations that moved symbols away from center */
+
+/* Removed element-specific hover effects */
+
+/* Removed tooltip styling */

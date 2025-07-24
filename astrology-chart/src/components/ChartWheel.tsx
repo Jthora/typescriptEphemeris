@@ -2,6 +2,10 @@ import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import type { AstrologyChart } from '../astrology';
 import { ZODIAC_SIGNS, PLANET_SYMBOLS } from '../astrology';
+import { fonts, cypherDisks } from '../assets';
+import { cosmicSymbols } from '../assets/images';
+import { scaleImageSizeForViewport } from '../utils/image-optimization';
+import './CosmicSymbols.css';
 
 interface ChartWheelProps {
   chart: AstrologyChart;
@@ -35,6 +39,16 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
     // Create main group
     const g = svg.append('g')
       .attr('transform', `translate(${centerX}, ${centerY})`);
+      
+    // Add the cypher disk to the center
+    const cypherDiskSize = radius * 0.5;
+    g.append('image')
+      .attr('href', cypherDisks.formal)
+      .attr('width', cypherDiskSize)
+      .attr('height', cypherDiskSize)
+      .attr('x', -cypherDiskSize/2)
+      .attr('y', -cypherDiskSize/2)
+      .attr('opacity', 0.9);
 
     // Draw outer circle (zodiac wheel)
     g.append('circle')
@@ -42,6 +56,8 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
       .attr('fill', 'none')
       .attr('stroke', '#333')
       .attr('stroke-width', 2);
+      
+    // Removed cosmic alignment disk background image
 
     // Draw inner circle (house wheel)
     const houseRadius = radius * 0.7;
@@ -59,44 +75,69 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
       const x2 = Math.cos(angle) * radius;
       const y2 = Math.sin(angle) * radius;
 
+      // Get sign element for line color
+      const currentSignName = ZODIAC_SIGNS[i].name;
+      const currentCosmicData = cosmicSymbols.zodiac[currentSignName as keyof typeof cosmicSymbols.zodiac];
+      const lineColor = cosmicSymbols.elementColors[currentCosmicData.element as keyof typeof cosmicSymbols.elementColors];
+      
       g.append('line')
         .attr('x1', x1)
         .attr('y1', y1)
         .attr('x2', x2)
         .attr('y2', y2)
-        .attr('stroke', '#ccc')
-        .attr('stroke-width', 1);
+        .attr('stroke', lineColor)
+        .attr('stroke-width', 1.5)
+        .attr('opacity', 0.7);
 
-      // Add zodiac sign symbols
+      // Add cosmic modality symbols for zodiac signs
       const symbolAngle = ((i * 30) + 15 - 90) * (Math.PI / 180);
       const symbolRadius = radius - 20;
       const symbolX = Math.cos(symbolAngle) * symbolRadius;
       const symbolY = Math.sin(symbolAngle) * symbolRadius;
-
-      g.append('text')
-        .attr('x', symbolX)
-        .attr('y', symbolY)
-        .attr('text-anchor', 'middle')
-        .attr('dominant-baseline', 'middle')
-        .attr('font-size', '20px')
-        .attr('font-family', 'serif')
-        .attr('fill', '#666')
-        .text(ZODIAC_SIGNS[i].symbol);
-
-      // Add sign names
-      const nameRadius = radius - 45;
-      const nameX = Math.cos(symbolAngle) * nameRadius;
-      const nameY = Math.sin(symbolAngle) * nameRadius;
-
-      g.append('text')
-        .attr('x', nameX)
-        .attr('y', nameY)
-        .attr('text-anchor', 'middle')
-        .attr('dominant-baseline', 'middle')
-        .attr('font-size', '10px')
-        .attr('font-family', 'sans-serif')
-        .attr('fill', '#999')
-        .text(ZODIAC_SIGNS[i].name);
+      
+      // Get current zodiac sign name and cosmic symbol data
+      const signName = ZODIAC_SIGNS[i].name;
+      // Use type assertion since we know these keys exist
+      const cosmicSymbolData = cosmicSymbols.zodiac[signName as keyof typeof cosmicSymbols.zodiac];
+      
+      // Scale the symbol size based on viewport width
+      const baseSize = cosmicSymbolData?.size || 48; // Increased default size for better visibility
+      const symbolSize = scaleImageSizeForViewport(baseSize, width);
+      
+      // Get the image from our cosmic-modalities directory
+      const imageUrl = cosmicSymbolData.image;
+      
+      // Add the cosmic symbol image with no fallbacks
+      const symbolGroup = g.append('g')
+        .attr('class', 'cosmic-symbol')
+        .attr('data-sign', signName)
+        .attr('data-element', cosmicSymbolData.element)
+        .attr('data-modality', cosmicSymbolData.modality);
+      
+      // Returning to our previous approach that was close
+      // Adding exactly 180 degrees to the previous calculation
+      const rotationAngle = ((i * 30) + 15 + 180 + 180) % 360;
+      
+      
+      // Add image with error handling and rotation
+      const image = symbolGroup.append('image')
+        .attr('href', imageUrl)
+        .attr('x', symbolX - symbolSize/2)
+        .attr('y', symbolY - symbolSize/2)
+        .attr('width', symbolSize)
+        .attr('height', symbolSize)
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .attr('transform', `rotate(${rotationAngle}, ${symbolX}, ${symbolY})`);
+        
+        
+      // Add error handling for images
+      image.on('error', function() {
+        console.error(`Failed to load zodiac image for ${signName}: ${imageUrl}`);
+        // Remove the image element on error, no fallback
+        d3.select(this).remove();
+      });
+      
+      // No hover effects or tooltips for zodiac symbols
     }
 
     // Draw house divisions
@@ -129,7 +170,7 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
         .attr('text-anchor', 'middle')
         .attr('dominant-baseline', 'middle')
         .attr('font-size', '12px')
-        .attr('font-family', 'sans-serif')
+        .attr('font-family', fonts.primary)
         .attr('fill', '#666')
         .attr('font-weight', 'bold')
         .text((i + 1).toString());
@@ -166,7 +207,7 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
         .attr('text-anchor', 'middle')
         .attr('dominant-baseline', 'middle')
         .attr('font-size', '12px')
-        .attr('font-family', 'serif')
+        .attr('font-family', fonts.display)
         .attr('fill', '#fff')
         .attr('font-weight', 'bold')
         .text(body.symbol);
@@ -208,7 +249,7 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
         .attr('text-anchor', 'middle')
         .attr('dominant-baseline', 'middle')
         .attr('font-size', '16px')
-        .attr('font-family', 'serif')
+        .attr('font-family', fonts.display)
         .attr('fill', '#666')
         .text(chart.nodes.northNode.symbol);
 
@@ -223,7 +264,7 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
         .attr('text-anchor', 'middle')
         .attr('dominant-baseline', 'middle')
         .attr('font-size', '16px')
-        .attr('font-family', 'serif')
+        .attr('font-family', fonts.display)
         .attr('fill', '#666')
         .text(chart.nodes.southNode.symbol);
     }
@@ -296,6 +337,11 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
       .attr('fill', '#999')
       .text(`${chart.birthData.latitude.toFixed(2)}°, ${chart.birthData.longitude.toFixed(2)}°`);
 
+    // Return cleanup function to remove tooltips when component unmounts
+    return () => {
+      // Remove any tooltips that were created
+      d3.selectAll('.cosmic-tooltip').remove();
+    };
   }, [chart, width, height]);
 
   return (
