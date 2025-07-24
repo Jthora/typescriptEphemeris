@@ -125,8 +125,19 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
       });
 
       // Add cusp symbol (base24) between this zodiac sign and the next
-      const cuspIndex = i % cosmicSymbols.cusps.length; // Use modulo to cycle through available cusp symbols
-      const cuspData = cosmicSymbols.cusps[cuspIndex];
+      // Get the current sign and the next sign
+      const currentSign = ZODIAC_SIGNS[i];
+      const nextSign = ZODIAC_SIGNS[(i + 1) % 12];
+      
+      // Get appropriate cusp symbol based on transitions between modalities and elements
+      // The cusp should represent the transition between the current sign and the next
+      const currentModality = currentSign.quality.toLowerCase();
+      const nextModality = nextSign.quality.toLowerCase();
+      const currentElement = currentSign.element.toLowerCase();
+      const nextElement = nextSign.element.toLowerCase();
+      
+      // Find the most appropriate cusp symbol based on element and modality transitions
+      const cuspData = findAppropriateCuspSymbol(cosmicSymbols.cusps, currentModality, nextModality, currentElement, nextElement, i);
       
       // Position cusp symbol exactly between two zodiac signs
       const cuspAngle = ((i * 30) + 30 - 90) * (Math.PI / 180); // +30 to place between signs
@@ -364,6 +375,111 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
       d3.selectAll('.cosmic-tooltip').remove();
     };
   }, [chart, width, height]);
+
+  // Function to find the most appropriate cusp symbol based on the transition between signs
+  const findAppropriateCuspSymbol = (
+    cuspSymbols: any[], 
+    currentModality: string, 
+    nextModality: string,
+    currentElement: string,
+    nextElement: string,
+    index: number
+  ) => {
+    // Convert astrology.ts quality terms to cosmic-symbols.ts modality terms
+    const getModalityTerm = (quality: string) => {
+      if (quality === 'cardinal') return 'active';
+      if (quality === 'fixed') return 'static';
+      if (quality === 'mutable') return 'reactive';
+      return quality; // fallback
+    };
+    
+    const currentModalityTerm = getModalityTerm(currentModality);
+    const nextModalityTerm = getModalityTerm(nextModality);
+    
+    // Match by transition force based on elements
+    let force = 'core'; // default
+    
+    // Determine appropriate force based on element transitions
+    // According to the rules:
+    // core = between fire and earth
+    // void = between water and air
+    // order = between earth and air
+    // chaos = between fire and water
+    
+    // Fire transitions
+    if (currentElement === 'fire' && nextElement === 'earth') force = 'core';
+    if (currentElement === 'fire' && nextElement === 'air') force = 'order';
+    if (currentElement === 'fire' && nextElement === 'water') force = 'chaos';
+    
+    // Earth transitions
+    if (currentElement === 'earth' && nextElement === 'fire') force = 'core';
+    if (currentElement === 'earth' && nextElement === 'air') force = 'order';
+    if (currentElement === 'earth' && nextElement === 'water') force = 'void';
+    
+    // Air transitions
+    if (currentElement === 'air' && nextElement === 'fire') force = 'order';
+    if (currentElement === 'air' && nextElement === 'earth') force = 'order';
+    if (currentElement === 'air' && nextElement === 'water') force = 'void';
+    
+    // Water transitions
+    if (currentElement === 'water' && nextElement === 'fire') force = 'chaos';
+    if (currentElement === 'water' && nextElement === 'earth') force = 'void';
+    if (currentElement === 'water' && nextElement === 'air') force = 'void';
+    
+    // Same element transitions - use cycle position
+    if (currentElement === nextElement) {
+      const forces = ['core', 'order', 'chaos', 'void'];
+      force = forces[index % 4];
+    }
+    
+    // Look for a cusp symbol that matches the transition
+    // First try to find perfect match for both modality transition and force
+    const combo = `${currentModalityTerm}-${nextModalityTerm}`;
+    let symbol = cuspSymbols.find(s => s.force === force && s.combo === combo);
+    
+    // If no exact match, try reversed combo
+    if (!symbol) {
+      const reversedCombo = `${nextModalityTerm}-${currentModalityTerm}`;
+      symbol = cuspSymbols.find(s => s.force === force && s.combo === reversedCombo);
+    }
+    
+    // Try with all possible modality combinations for this force
+    if (!symbol) {
+      // List all combos for modalities
+      const modalities = ['active', 'static', 'reactive'];
+      const possibleCombos = [];
+      
+      // Try all combinations of modalities with the correct force
+      for (const m1 of modalities) {
+        for (const m2 of modalities) {
+          if (m1 !== m2) { // Different modalities
+            possibleCombos.push(`${m1}-${m2}`);
+          }
+        }
+      }
+      
+      // Find first matching force with any modality combo
+      for (const possibleCombo of possibleCombos) {
+        const possibleSymbol = cuspSymbols.find(s => s.force === force && s.combo === possibleCombo);
+        if (possibleSymbol) {
+          symbol = possibleSymbol;
+          break;
+        }
+      }
+    }
+    
+    // If still no match, just find one with the right force
+    if (!symbol) {
+      symbol = cuspSymbols.find(s => s.force === force);
+    }
+    
+    // Final fallback to any symbol
+    if (!symbol) {
+      symbol = cuspSymbols[index % cuspSymbols.length];
+    }
+    
+    return symbol;
+  };
 
   return (
     <svg
