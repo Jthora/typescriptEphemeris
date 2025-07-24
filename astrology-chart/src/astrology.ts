@@ -286,6 +286,7 @@ export class AstrologyCalculator {
     imumCoeli: AstrologyBody; 
   } {
     try {
+      console.log('📊 Calculating chart angles...');
       // Calculate Ascendant (already have this from house calculation)
       const siderealTime = Astronomy.SiderealTime(astroTime);
       const ascendantLongitude = this.calculateAscendant(siderealTime, latitude);
@@ -347,7 +348,9 @@ export class AstrologyCalculator {
         signDegree: icSign.signDegree
       };
       
-      return { ascendant, descendant, midheaven, imumCoeli };
+      const angles = { ascendant, descendant, midheaven, imumCoeli };
+      console.log('📐 Chart angles calculated:', angles);
+      return angles;
     } catch (error) {
       console.warn('Angle calculation failed, using defaults:', error);
       

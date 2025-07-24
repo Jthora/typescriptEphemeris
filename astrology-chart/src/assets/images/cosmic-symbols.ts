@@ -76,12 +76,11 @@ import waterReactivePrime from './symbols/cosmic/base36-water-reactive-prime-256
 import waterReactiveChaos from './symbols/cosmic/base36-water-reactive-chaos-256x-glow.png';
 import waterReactiveVoid from './symbols/cosmic/base36-water-reactive-void-256x-glow.png';
 
-// Special symbols for chart angles (ASC, DSC, MC, IC)
-// Using appropriate element and modality combinations
-import ascendantSymbol from './symbols/cosmic/base12-fire-active-256x-glow.png'; // ASC - Fire/Active (Cardinal Fire)
-import descendantSymbol from './symbols/cosmic/base12-air-active-256x-glow.png'; // DSC - Air/Active (Cardinal Air)
-import midheavenSymbol from './symbols/cosmic/base12-earth-active-256x-glow.png'; // MC - Earth/Active (Cardinal Earth)
-import imumCoeliSymbol from './symbols/cosmic/base12-water-active-256x-glow.png'; // IC - Water/Active (Cardinal Water)
+// Import chart angles with enhanced visuals (using special versions of cardinal symbols)
+import ascendantSymbol from './symbols/cosmic/angles/ascendant-256x-glow.png'; // ASC - Enhanced Fire/Active
+import descendantSymbol from './symbols/cosmic/angles/descendant-256x-glow.png'; // DSC - Enhanced Air/Active
+import midheavenSymbol from './symbols/cosmic/angles/midheaven-256x-glow.png'; // MC - Enhanced Earth/Active
+import imumCoeliSymbol from './symbols/cosmic/angles/imumcoeli-256x-glow.png'; // IC - Enhanced Water/Active
 
 // Define the mapping of zodiac signs to their element/modality classification
 const ZODIAC_COSMIC_SYMBOLS = {
@@ -666,7 +665,7 @@ const ANGLE_COSMIC_SYMBOLS = {
     image: ascendantSymbol,
     element: 'fire',
     modality: 'cardinal',
-    size: 52, // Slightly larger than zodiac symbols for emphasis
+    size: 56, // Larger than zodiac symbols for emphasis
     color: '#FF5733', // Fire color
     description: 'The Ascendant represents the eastern horizon at birth, the first impression one makes on others'
   },
@@ -676,7 +675,7 @@ const ANGLE_COSMIC_SYMBOLS = {
     image: descendantSymbol,
     element: 'air',
     modality: 'cardinal',
-    size: 52,
+    size: 56,
     color: '#FFEB3B', // Air color
     description: 'The Descendant represents the western horizon at birth, relationships with others'
   },
@@ -686,7 +685,7 @@ const ANGLE_COSMIC_SYMBOLS = {
     image: midheavenSymbol,
     element: 'earth',
     modality: 'cardinal',
-    size: 52,
+    size: 56,
     color: '#4CAF50', // Earth color
     description: 'The Midheaven represents the highest point in the chart, career and public reputation'
   },
@@ -696,7 +695,7 @@ const ANGLE_COSMIC_SYMBOLS = {
     image: imumCoeliSymbol,
     element: 'water',
     modality: 'cardinal',
-    size: 52,
+    size: 56,
     color: '#2196F3', // Water color
     description: 'The Imum Coeli represents the lowest point in the chart, home and private life'
   }
@@ -748,6 +747,6 @@ export {
   getDecanByDegree, 
   DECANS_BY_ZODIAC, 
   ANGLE_COSMIC_SYMBOLS 
-};
+ };
 
 export default ZODIAC_COSMIC_SYMBOLS;

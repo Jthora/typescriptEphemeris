@@ -20,11 +20,16 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
 
+  // Enhanced logging to debug chart rendering
   useEffect(() => {
     if (!svgRef.current || !chart) return;
 
     console.log('🎨 ChartWheel rendering with chart:', chart);
     console.log('📊 Bodies to render:', chart.bodies.length);
+    console.log('🔄 Chart angles:', chart.angles);
+    console.log('🎭 Cosmic symbols available:', cosmicSymbols);
+    console.log('🎭 Angle symbols:', cosmicSymbols?.angles);
+    
     chart.bodies.forEach((body, index) => {
       console.log(`  ${index + 1}. ${body.name}: ${body.longitude.toFixed(2)}° (${body.sign})`);
     });
@@ -449,19 +454,32 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
 
     // Draw chart angles (ASC, DSC, MC, IC) if available
     if (chart.angles) {
+      console.log('🔍 Rendering chart angles:', chart.angles);
+      
       // Reference to the cosmic symbols for angles
       const angleSymbols = cosmicSymbols.angles;
+      if (!angleSymbols) {
+        console.error('❌ Angle symbols not found in cosmicSymbols:', cosmicSymbols);
+      } else {
+        console.log('✅ Angle symbols loaded:', angleSymbols);
+      }
       
       // Draw each angle symbol
       Object.entries(chart.angles).forEach(([key, angle]) => {
-        const angleRadius = radius * 0.98; // Outermost rim (slightly outside zodiac symbols)
+        console.log(`🔶 Rendering angle: ${key} at ${angle.longitude.toFixed(2)}°`);
+        
+        // Place angles even further out for maximum visibility
+        const angleRadius = radius * 1.08; // Outermost rim (beyond zodiac symbols)
         const anglePos = (angle.longitude - 90) * (Math.PI / 180);
         const x = Math.cos(anglePos) * angleRadius;
         const y = Math.sin(anglePos) * angleRadius;
         
         // Get the angle symbol details
-        const angleSymbol = angleSymbols[key.toUpperCase() as keyof typeof angleSymbols];
-        if (!angleSymbol) return;
+        const angleSymbol = angleSymbols?.[key.toUpperCase() as keyof typeof angleSymbols];
+        if (!angleSymbol) {
+          console.error(`❌ Symbol not found for angle: ${key}`);
+          return;
+        }
         
         // Create image group for the angle
         const angleGroup = g.append('g')
@@ -481,21 +499,54 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
           .attr('transform', `rotate(${rotationDegrees})`)
           .attr('class', 'angle-symbol')
           .on('error', function() {
-            console.error(`Failed to load angle symbol: ${key}`);
-            d3.select(this).remove();
+            console.error(`❌ Failed to load angle symbol: ${key}`, angleSymbol.image);
+            // Add a visual placeholder for the missing image
+            angleGroup.append('circle')
+              .attr('r', angleSymbol.size / 2)
+              .attr('fill', 'none')
+              .attr('stroke', angleSymbol.color)
+              .attr('stroke-width', 2);
           });
         
-        // Add angle name
+        // Add angle name with a subtle background to improve visibility
+        // First, add a semi-transparent background behind the text
+        angleGroup.append('rect')
+          .attr('x', -15)
+          .attr('y', angleSymbol.size * 0.6 - 8)
+          .attr('width', 30)
+          .attr('height', 16)
+          .attr('rx', 4)
+          .attr('ry', 4)
+          .attr('fill', 'white')
+          .attr('fill-opacity', 0.7);
+          
+        // Then add the angle symbol text
         angleGroup.append('text')
           .attr('x', 0)
           .attr('y', angleSymbol.size * 0.7)
           .attr('text-anchor', 'middle')
           .attr('dominant-baseline', 'middle')
-          .attr('font-size', '10px')
+          .attr('font-size', '12px')
           .attr('font-family', fonts.display)
           .attr('fill', angleSymbol.color)
           .attr('font-weight', 'bold')
           .text(angle.symbol);
+          
+        // Add a line connecting from the wheel to the angle symbol for better visibility
+        const lineStartRadius = radius * 0.95;
+        const lineStartX = Math.cos(anglePos) * lineStartRadius;
+        const lineStartY = Math.sin(anglePos) * lineStartRadius;
+        
+        // Draw line from wheel to angle
+        g.append('line')
+          .attr('x1', lineStartX)
+          .attr('y1', lineStartY)
+          .attr('x2', x)
+          .attr('y2', y)
+          .attr('stroke', angleSymbol.color)
+          .attr('stroke-width', 1.5)
+          .attr('stroke-dasharray', '3,2')
+          .attr('opacity', 0.7);
       });
     }
 
