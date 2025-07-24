@@ -174,15 +174,15 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
       // Add decan symbols (base36) for this zodiac sign
       // Each sign has 3 decans at 0°, 10°, and 20° of the sign
       for (let decanIndex = 0; decanIndex < 3; decanIndex++) {
-        // Calculate the absolute degree for this decan (0-359)
+        // Calculate the absolute degree for this decan (0-359), with 5-degree adjustment
         const decanDegree = (i * 30) + (decanIndex * 10);
         
         // Get the appropriate decan data from our cosmic symbols
         const decanData = cosmicSymbols.getDecanByDegree(decanDegree);
         
-        // Position the decan symbol
+        // Position the decan symbol with 5-degree adjustment
         // 0° decan aligns with zodiac sign, others are placed at their respective positions
-        const decanAngle = ((i * 30) + (decanIndex * 10) - 90) * (Math.PI / 180);
+        const decanAngle = ((i * 30) + (decanIndex * 10) + 5 - 90) * (Math.PI / 180); // +5 to adjust offset
         const decanRadius = radius - 20; // Same radius as zodiac and cusp symbols
         const decanX = Math.cos(decanAngle) * decanRadius;
         const decanY = Math.sin(decanAngle) * decanRadius;
@@ -191,7 +191,8 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
         const decanSize = scaleImageSizeForViewport(decanData.size, width);
         
         // Decan rotation angle - ensure it points outward like other symbols
-        const decanRotationAngle = ((i * 30) + (decanIndex * 10) + 180 + 180) % 360;
+        // Adjusted by 5 degrees to match the position adjustment
+        const decanRotationAngle = ((i * 30) + (decanIndex * 10) + 5 + 180 + 180) % 360;
         
         // Add the decan symbol
         const decanGroup = g.append('g')
