@@ -1,29 +1,117 @@
-import { useState, useCallback } from 'react'
-import { CalendarDays, MapPin, User, Clock, Loader2 } from 'lucide-react'
+import { useState, useCallback, useEffect, useRef } from 'react'
+import { CalendarDays, MapPin, User, Clock, Loader2, Play, Pause, RotateCcw } from 'lucide-react'
 import ChartWheel from './components/ChartWheel'
 import ChartDetails from './components/ChartDetails'
+import PlanetaryHarmonicsSidebar from './components/PlanetaryHarmonicsSidebar'
 import { AstrologyCalculator, type BirthData, type AstrologyChart } from './astrology'
 import './App.css'
 
 const astrologyCalculator = new AstrologyCalculator();
 
 function App() {
-  const [birthData, setBirthData] = useState<BirthData>({
-    date: new Date('1990-01-01T12:00:00'),
-    latitude: 40.7128,
-    longitude: -74.0060,
-    name: ''
+  const [birthData, setBirthData] = useState<BirthData>(() => {
+    // Set to current date/time in Seattle timezone
+    const now = new Date();
+    return {
+      date: now,
+      latitude: 47.6062, // Seattle, WA
+      longitude: -122.3321, // Seattle, WA  
+      name: ''
+    };
   });
   
   const [chart, setChart] = useState<AstrologyChart | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
   const [error, setError] = useState<string>('');
+  
+  // Real-time mode state
+  const [isRealTimeMode, setIsRealTimeMode] = useState(true); // Default to real-time mode
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const realTimeIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const chartCalculationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleInputChange = useCallback((field: keyof BirthData, value: any) => {
+  // Update current time every second when in real-time mode
+  useEffect(() => {
+    if (isRealTimeMode) {
+      realTimeIntervalRef.current = setInterval(() => {
+        const now = new Date();
+        setCurrentTime(now);
+        
+        // Update birth data with current time
+        setBirthData(prev => ({
+          ...prev,
+          date: now
+        }));
+      }, 1000);
+    } else {
+      if (realTimeIntervalRef.current) {
+        clearInterval(realTimeIntervalRef.current);
+        realTimeIntervalRef.current = null;
+      }
+    }
+
+    return () => {
+      if (realTimeIntervalRef.current) {
+        clearInterval(realTimeIntervalRef.current);
+      }
+    };
+  }, [isRealTimeMode]);
+
+  // Auto-calculate chart when birth data changes (with debouncing)
+  useEffect(() => {
+    // Clear existing timeout
+    if (chartCalculationTimeoutRef.current) {
+      clearTimeout(chartCalculationTimeoutRef.current);
+    }
+
+    // Set new timeout for chart calculation (debounced to avoid excessive calculations)
+    chartCalculationTimeoutRef.current = setTimeout(() => {
+      calculateChart();
+    }, isRealTimeMode ? 100 : 500); // Faster updates in real-time mode
+
+    return () => {
+      if (chartCalculationTimeoutRef.current) {
+        clearTimeout(chartCalculationTimeoutRef.current);
+      }
+    };
+  }, [birthData]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleInputChange = useCallback((field: keyof BirthData, value: string | number | Date) => {
+    // When user manually changes data, temporarily pause real-time mode for that field
+    if (field === 'date') {
+      setIsRealTimeMode(false); // User is manually setting time
+    }
+    
     setBirthData(prev => ({
       ...prev,
       [field]: value
     }));
+  }, []);
+
+  const toggleRealTimeMode = useCallback(() => {
+    setIsRealTimeMode(prev => {
+      const newMode = !prev;
+      if (newMode) {
+        // When enabling real-time mode, sync to current time
+        const now = new Date();
+        setCurrentTime(now);
+        setBirthData(prev => ({
+          ...prev,
+          date: now
+        }));
+      }
+      return newMode;
+    });
+  }, []);
+
+  const resetToCurrentTime = useCallback(() => {
+    const now = new Date();
+    setCurrentTime(now);
+    setBirthData(prev => ({
+      ...prev,
+      date: now
+    }));
+    setIsRealTimeMode(true);
   }, []);
 
   const calculateChart = useCallback(async () => {
@@ -48,6 +136,7 @@ function App() {
 
   // Example locations for quick selection
   const exampleLocations = [
+    { name: 'Seattle, WA', lat: 47.6062, lng: -122.3321 },
     { name: 'New York, NY', lat: 40.7128, lng: -74.0060 },
     { name: 'Los Angeles, CA', lat: 34.0522, lng: -118.2437 },
     { name: 'London, UK', lat: 51.5074, lng: -0.1278 },
@@ -64,9 +153,50 @@ function App() {
       </header>
 
       <main className="app-main">
-        <div className="input-section">
-          <div className="form-card">
+        <div className="input-section">        <div className="form-card">
+          <div className="form-header">
             <h2><User className="icon" /> Birth Information</h2>
+            
+            {/* Real-time controls with time jump options */}
+            <div className="real-time-controls">
+              <div className="control-group">
+                <button
+                  type="button"
+                  className={`real-time-toggle ${isRealTimeMode ? 'active' : ''}`}
+                  onClick={toggleRealTimeMode}
+                  title={isRealTimeMode ? 'Pause real-time mode' : 'Start real-time mode'}
+                >
+                  {isRealTimeMode ? <Pause className="icon" /> : <Play className="icon" />}
+                  {isRealTimeMode ? 'Live' : 'Paused'}
+                </button>
+                
+                <button
+                  type="button"
+                  className="reset-time-btn"
+                  onClick={resetToCurrentTime}
+                  title="Reset to current time"
+                >
+                  <RotateCcw className="icon" />
+                  Now
+                </button>
+              </div>
+              
+              <div className="time-jump-hint">
+                {isRealTimeMode ? (
+                  <div className="live-indicator">
+                    <div className="pulse-dot"></div>
+                    <span className="live-time">
+                      {currentTime.toLocaleTimeString()}
+                    </span>
+                  </div>
+                ) : (
+                  <span className="jump-hint">
+                    Edit date/time fields for time jumps
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
             
             <div className="form-group">
               <label htmlFor="name">
@@ -175,24 +305,16 @@ function App() {
               </div>
             </div>
 
-            <button 
-              className="calculate-btn"
-              onClick={calculateChart}
-              disabled={isCalculating}
-            >
-              {isCalculating ? (
-                <>
-                  <Loader2 className="icon spinning" />
-                  Calculating...
-                </>
-              ) : (
-                'Calculate Birth Chart'
-              )}
-            </button>
-
             {error && (
               <div className="error-message">
                 ⚠️ {error}
+              </div>
+            )}
+
+            {isCalculating && (
+              <div className="calculating-indicator">
+                <Loader2 className="icon spinning" />
+                Calculating chart...
               </div>
             )}
           </div>
@@ -200,12 +322,17 @@ function App() {
 
         <div className="chart-section">
           {chart ? (
-            <div className="chart-results">
-              <div className="chart-wheel-container">
-                <ChartWheel chart={chart} width={700} height={700} />
+            <div className="chart-layout">
+              <div className="chart-main">
+                <div className="chart-wheel-container">
+                  <ChartWheel chart={chart} width={700} height={700} />
+                </div>
+                <div className="chart-details-container">
+                  <ChartDetails chart={chart} />
+                </div>
               </div>
-              <div className="chart-details-container">
-                <ChartDetails chart={chart} />
+              <div className="chart-sidebar">
+                <PlanetaryHarmonicsSidebar chart={chart} />
               </div>
             </div>
           ) : (

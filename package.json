@@ -33,7 +33,9 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "astronomy-engine": "^2.1.19"
+    "astronomy-engine": "^2.1.19",
+    "node-fetch": "^3.3.2",
+    "sharp": "^0.34.3"
   },
   "engines": {
     "node": ">=18.0.0"

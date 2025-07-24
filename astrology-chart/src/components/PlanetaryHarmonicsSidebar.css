@@ -1,0 +1,712 @@
+/* Planetary Harmonics Sidebar Styles */
+
+.planetary-harmonics-sidebar {
+  width: 400px;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  color: #ffffff;
+  border-left: 1px solid #2a2a5a;
+  overflow-y: auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.sidebar-header {
+  padding: 20px;
+  border-bottom: 1px solid #2a2a5a;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-header h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  background: linear-gradient(45deg, #ffd700, #ffa500);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.sidebar-header p {
+  margin: 0 0 16px 0;
+  font-size: 0.85rem;
+  color: #b8b8cc;
+  line-height: 1.4;
+}
+
+.harmonics-status {
+  text-align: center;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.status-calculating {
+  color: #ffa500;
+  background: rgba(255, 165, 0, 0.1);
+  border: 1px solid rgba(255, 165, 0, 0.3);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.status-ready {
+  color: #4ECDC4;
+  background: rgba(78, 205, 196, 0.1);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+}
+
+.status-waiting {
+  color: #b8b8cc;
+  background: rgba(184, 184, 204, 0.1);
+  border: 1px solid rgba(184, 184, 204, 0.3);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.sidebar-tabs {
+  display: flex;
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid #2a2a5a;
+  overflow-x: auto;
+}
+
+.tab {
+  flex: 1;
+  min-width: 80px;
+  padding: 12px 8px;
+  background: transparent;
+  color: #b8b8cc;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.tab:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.tab.active {
+  color: #ffd700;
+  border-bottom-color: #ffd700;
+  background: rgba(255, 215, 0, 0.1);
+}
+
+.sidebar-content {
+  padding: 20px;
+  min-height: calc(100vh - 200px);
+}
+
+/* Overview Styles */
+.harmonics-overview h4 {
+  margin: 0 0 16px 0;
+  font-size: 1rem;
+  color: #ffd700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.force-distribution {
+  margin-bottom: 24px;
+}
+
+.force-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+}
+
+.force-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 80px;
+}
+
+.force-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.force-name {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.force-bar {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.force-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.force-weight {
+  font-size: 0.8rem;
+  color: #b8b8cc;
+  min-width: 40px;
+  text-align: right;
+}
+
+.harmonic-summary {
+  margin-top: 20px;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+}
+
+.summary-item .label {
+  font-size: 0.75rem;
+  color: #b8b8cc;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.summary-item .value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* Harmonics Styles */
+.planetary-harmonics h4 {
+  margin: 0 0 16px 0;
+  font-size: 1rem;
+  color: #ffd700;
+}
+
+.planet-harmonics {
+  margin-bottom: 20px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border-left: 4px solid #4ECDC4;
+}
+
+.planet-header {
+  margin-bottom: 12px;
+}
+
+.planet-header h5 {
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+  color: #4ECDC4;
+}
+
+.planet-stats {
+  display: flex;
+  gap: 16px;
+  font-size: 0.75rem;
+  color: #b8b8cc;
+}
+
+.harmonic-series {
+  margin: 12px 0;
+}
+
+.harmonic-component {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.harmonic-order {
+  min-width: 24px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #b8b8cc;
+}
+
+.harmonic-bar {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.harmonic-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+.harmonic-freq {
+  font-size: 0.7rem;
+  color: #b8b8cc;
+  min-width: 60px;
+  text-align: right;
+}
+
+.cosmic-force-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.8rem;
+}
+
+.primary-force, .modality {
+  color: #b8b8cc;
+}
+
+/* Enhanced Harmonic Component Styles */
+.harmonic-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 80px;
+}
+
+.harmonic-indicator {
+  font-size: 0.7rem;
+  color: #ffd700;
+  min-width: 12px;
+}
+
+.harmonic-type {
+  font-size: 0.65rem;
+  color: #95a5a6;
+  font-style: italic;
+  min-width: 32px;
+}
+
+.harmonic-details {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 0.7rem;
+}
+
+.harmonic-amp, .harmonic-phase {
+  color: #b8b8cc;
+  min-width: 55px;
+}
+
+/* Enhanced Harmonic Component Types */
+.harmonic-component.significant {
+  background: rgba(255, 215, 0, 0.1);
+  border-radius: 4px;
+  padding: 4px;
+  margin: 2px 0;
+}
+
+.harmonic-component.astrological {
+  background: rgba(78, 205, 196, 0.08);
+  border-radius: 4px;
+  padding: 4px;
+  margin: 2px 0;
+}
+
+.harmonic-component.complex {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  padding: 4px;
+  margin: 2px 0;
+}
+
+.harmonic-component.significant .harmonic-indicator {
+  color: #ffd700;
+  text-shadow: 0 0 4px rgba(255, 215, 0, 0.5);
+}
+
+.harmonic-component.astrological .harmonic-indicator {
+  color: #4ECDC4;
+}
+
+.harmonic-component.complex .harmonic-indicator {
+  color: #95a5a6;
+}
+
+/* Quantum State Styles */
+.quantum-state h4 {
+  margin: 0 0 16px 0;
+  font-size: 1rem;
+  color: #ffd700;
+}
+
+.state-info {
+  margin-bottom: 20px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+}
+
+.state-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+}
+
+.state-stat:last-child {
+  margin-bottom: 0;
+}
+
+.state-stat .label {
+  color: #b8b8cc;
+}
+
+.state-stat .value {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.state-stat .value.normalized {
+  color: #4ECDC4;
+}
+
+.summary-item .value.unstable {
+  color: #FF6B6B;
+}
+
+.demo-section {
+  margin-top: 20px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border-left: 4px solid #ffd700;
+}
+
+.demo-section h5 {
+  margin: 0 0 8px 0;
+  font-size: 0.9rem;
+  color: #ffd700;
+}
+
+.demo-description {
+  margin: 0 0 12px 0;
+  font-size: 0.8rem;
+  color: #b8b8cc;
+  line-height: 1.4;
+}
+
+.demo-btn {
+  width: 100%;
+  padding: 8px 12px;
+  background: linear-gradient(45deg, #ffd700, #ffa500);
+  color: #1a1a2e;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.demo-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+}
+
+.amplitude-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 8px;
+}
+
+.amplitude-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 4px;
+}
+
+.dimension-label {
+  min-width: 24px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #b8b8cc;
+}
+
+.amplitude-visualization {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.magnitude-bar {
+  flex: 1;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.magnitude-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+
+.phase-indicator {
+  font-size: 0.7rem;
+  color: #b8b8cc;
+  min-width: 35px;
+}
+
+.magnitude-value {
+  font-size: 0.7rem;
+  color: #b8b8cc;
+  min-width: 40px;
+  text-align: right;
+}
+
+/* Dimensions Styles */
+.dimensional-coordinates h4 {
+  margin: 0 0 16px 0;
+  font-size: 1rem;
+  color: #ffd700;
+}
+
+.dimensions-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dimension-item {
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  border-left: 3px solid #4ECDC4;
+}
+
+.dimension-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.dimension-number {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #4ECDC4;
+}
+
+.force-pair {
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.weight-visualization {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.weight-bar {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.weight-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.weight-value {
+  font-size: 0.75rem;
+  color: #b8b8cc;
+  min-width: 40px;
+  text-align: right;
+}
+
+/* Synodic Periods Styles */
+.synodic-periods h4 {
+  margin: 0 0 16px 0;
+  font-size: 1rem;
+  color: #ffd700;
+}
+
+.synodic-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.synodic-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  border-left: 3px solid #96CEB4;
+}
+
+.planet-pair .pair-name {
+  font-size: 0.85rem;
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.period-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.period-value {
+  font-size: 0.8rem;
+  color: #4ECDC4;
+  font-weight: 600;
+}
+
+.frequency-value {
+  font-size: 0.7rem;
+  color: #b8b8cc;
+}
+
+/* Enhanced Force Distribution Styles */
+.force-description {
+  font-size: 0.7rem;
+  color: #95a5a6;
+  font-style: italic;
+  margin-left: 4px;
+}
+
+.planetary-force-summary {
+  margin-top: 16px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+}
+
+.planet-force-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.planet-force-summary:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.planet-name {
+  font-size: 0.85rem;
+  color: #4ECDC4;
+  font-weight: 500;
+  min-width: 60px;
+}
+
+.planet-primary-force {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.force-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.force-label {
+  font-size: 0.8rem;
+  color: #ffffff;
+  min-width: 50px;
+}
+
+.force-percentage {
+  font-size: 0.75rem;
+  color: #b8b8cc;
+  min-width: 35px;
+  text-align: right;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .planetary-harmonics-sidebar {
+    width: 350px;
+  }
+  
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .amplitude-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Scrollbar Styling */
+.planetary-harmonics-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.planetary-harmonics-sidebar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.planetary-harmonics-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.planetary-harmonics-sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Animation for loading states */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.calculating {
+  animation: pulse 1.5s ease-in-out infinite;
+}
