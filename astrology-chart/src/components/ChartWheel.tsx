@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import type { AstrologyChart } from '../astrology';
 import { ZODIAC_SIGNS, PLANET_SYMBOLS } from '../astrology';
-import { fonts, cypherDisks } from '../assets';
+import { fonts } from '../assets';
 import { cosmicSymbols } from '../assets/images';
 import { scaleImageSizeForViewport } from '../utils/image-optimization';
 import './CosmicSymbols.css';
@@ -40,16 +40,6 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
     const g = svg.append('g')
       .attr('transform', `translate(${centerX}, ${centerY})`);
       
-    // Add the cypher disk to the center
-    const cypherDiskSize = radius * 0.5;
-    g.append('image')
-      .attr('href', cypherDisks.formal)
-      .attr('width', cypherDiskSize)
-      .attr('height', cypherDiskSize)
-      .attr('x', -cypherDiskSize/2)
-      .attr('y', -cypherDiskSize/2)
-      .attr('opacity', 0.9);
-
     // Draw outer circle (zodiac wheel)
     g.append('circle')
       .attr('r', radius)
