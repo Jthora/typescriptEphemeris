@@ -7,6 +7,15 @@ import { cosmicSymbols } from '../assets/images';
 import { scaleImageSizeForViewport } from '../utils/image-optimization';
 import './CosmicSymbols.css';
 
+// Utility functions for chart angles
+const mapAngleNameToSymbol = (name: string): string => {
+  if (name === 'ascendant') return 'ASC';
+  if (name === 'descendant') return 'DSC'; 
+  if (name === 'midheaven') return 'MC';
+  if (name === 'imumCoeli') return 'IC';
+  return name.toUpperCase();
+};
+
 interface ChartWheelProps {
   chart: AstrologyChart;
   width?: number;
@@ -462,6 +471,10 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
         console.error('❌ Angle symbols not found in cosmicSymbols:', cosmicSymbols);
       } else {
         console.log('✅ Angle symbols loaded:', angleSymbols);
+        // Debug: Check all angle symbol image paths
+        Object.entries(angleSymbols).forEach(([key, symbol]) => {
+          console.log(`🔎 Angle symbol ${key} image path:`, symbol.image);
+        });
       }
       
       // Draw each angle symbol
@@ -474,10 +487,44 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
         const x = Math.cos(anglePos) * angleRadius;
         const y = Math.sin(anglePos) * angleRadius;
         
-        // Get the angle symbol details
-        const angleSymbol = angleSymbols?.[key.toUpperCase() as keyof typeof angleSymbols];
+        // Map angle name to symbol code
+        const symbolKey = mapAngleNameToSymbol(key);
+        console.log(`🔄 Looking up symbol for ${key} with key: ${symbolKey}`);
+        
+        const angleSymbol = angleSymbols?.[symbolKey as keyof typeof angleSymbols];
         if (!angleSymbol) {
-          console.error(`❌ Symbol not found for angle: ${key}`);
+          console.error(`❌ Symbol not found for angle: ${key} (symbol key: ${symbolKey})`);
+          
+          // Create a fallback symbol using the element color based on the angle
+          let fallbackColor = '#FF5733'; // Default fire color
+          if (key === 'ascendant') fallbackColor = '#FF5733'; // Fire
+          else if (key === 'descendant') fallbackColor = '#FFEB3B'; // Air
+          else if (key === 'midheaven') fallbackColor = '#4CAF50'; // Earth
+          else if (key === 'imumCoeli') fallbackColor = '#2196F3'; // Water
+          
+          // Create a simple circle as a fallback
+          const fallbackGroup = g.append('g')
+            .attr('transform', `translate(${x},${y})`)
+            .attr('class', 'chart-angle fallback');
+            
+          // Draw a colored circle
+          fallbackGroup.append('circle')
+            .attr('r', 28)
+            .attr('fill', 'white')
+            .attr('stroke', fallbackColor)
+            .attr('stroke-width', 3);
+            
+          // Add the symbol text
+          fallbackGroup.append('text')
+            .attr('x', 0)
+            .attr('y', 5)
+            .attr('text-anchor', 'middle')
+            .attr('dominant-baseline', 'middle')
+            .attr('font-size', '14px')
+            .attr('font-weight', 'bold')
+            .attr('fill', fallbackColor)
+            .text(symbolKey);
+            
           return;
         }
         
@@ -499,7 +546,7 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
           .attr('transform', `rotate(${rotationDegrees})`)
           .attr('class', 'angle-symbol')
           .on('error', function() {
-            console.error(`❌ Failed to load angle symbol: ${key}`, angleSymbol.image);
+            console.error(`❌ Failed to load angle symbol image for ${key}:`, angleSymbol.image);
             // Add a visual placeholder for the missing image
             angleGroup.append('circle')
               .attr('r', angleSymbol.size / 2)
