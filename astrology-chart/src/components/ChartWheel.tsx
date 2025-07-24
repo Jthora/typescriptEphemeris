@@ -170,6 +170,53 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
       cuspImage.on('error', function() {
         console.error(`Failed to load cusp image: ${cuspData.force}-${cuspData.combo}`);
       });
+      
+      // Add decan symbols (base36) for this zodiac sign
+      // Each sign has 3 decans at 0°, 10°, and 20° of the sign
+      for (let decanIndex = 0; decanIndex < 3; decanIndex++) {
+        // Calculate the absolute degree for this decan (0-359)
+        const decanDegree = (i * 30) + (decanIndex * 10);
+        
+        // Get the appropriate decan data from our cosmic symbols
+        const decanData = cosmicSymbols.getDecanByDegree(decanDegree);
+        
+        // Position the decan symbol
+        // 0° decan aligns with zodiac sign, others are placed at their respective positions
+        const decanAngle = ((i * 30) + (decanIndex * 10) - 90) * (Math.PI / 180);
+        const decanRadius = radius - 20; // Same radius as zodiac and cusp symbols
+        const decanX = Math.cos(decanAngle) * decanRadius;
+        const decanY = Math.sin(decanAngle) * decanRadius;
+        
+        // Scale the decan symbol size (slightly smaller than zodiac symbols)
+        const decanSize = scaleImageSizeForViewport(decanData.size, width);
+        
+        // Decan rotation angle - ensure it points outward like other symbols
+        const decanRotationAngle = ((i * 30) + (decanIndex * 10) + 180 + 180) % 360;
+        
+        // Add the decan symbol
+        const decanGroup = g.append('g')
+          .attr('class', 'decan-symbol')
+          .attr('data-element', decanData.element)
+          .attr('data-modality', decanData.modality)
+          .attr('data-force', decanData.force)
+          .attr('data-zodiac-sign', decanData.zodiacSign)
+          .attr('data-decan-position', decanData.decanPosition);
+          
+        const decanImage = decanGroup.append('image')
+          .attr('href', decanData.image)
+          .attr('x', decanX - decanSize/2)
+          .attr('y', decanY - decanSize/2)
+          .attr('width', decanSize)
+          .attr('height', decanSize)
+          .attr('preserveAspectRatio', 'xMidYMid meet')
+          .attr('transform', `rotate(${decanRotationAngle}, ${decanX}, ${decanY})`)
+          .attr('opacity', 0.85); // Slightly transparent to avoid visual overload
+          
+        // Add error handling for decan image loading
+        decanImage.on('error', function() {
+          console.error(`Failed to load decan image: ${decanData.element}-${decanData.modality}-${decanData.force}`);
+        });
+      }
     }
 
     // Draw house divisions
