@@ -76,8 +76,15 @@ import waterReactivePrime from './symbols/cosmic/base36-water-reactive-prime-256
 import waterReactiveChaos from './symbols/cosmic/base36-water-reactive-chaos-256x-glow.png';
 import waterReactiveVoid from './symbols/cosmic/base36-water-reactive-void-256x-glow.png';
 
+// Special symbols for chart angles (ASC, DSC, MC, IC)
+// Using appropriate element and modality combinations
+import ascendantSymbol from './symbols/cosmic/base12-fire-active-256x-glow.png'; // ASC - Fire/Active (Cardinal Fire)
+import descendantSymbol from './symbols/cosmic/base12-air-active-256x-glow.png'; // DSC - Air/Active (Cardinal Air)
+import midheavenSymbol from './symbols/cosmic/base12-earth-active-256x-glow.png'; // MC - Earth/Active (Cardinal Earth)
+import imumCoeliSymbol from './symbols/cosmic/base12-water-active-256x-glow.png'; // IC - Water/Active (Cardinal Water)
+
 // Define the mapping of zodiac signs to their element/modality classification
-export const ZODIAC_COSMIC_SYMBOLS = {
+const ZODIAC_COSMIC_SYMBOLS = {
   'Libra': {
     image: airCardinal,
     element: 'air',
@@ -165,7 +172,7 @@ export const ZODIAC_COSMIC_SYMBOLS = {
 };
 
 // Element and modality map for easy reference
-export const ELEMENT_COLOR_MAP = {
+const ELEMENT_COLOR_MAP = {
   fire: '#FF5733',   // Red/orange
   earth: '#4CAF50',  // Green
   air: '#FFEB3B',    // Yellow
@@ -173,14 +180,14 @@ export const ELEMENT_COLOR_MAP = {
 };
 
 // Updated modality map according to new naming convention
-export const MODALITY_MAP = {
+const MODALITY_MAP = {
   cardinal: 'active',
   fixed: 'static',
   mutable: 'reactive',
 };
 
 // Modality type descriptions for tooltips
-export const MODALITY_TYPES = {
+const MODALITY_TYPES = {
   cardinal: 'Active (Cardinal)',
   fixed: 'Static (Fixed)',
   mutable: 'Reactive (Mutable)',
@@ -188,7 +195,7 @@ export const MODALITY_TYPES = {
 
 // Cusps are the intersections between zodiac signs
 // Base24 symbols represent these transitional points
-export const CUSPS_COSMIC_SYMBOLS = [
+const CUSPS_COSMIC_SYMBOLS = [
   {
     image: chaosActiveReactive,
     force: 'chaos',
@@ -265,7 +272,7 @@ export const CUSPS_COSMIC_SYMBOLS = [
 
 // Decans are the 10° segments of the zodiac (36 total segments)
 // Base36 symbols represent these segments with prime decans aligning with zodiac signs
-export const DECANS_COSMIC_SYMBOLS = [
+const DECANS_COSMIC_SYMBOLS = [
   // Fire + Active (Aries) decans
   {
     image: fireActivePrime,
@@ -651,8 +658,52 @@ export const DECANS_COSMIC_SYMBOLS = [
   }
 ];
 
+// Chart angle symbols (ASC, DSC, MC, IC)
+const ANGLE_COSMIC_SYMBOLS = {
+  'ASC': {
+    name: 'Ascendant',
+    shortName: 'ASC',
+    image: ascendantSymbol,
+    element: 'fire',
+    modality: 'cardinal',
+    size: 52, // Slightly larger than zodiac symbols for emphasis
+    color: '#FF5733', // Fire color
+    description: 'The Ascendant represents the eastern horizon at birth, the first impression one makes on others'
+  },
+  'DSC': {
+    name: 'Descendant',
+    shortName: 'DSC',
+    image: descendantSymbol,
+    element: 'air',
+    modality: 'cardinal',
+    size: 52,
+    color: '#FFEB3B', // Air color
+    description: 'The Descendant represents the western horizon at birth, relationships with others'
+  },
+  'MC': {
+    name: 'Midheaven',
+    shortName: 'MC',
+    image: midheavenSymbol,
+    element: 'earth',
+    modality: 'cardinal',
+    size: 52,
+    color: '#4CAF50', // Earth color
+    description: 'The Midheaven represents the highest point in the chart, career and public reputation'
+  },
+  'IC': {
+    name: 'Imum Coeli',
+    shortName: 'IC',
+    image: imumCoeliSymbol,
+    element: 'water',
+    modality: 'cardinal',
+    size: 52,
+    color: '#2196F3', // Water color
+    description: 'The Imum Coeli represents the lowest point in the chart, home and private life'
+  }
+};
+
 // Helper function to get the decan for a specific degree in the zodiac (0-359)
-export const getDecanByDegree = (degree: number) => {
+const getDecanByDegree = (degree: number) => {
   // Normalize degree to 0-359
   const normalizedDegree = ((degree % 360) + 360) % 360;
   
@@ -679,12 +730,24 @@ const ZODIAC_NAMES = [
   'Sagittarius', 'Capricorn', 'Aquarius', 'Pisces'
 ];
 
-export const DECANS_BY_ZODIAC = ZODIAC_NAMES.reduce((acc: Record<string, typeof DECANS_COSMIC_SYMBOLS>, name: string, index: number) => {
+const DECANS_BY_ZODIAC = ZODIAC_NAMES.reduce((acc: Record<string, typeof DECANS_COSMIC_SYMBOLS>, name: string, index: number) => {
   const signDecans = DECANS_COSMIC_SYMBOLS.filter(
     decan => decan.degreesStart >= index * 30 && decan.degreesStart < (index + 1) * 30
   );
   acc[name] = signDecans;
   return acc;
 }, {} as Record<string, typeof DECANS_COSMIC_SYMBOLS>);
+
+// Export all symbols and utilities
+export { 
+  ELEMENT_COLOR_MAP, 
+  MODALITY_MAP, 
+  MODALITY_TYPES, 
+  CUSPS_COSMIC_SYMBOLS, 
+  DECANS_COSMIC_SYMBOLS, 
+  getDecanByDegree, 
+  DECANS_BY_ZODIAC, 
+  ANGLE_COSMIC_SYMBOLS 
+};
 
 export default ZODIAC_COSMIC_SYMBOLS;

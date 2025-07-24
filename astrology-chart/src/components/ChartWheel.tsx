@@ -51,6 +51,10 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
 
     // Draw inner circle (house wheel)
     const houseRadius = radius * 0.7;
+    // Define aspectAreaRadius early since it's used in multiple places
+    // Reduced to 90.25% of original size (0.5 * 0.95 * 0.95 = 0.45125)
+    const aspectAreaRadius = houseRadius * 0.45125; // Shrunk to 90.25% of original size
+    
     g.append('circle')
       .attr('r', houseRadius)
       .attr('fill', 'none')
@@ -242,7 +246,20 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
         .attr('opacity', 0.7);
 
       // Add house numbers
-      const houseAngle = ((houseCusp + (chart.houses.cusps[(i + 1) % 12] - houseCusp) / 2) - 90) * (Math.PI / 180);
+      // Calculate the midpoint between the current house cusp and the next one,
+      // taking into account the possible angle wrap-around
+      let nextCusp = chart.houses.cusps[(i + 1) % 12];
+      let midpoint;
+      
+      // Handle the case where we cross the 0° mark
+      if (nextCusp < houseCusp) {
+        // We've crossed the 0° point, so we need to add 360 to nextCusp to get the correct midpoint
+        midpoint = (houseCusp + (nextCusp + 360 - houseCusp) / 2) % 360;
+      } else {
+        midpoint = houseCusp + (nextCusp - houseCusp) / 2;
+      }
+      
+      const houseAngle = (midpoint - 90) * (Math.PI / 180);
       const houseNumberRadius = houseRadius * 0.5;
       const houseX = Math.cos(houseAngle) * houseNumberRadius;
       const houseY = Math.sin(houseAngle) * houseNumberRadius;
@@ -355,7 +372,6 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
     // Draw white background circle for aspect lines area
     // This will be placed above house/zodiac lines but underneath the aspect lines
     // to make aspects more visible by hiding the lines in the center
-    const aspectAreaRadius = houseRadius * 0.5; // Large enough to cover all center lines
     g.append('circle')
       .attr('r', aspectAreaRadius)
       .attr('fill', 'white')  // White fill to cover the underlying lines

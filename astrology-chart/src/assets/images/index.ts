@@ -7,7 +7,7 @@ import * as buttonsImport from './buttons';
 import * as gradientsImport from './gradients';
 import * as symbolsImport from './symbols';
 import * as backgroundsImport from './backgrounds';
-import ZODIAC_COSMIC_SYMBOLS, { ELEMENT_COLOR_MAP, MODALITY_TYPES, CUSPS_COSMIC_SYMBOLS, DECANS_COSMIC_SYMBOLS, getDecanByDegree, DECANS_BY_ZODIAC } from './cosmic-symbols';
+import ZODIAC_COSMIC_SYMBOLS, { ELEMENT_COLOR_MAP, MODALITY_TYPES, CUSPS_COSMIC_SYMBOLS, DECANS_COSMIC_SYMBOLS, getDecanByDegree, DECANS_BY_ZODIAC, ANGLE_COSMIC_SYMBOLS } from './cosmic-symbols';
 
 // Import specific image assets
 import cosmicAlignmentDiskAwesome from './CosmicAlignmentDisk_awesome1.png';
@@ -68,5 +68,6 @@ export const cosmicSymbols = {
   cusps: CUSPS_COSMIC_SYMBOLS, // Export cusp symbols
   decans: DECANS_COSMIC_SYMBOLS, // Export decan symbols
   getDecanByDegree, // Utility function to get decan by degree
-  decansByZodiac: DECANS_BY_ZODIAC // Decans grouped by zodiac sign
+  decansByZodiac: DECANS_BY_ZODIAC, // Decans grouped by zodiac sign
+  angles: ANGLE_COSMIC_SYMBOLS // Chart angles (ASC, DSC, MC, IC)
 };

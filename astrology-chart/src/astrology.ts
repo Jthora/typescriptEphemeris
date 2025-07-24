@@ -33,6 +33,12 @@ export interface AstrologyChart {
     northNode: AstrologyBody;
     southNode: AstrologyBody;
   };
+  angles: {
+    ascendant: AstrologyBody;
+    descendant: AstrologyBody;
+    midheaven: AstrologyBody;
+    imumCoeli: AstrologyBody;
+  };
 }
 
 export interface Aspect {
@@ -110,6 +116,9 @@ export class AstrologyCalculator {
     // Calculate lunar nodes
     const nodes = await this.calculateNodes(astroTime);
     
+    // Calculate chart angles
+    const angles = this.calculateAngles(astroTime, birthData.latitude);
+    
     // Add house assignments to bodies
     const bodiesWithHouses = bodies.map(body => ({
       ...body,
@@ -124,7 +133,8 @@ export class AstrologyCalculator {
       bodies: bodiesWithHouses,
       houses,
       aspects,
-      nodes
+      nodes,
+      angles
     };
   }
 
@@ -264,6 +274,123 @@ export class AstrologyCalculator {
     };
     
     return { northNode: defaultNorth, southNode: defaultSouth };
+  }
+
+  /**
+   * Calculate chart angles (Ascendant, Descendant, Midheaven, Imum Coeli)
+   */
+  private calculateAngles(astroTime: any, latitude: number): { 
+    ascendant: AstrologyBody; 
+    descendant: AstrologyBody; 
+    midheaven: AstrologyBody; 
+    imumCoeli: AstrologyBody; 
+  } {
+    try {
+      // Calculate Ascendant (already have this from house calculation)
+      const siderealTime = Astronomy.SiderealTime(astroTime);
+      const ascendantLongitude = this.calculateAscendant(siderealTime, latitude);
+      
+      // Descendant is opposite the Ascendant (180° away)
+      const descendantLongitude = this.normalizeLongitude(ascendantLongitude + 180);
+      
+      // Simplified Midheaven calculation based on sidereal time
+      // In a real implementation, you'd use proper astronomical formulas
+      const midheavenLongitude = this.normalizeLongitude((siderealTime * 15) + 270) % 360;
+      
+      // Imum Coeli is opposite the Midheaven (180° away)
+      const imumCoeliLongitude = this.normalizeLongitude(midheavenLongitude + 180);
+      
+      // Get zodiac signs for each angle
+      const ascSign = this.getZodiacSign(ascendantLongitude);
+      const descSign = this.getZodiacSign(descendantLongitude);
+      const mcSign = this.getZodiacSign(midheavenLongitude);
+      const icSign = this.getZodiacSign(imumCoeliLongitude);
+      
+      // Create AstrologyBody objects for each angle
+      const ascendant: AstrologyBody = {
+        name: 'Ascendant',
+        symbol: 'ASC',
+        longitude: ascendantLongitude,
+        latitude: 0,
+        house: 1,
+        sign: ascSign.sign,
+        signDegree: ascSign.signDegree
+      };
+      
+      const descendant: AstrologyBody = {
+        name: 'Descendant',
+        symbol: 'DSC',
+        longitude: descendantLongitude,
+        latitude: 0,
+        house: 7,
+        sign: descSign.sign,
+        signDegree: descSign.signDegree
+      };
+      
+      const midheaven: AstrologyBody = {
+        name: 'Midheaven',
+        symbol: 'MC',
+        longitude: midheavenLongitude,
+        latitude: 0,
+        house: 10,
+        sign: mcSign.sign,
+        signDegree: mcSign.signDegree
+      };
+      
+      const imumCoeli: AstrologyBody = {
+        name: 'Imum Coeli',
+        symbol: 'IC',
+        longitude: imumCoeliLongitude,
+        latitude: 0,
+        house: 4,
+        sign: icSign.sign,
+        signDegree: icSign.signDegree
+      };
+      
+      return { ascendant, descendant, midheaven, imumCoeli };
+    } catch (error) {
+      console.warn('Angle calculation failed, using defaults:', error);
+      
+      // Default values if calculation fails
+      return {
+        ascendant: {
+          name: 'Ascendant',
+          symbol: 'ASC',
+          longitude: 0,
+          latitude: 0,
+          house: 1,
+          sign: 'Aries',
+          signDegree: 0
+        },
+        descendant: {
+          name: 'Descendant',
+          symbol: 'DSC',
+          longitude: 180,
+          latitude: 0,
+          house: 7,
+          sign: 'Libra',
+          signDegree: 0
+        },
+        midheaven: {
+          name: 'Midheaven',
+          symbol: 'MC',
+          longitude: 270,
+          latitude: 0,
+          house: 10,
+          sign: 'Capricorn',
+          signDegree: 0
+        },
+        imumCoeli: {
+          name: 'Imum Coeli',
+          symbol: 'IC',
+          longitude: 90,
+          latitude: 0,
+          house: 4,
+          sign: 'Cancer',
+          signDegree: 0
+        }
+      };
+    }
   }
 
   /**
