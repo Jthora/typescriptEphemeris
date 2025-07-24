@@ -431,35 +431,7 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
       }
     });
 
-    // Add chart title
-    g.append('text')
-      .attr('x', 0)
-      .attr('y', -radius - 20)
-      .attr('text-anchor', 'middle')
-      .attr('font-size', '16px')
-      .attr('font-family', 'sans-serif')
-      .attr('font-weight', 'bold')
-      .attr('fill', '#333')
-      .text(chart.birthData.name ? `Birth Chart for ${chart.birthData.name}` : 'Birth Chart');
-
-    // Add birth date and location
-    g.append('text')
-      .attr('x', 0)
-      .attr('y', radius + 30)
-      .attr('text-anchor', 'middle')
-      .attr('font-size', '12px')
-      .attr('font-family', 'sans-serif')
-      .attr('fill', '#666')
-      .text(`${chart.birthData.date.toLocaleString()}`);
-
-    g.append('text')
-      .attr('x', 0)
-      .attr('y', radius + 45)
-      .attr('text-anchor', 'middle')
-      .attr('font-size', '10px')
-      .attr('font-family', 'sans-serif')
-      .attr('fill', '#999')
-      .text(`${chart.birthData.latitude.toFixed(2)}°, ${chart.birthData.longitude.toFixed(2)}°`);
+    // Chart title and info have been removed for a cleaner interface
 
     // Draw chart angles (ASC, DSC, MC, IC) if available
     if (chart.angles) {
@@ -471,9 +443,9 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
         console.error('❌ Angle symbols not found in cosmicSymbols:', cosmicSymbols);
       } else {
         console.log('✅ Angle symbols loaded:', angleSymbols);
-        // Debug: Check all angle symbol image paths
+        // Debug: Check all angle symbol properties
         Object.entries(angleSymbols).forEach(([key, symbol]) => {
-          console.log(`🔎 Angle symbol ${key} image path:`, symbol.image);
+          console.log(`🔎 Angle symbol ${key} details:`, symbol.symbol, symbol.fontSize, symbol.color);
         });
       }
       
