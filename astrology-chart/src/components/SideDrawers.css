@@ -1,0 +1,61 @@
+/* Side Drawer Styles */
+.left-side-drawer,
+.right-side-drawer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background-color: var(--panel-background);
+  position: relative;
+  z-index: 1;
+}
+
+.drawer-header {
+  padding: 1rem;
+  border-bottom: var(--border-width) var(--border-style) var(--border-color);
+  background: linear-gradient(to right,
+    var(--color-surface) 0%,
+    var(--panel-background) 100%
+  );
+}
+
+.drawer-header h2 {
+  font-family: var(--font-display);
+  font-size: var(--font-size-xlarge);
+  color: var(--color-text-primary);
+  margin-bottom: 0.5rem;
+  text-shadow: 0 1px 2px var(--color-shadow);
+}
+
+.drawer-header p {
+  font-family: var(--font-primary);
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+}
+
+.drawer-content {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  background-color: var(--panel-background);
+  border-top: 1px solid var(--color-border-highlight);
+  box-shadow: inset 0 2px 4px var(--color-shadow);
+}
+
+/* Hardware styling for the drawers */
+.left-side-drawer::after,
+.right-side-drawer::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: linear-gradient(to bottom,
+    transparent 0%,
+    var(--color-shadow) 100%
+  );
+  opacity: 0.3;
+  pointer-events: none;
+}

@@ -1,14 +1,40 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { CalendarDays, MapPin, User, Clock, Loader2, Play, Pause, RotateCcw } from 'lucide-react'
-import ChartWheel from './components/ChartWheel'
-import ChartDetails from './components/ChartDetails'
-import PlanetaryHarmonicsSidebar from './components/PlanetaryHarmonicsSidebar'
+import type { TouchEvent } from 'react'
+import { CalendarDays, Loader2, Play, Pause, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react'
+import BirthChartVisualization from './components/BirthChartVisualization'
+import ThemeToggle from './components/ThemeToggle'
+import LeftSideDrawer from './components/LeftSideDrawer'
+import RightSideDrawer from './components/RightSideDrawer'
 import { AstrologyCalculator, type BirthData, type AstrologyChart } from './astrology'
 import './App.css'
+import './components/SideDrawers.css'
+import themeManager from './theme-manager'
 
 const astrologyCalculator = new AstrologyCalculator();
 
+// Example location presets
+const exampleLocations = [
+  { name: 'New York', lat: 40.7128, lng: -74.0060 },
+  { name: 'London', lat: 51.5074, lng: -0.1278 },
+  { name: 'Tokyo', lat: 35.6762, lng: 139.6503 },
+  { name: 'Sydney', lat: -33.8688, lng: 151.2093 }
+];
+
 function App() {
+  // Initialize theme manager
+  useEffect(() => {
+    themeManager.initialize();
+  }, []);
+
+  // UI state for panel visibility
+  const [leftPanelOpen, setLeftPanelOpen] = useState(false);
+  const [rightPanelOpen, setRightPanelOpen] = useState(false);
+  
+  // Touch gesture handling
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
+  const minSwipeDistance = 70; // Minimum distance for swipe detection
+  
   const [birthData, setBirthData] = useState<BirthData>(() => {
     // Set to current date/time in Seattle timezone
     const now = new Date();
@@ -133,216 +159,152 @@ function App() {
       setIsCalculating(false);
     }
   }, [birthData]);
+  
+  // Format date for display
+  const formatDateForInput = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
 
-  // Example locations for quick selection
-  const exampleLocations = [
-    { name: 'Seattle, WA', lat: 47.6062, lng: -122.3321 },
-    { name: 'New York, NY', lat: 40.7128, lng: -74.0060 },
-    { name: 'Los Angeles, CA', lat: 34.0522, lng: -118.2437 },
-    { name: 'London, UK', lat: 51.5074, lng: -0.1278 },
-    { name: 'Paris, France', lat: 48.8566, lng: 2.3522 },
-    { name: 'Tokyo, Japan', lat: 35.6762, lng: 139.6503 },
-    { name: 'Sydney, Australia', lat: -33.8688, lng: 151.2093 }
-  ];
+  // Handle touch gestures for panels
+  const handleTouchStart = (e: TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  
+  const handleTouchEnd = (e: TouchEvent) => {
+    if (touchStartX.current === null) return;
+    
+    touchEndX.current = e.changedTouches[0].clientX;
+    
+    const deltaX = touchEndX.current - touchStartX.current;
+    
+    // Detect swipe direction if it exceeds minimum distance
+    if (Math.abs(deltaX) > minSwipeDistance) {
+      if (deltaX > 0) {
+        // Swipe right - open left panel
+        setLeftPanelOpen(true);
+        setRightPanelOpen(false);
+      } else {
+        // Swipe left - open right panel
+        setRightPanelOpen(true);
+        setLeftPanelOpen(false);
+      }
+    }
+    
+    // Reset touch positions
+    touchStartX.current = null;
+    touchEndX.current = null;
+  };
+
+  // Toggle panel functions
+  const toggleLeftPanel = () => {
+    setLeftPanelOpen(prev => !prev);
+    
+    // Close right panel if it's open
+    if (rightPanelOpen) {
+      setRightPanelOpen(false);
+    }
+  };
+
+  const toggleRightPanel = () => {
+    setRightPanelOpen(prev => !prev);
+    
+    // Close left panel if it's open
+    if (leftPanelOpen) {
+      setLeftPanelOpen(false);
+    }
+  };
+
+  // Close panels when clicking overlay
+  const handleOverlayClick = () => {
+    setLeftPanelOpen(false);
+    setRightPanelOpen(false);
+  };
 
   return (
     <div className="app">
+      {/* Panel overlay - darkens background when panels are open */}
+      <div 
+        className={`panel-overlay ${leftPanelOpen || rightPanelOpen ? 'active' : ''}`}
+        onClick={handleOverlayClick}
+      />
+      
       <main className="app-main">
-        <div className="input-section">        <div className="form-card">
-          <div className="form-header">
-            <h2><User className="icon" /> Birth Information</h2>
-            
-            {/* Real-time controls with time jump options */}
-            <div className="real-time-controls">
-              <div className="control-group">
-                <button
-                  type="button"
-                  className={`real-time-toggle ${isRealTimeMode ? 'active' : ''}`}
-                  onClick={toggleRealTimeMode}
-                  title={isRealTimeMode ? 'Pause real-time mode' : 'Start real-time mode'}
-                >
-                  {isRealTimeMode ? <Pause className="icon" /> : <Play className="icon" />}
-                  {isRealTimeMode ? 'Live' : 'Paused'}
-                </button>
-                
-                <button
-                  type="button"
-                  className="reset-time-btn"
-                  onClick={resetToCurrentTime}
-                  title="Reset to current time"
-                >
-                  <RotateCcw className="icon" />
-                  Now
-                </button>
-              </div>
-              
-              <div className="time-jump-hint">
-                {isRealTimeMode ? (
-                  <div className="live-indicator">
-                    <div className="pulse-dot"></div>
-                    <span className="live-time">
-                      {currentTime.toLocaleTimeString()}
-                    </span>
-                  </div>
-                ) : (
-                  <span className="jump-hint">
-                    Edit date/time fields for time jumps
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-            
-            <div className="form-group">
-              <label htmlFor="name">
-                <User className="icon" />
-                Name (optional)
-              </label>
-              <input
-                id="name"
-                type="text"
-                value={birthData.name || ''}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                placeholder="Enter name"
-              />
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="date">
-                  <CalendarDays className="icon" />
-                  Birth Date
-                </label>
-                <input
-                  id="date"
-                  type="date"
-                  value={birthData.date.toISOString().split('T')[0]}
-                  onChange={(e) => {
-                    const newDate = new Date(birthData.date);
-                    const [year, month, day] = e.target.value.split('-');
-                    newDate.setFullYear(parseInt(year), parseInt(month) - 1, parseInt(day));
-                    handleInputChange('date', newDate);
-                  }}
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="time">
-                  <Clock className="icon" />
-                  Birth Time
-                </label>
-                <input
-                  id="time"
-                  type="time"
-                  value={birthData.date.toTimeString().slice(0, 5)}
-                  onChange={(e) => {
-                    const newDate = new Date(birthData.date);
-                    const [hours, minutes] = e.target.value.split(':');
-                    newDate.setHours(parseInt(hours), parseInt(minutes));
-                    handleInputChange('date', newDate);
-                  }}
-                />
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="latitude">
-                  <MapPin className="icon" />
-                  Latitude
-                </label>
-                <input
-                  id="latitude"
-                  type="number"
-                  step="0.0001"
-                  min="-90"
-                  max="90"
-                  value={birthData.latitude}
-                  onChange={(e) => handleInputChange('latitude', parseFloat(e.target.value))}
-                  placeholder="40.7128"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="longitude">
-                  <MapPin className="icon" />
-                  Longitude
-                </label>
-                <input
-                  id="longitude"
-                  type="number"
-                  step="0.0001"
-                  min="-180"
-                  max="180"
-                  value={birthData.longitude}
-                  onChange={(e) => handleInputChange('longitude', parseFloat(e.target.value))}
-                  placeholder="-74.0060"
-                />
-              </div>
-            </div>
-
-            <div className="location-presets">
-              <label>Quick Locations:</label>
-              <div className="preset-buttons">
-                {exampleLocations.map((location, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    className="preset-btn"
-                    onClick={() => {
-                      handleInputChange('latitude', location.lat);
-                      handleInputChange('longitude', location.lng);
-                    }}
-                  >
-                    {location.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {error && (
-              <div className="error-message">
-                ⚠️ {error}
-              </div>
-            )}
-
-            {isCalculating && (
-              <div className="calculating-indicator">
-                <Loader2 className="icon spinning" />
-                Calculating chart...
-              </div>
-            )}
+        {/* Top bar */}
+        <div className="top-bar hardware-panel">
+          <div className="app-title">Astrology Chart</div>
+          <div className="top-bar-controls">
+            <ThemeToggle />
           </div>
         </div>
-
-        <div className="chart-section">
+        
+        {/* Chart container - central content */}
+        <div 
+          className="chart-container"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
           {chart ? (
-            <div className="chart-layout">
-              <div className="chart-main">
-                <div className="chart-wheel-container">
-                  <ChartWheel chart={chart} width={700} height={700} />
-                </div>
-                <div className="chart-details-container">
-                  <ChartDetails chart={chart} />
-                </div>
-              </div>
-              <div className="chart-sidebar">
-                <PlanetaryHarmonicsSidebar chart={chart} />
-              </div>
+            <div className="chart-section">
+              <BirthChartVisualization chart={chart} />
             </div>
           ) : (
             <div className="chart-placeholder">
               <div className="placeholder-content">
                 <CalendarDays size={64} />
-                <h3>Enter birth information above</h3>
-                <p>Fill in the birth date, time, and location to generate an accurate astrology chart</p>
+                <h3>Enter birth information</h3>
+                <p>Swipe from the left edge or tap the side button to access birth information form</p>
               </div>
             </div>
           )}
         </div>
+        
+        {/* Bottom bar */}
+        <div className="bottom-bar">
+          {/* Can be filled with action buttons or status information later */}
+        </div>
+        
+        {/* Left panel - Birth Information */}
+        <div className={`panel left-panel ${leftPanelOpen ? 'open' : ''}`}>
+          <LeftSideDrawer 
+            birthData={birthData}
+            isCalculating={isCalculating}
+            isRealTimeMode={isRealTimeMode}
+            onInputChange={handleInputChange}
+            toggleRealTimeMode={toggleRealTimeMode}
+            resetToCurrentTime={resetToCurrentTime}
+          />
+          
+          {/* Left panel toggle button - attached to panel */}
+          <button 
+            className="panel-toggle left-panel-toggle"
+            onClick={toggleLeftPanel}
+            title="Birth Information"
+          >
+            {leftPanelOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+          </button>
+        </div>
+        
+        {/* Right panel - Planetary Harmonics */}
+        <div className={`panel right-panel ${rightPanelOpen ? 'open' : ''}`}>
+          <RightSideDrawer chart={chart} />
+          
+          {/* Right panel toggle button - attached to panel */}
+          <button 
+            className="panel-toggle right-panel-toggle"
+            onClick={toggleRightPanel}
+            title="Planetary Harmonics"
+          >
+            {rightPanelOpen ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+          </button>
+        </div>
       </main>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

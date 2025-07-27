@@ -13,6 +13,7 @@
     "verify-simple": "tsx src/verify-simple.ts",
     "test": "vitest",
     "type-check": "tsc --noEmit",
+    "astrology": "cd astrology-chart && npm run dev",
     "clean": "rm -rf dist .tsbuildinfo"
   },
   "keywords": [

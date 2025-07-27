@@ -1,0 +1,101 @@
+/* Birth Chart Visualization Component Styles */
+
+/* Container for the entire visualization */
+.birth-chart-visualization {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  background: transparent;
+}
+
+/* Chart wheel container - hardware style */
+.birth-chart-visualization .chart-wheel-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background-color: var(--color-surface);
+  border: var(--border-width) var(--border-style) var(--border-color);
+  box-shadow: inset 0 0 20px var(--color-shadow);
+  clip-path: polygon(
+    0 20px, 20px 0,
+    calc(100% - 20px) 0, 100% 20px,
+    100% calc(100% - 20px), calc(100% - 20px) 100%,
+    20px 100%, 0 calc(100% - 20px)
+  );
+}
+
+/* Chart corner screws */
+.birth-chart-visualization .chart-wheel-container::before,
+.birth-chart-visualization .chart-wheel-container::after,
+.birth-chart-visualization .chart-corner {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: radial-gradient(circle at center, var(--color-border-highlight) 15%, var(--color-border) 30%, var(--color-surface) 100%);
+  border-radius: 50%;
+  box-shadow: inset 0 0 2px var(--color-shadow);
+  z-index: 2;
+}
+
+.birth-chart-visualization .chart-wheel-container::before {
+  top: 10px;
+  left: 10px;
+}
+
+.birth-chart-visualization .chart-wheel-container::after {
+  top: 10px;
+  right: 10px;
+}
+
+.birth-chart-visualization .chart-corner-bl {
+  bottom: 10px;
+  left: 10px;
+}
+
+.birth-chart-visualization .chart-corner-br {
+  bottom: 10px;
+  right: 10px;
+}
+
+/* Chart measurement lines */
+.birth-chart-visualization .chart-measure-line {
+  position: absolute;
+  background-color: var(--color-border);
+  opacity: 0.3;
+  z-index: 1;
+}
+
+.birth-chart-visualization .chart-measure-line.horizontal {
+  height: 1px;
+  left: 40px;
+  right: 40px;
+}
+
+.birth-chart-visualization .chart-measure-line.vertical {
+  width: 1px;
+  top: 40px;
+  bottom: 40px;
+}
+
+.birth-chart-visualization .chart-measure-line.horizontal.top {
+  top: 40px;
+}
+
+.birth-chart-visualization .chart-measure-line.horizontal.bottom {
+  bottom: 40px;
+}
+
+.birth-chart-visualization .chart-measure-line.vertical.left {
+  left: 40px;
+}
+
+.birth-chart-visualization .chart-measure-line.vertical.right {
+  right: 40px;
+}

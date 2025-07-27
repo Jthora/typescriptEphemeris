@@ -1,0 +1,220 @@
+import React, { useEffect, useRef } from 'react';
+import * as d3 from 'd3';
+import type { AstrologyChart } from '../astrology';
+import { ZODIAC_SIGNS, PLANET_SYMBOLS } from '../astrology';
+import { fonts } from '../assets';
+import { cosmicSymbols } from '../assets/images';
+import { scaleImageSizeForViewport } from '../utils/image-optimization';
+import './CosmicSymbols.css';
+
+interface ChartWheelProps {
+  chart: AstrologyChart;
+  width?: number;
+  height?: number;
+}
+
+export const ChartWheel: React.FC<ChartWheelProps> = ({ 
+  chart, 
+  width = 600, 
+  height = 600 
+}) => {
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  useEffect(() => {
+    if (!svgRef.current || !chart) return;
+
+    console.log('🎨 ChartWheel rendering with chart:', chart);
+    console.log('📊 Bodies to render:', chart.bodies.length);
+    chart.bodies.forEach((body, index) => {
+      console.log(`  ${index + 1}. ${body.name}: ${body.longitude.toFixed(2)}° (${body.sign})`);
+    });
+
+    const svg = d3.select(svgRef.current);
+    svg.selectAll("*").remove(); // Clear previous chart
+
+    const radius = Math.min(width, height) / 2 - 40;
+    const centerX = width / 2;
+    const centerY = height / 2;
+
+    // Create main group
+    const g = svg.append('g')
+      .attr('transform', `translate(${centerX}, ${centerY})`);
+      
+    // Draw outer circle (zodiac wheel)
+    g.append('circle')
+      .attr('r', radius)
+      .attr('fill', 'none')
+      .attr('stroke', '#333')
+      .attr('stroke-width', 2);
+      
+    // Removed cosmic alignment disk background image
+
+    // Draw inner circle (house wheel)
+    const houseRadius = radius * 0.7;
+    g.append('circle')
+      .attr('r', houseRadius)
+      .attr('fill', 'none')
+      .attr('stroke', '#666')
+      .attr('stroke-width', 1);
+
+    // Draw zodiac sign divisions
+    for (let i = 0; i < 12; i++) {
+      const angle = (i * 30 - 90) * (Math.PI / 180); // Start from Aries at top
+      const x1 = Math.cos(angle) * houseRadius;
+      const y1 = Math.sin(angle) * houseRadius;
+      const x2 = Math.cos(angle) * radius;
+      const y2 = Math.sin(angle) * radius;
+
+      // Get sign element for line color
+      const currentSignName = ZODIAC_SIGNS[i].name;
+      const currentCosmicData = cosmicSymbols.zodiac[currentSignName as keyof typeof cosmicSymbols.zodiac];
+      const lineColor = cosmicSymbols.elementColors[currentCosmicData.element as keyof typeof cosmicSymbols.elementColors];
+      
+      g.append('line')
+        .attr('x1', x1)
+        .attr('y1', y1)
+        .attr('x2', x2)
+        .attr('y2', y2)
+        .attr('stroke', lineColor)
+        .attr('stroke-width', 1.5)
+        .attr('opacity', 0.7);
+
+      // Add cosmic modality symbols for zodiac signs
+      const symbolAngle = ((i * 30) + 15 - 90) * (Math.PI / 180);
+      const symbolRadius = radius - 20;
+      const symbolX = Math.cos(symbolAngle) * symbolRadius;
+      const symbolY = Math.sin(symbolAngle) * symbolRadius;
+      
+      // Get current zodiac sign name and cosmic symbol data
+      const signName = ZODIAC_SIGNS[i].name;
+      // Use type assertion since we know these keys exist
+      const cosmicSymbolData = cosmicSymbols.zodiac[signName as keyof typeof cosmicSymbols.zodiac];
+      
+      // Scale the symbol size based on viewport width
+      const baseSize = cosmicSymbolData?.size || 48; // Increased default size for better visibility
+      const symbolSize = scaleImageSizeForViewport(baseSize, width);
+      
+      // Get the image from our cosmic-modalities directory
+      const imageUrl = cosmicSymbolData.image;
+      
+      // Add the cosmic symbol image with no fallbacks
+      const symbolGroup = g.append('g')
+        .attr('class', 'cosmic-symbol')
+        .attr('data-sign', signName)
+        .attr('data-element', cosmicSymbolData.element)
+        .attr('data-modality', cosmicSymbolData.modality);
+      
+      // Returning to our previous approach that was close
+      // Adding exactly 180 degrees to the previous calculation
+      const rotationAngle = ((i * 30) + 15 + 180 + 180) % 360;
+      
+      
+      // Add image with error handling and rotation
+      const image = symbolGroup.append('image')
+        .attr('href', imageUrl)
+        .attr('x', symbolX - symbolSize/2)
+        .attr('y', symbolY - symbolSize/2)
+        .attr('width', symbolSize)
+        .attr('height', symbolSize)
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .attr('transform', `rotate(${rotationAngle}, ${symbolX}, ${symbolY})`);
+        
+      // Add error handling for image loading
+      image.on('error', function() {
+        console.error(`Failed to load image for ${signName}`);
+      });
+
+      // Add cusp symbol (base24) between this zodiac sign and the next
+      // Get the current sign and the next sign
+      const currentSign = ZODIAC_SIGNS[i];
+      const nextSign = ZODIAC_SIGNS[(i + 1) % 12];
+      
+      // Get appropriate cusp symbol based on transitions between modalities and elements
+      // The cusp should represent the transition between the current sign and the next
+      const currentModality = currentSign.quality.toLowerCase();
+      const nextModality = nextSign.quality.toLowerCase();
+      const currentElement = currentSign.element.toLowerCase();
+      const nextElement = nextSign.element.toLowerCase();
+      
+      // Find the most appropriate cusp symbol based on element and modality transitions
+      const cuspData = findAppropriateCuspSymbol(cosmicSymbols.cusps, currentModality, nextModality, currentElement, nextElement, i);
+      
+      // Position cusp symbol exactly between two zodiac signs
+      const cuspAngle = ((i * 30) + 30 - 90) * (Math.PI / 180); // +30 to place between signs
+      const cuspRadius = radius - 20; // Same radius as zodiac symbols
+      const cuspX = Math.cos(cuspAngle) * cuspRadius;
+      const cuspY = Math.sin(cuspAngle) * cuspRadius;
+      
+      // Scale the cusp symbol size
+      const cuspSize = scaleImageSizeForViewport(cuspData.size, width);
+      
+      // Cusp rotation angle - ensure it points outward like zodiac symbols
+      const cuspRotationAngle = ((i * 30) + 30 + 180 + 180) % 360;
+      
+      // Add the cusp symbol
+      const cuspGroup = g.append('g')
+        .attr('class', 'cusp-symbol')
+        .attr('data-force', cuspData.force)
+        .attr('data-combo', cuspData.combo);
+        
+      const cuspImage = cuspGroup.append('image')
+        .attr('href', cuspData.image)
+        .attr('x', cuspX - cuspSize/2)
+        .attr('y', cuspY - cuspSize/2)
+        .attr('width', cuspSize)
+        .attr('height', cuspSize)
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .attr('transform', `rotate(${cuspRotationAngle}, ${cuspX}, ${cuspY})`);
+        
+      // Add error handling for cusp image loading
+      cuspImage.on('error', function() {
+        console.error(`Failed to load cusp image: ${cuspData.force}-${cuspData.combo}`);
+      });
+      
+      // Add decan symbols (base36) for this zodiac sign
+      // Each sign has 3 decans at 0°, 10°, and 20° of the sign
+      for (let decanIndex = 0; decanIndex < 3; decanIndex++) {
+        // Calculate the absolute degree for this decan (0-359)
+        const decanDegree = (i * 30) + (decanIndex * 10);
+        
+        // Get the appropriate decan data from our cosmic symbols
+        const decanData = cosmicSymbols.getDecanByDegree(decanDegree);
+        
+        // Position the decan symbol
+        // 0° decan aligns with zodiac sign, others are placed at their respective positions
+        const decanAngle = ((i * 30) + (decanIndex * 10) - 90) * (Math.PI / 180);
+        const decanRadius = radius - 20; // Same radius as zodiac and cusp symbols
+        const decanX = Math.cos(decanAngle) * decanRadius;
+        const decanY = Math.sin(decanAngle) * decanRadius;
+        
+        // Scale the decan symbol size (slightly smaller than zodiac symbols)
+        const decanSize = scaleImageSizeForViewport(decanData.size, width);
+        
+        // Decan rotation angle - ensure it points outward like other symbols
+        const decanRotationAngle = ((i * 30) + (decanIndex * 10) + 180 + 180) % 360;
+        
+        // Add the decan symbol
+        const decanGroup = g.append('g')
+          .attr('class', 'decan-symbol')
+          .attr('data-element', decanData.element)
+          .attr('data-modality', decanData.modality)
+          .attr('data-force', decanData.force)
+          .attr('data-zodiac-sign', decanData.zodiacSign)
+          .attr('data-decan-position', decanData.decanPosition);
+          
+        const decanImage = decanGroup.append('image')
+          .attr('href', decanData.image)
+          .attr('x', decanX - decanSize/2)
+          .attr('y', decanY - decanSize/2)
+          .attr('width', decanSize)
+          .attr('height', decanSize)
+          .attr('preserveAspectRatio', 'xMidYMid meet')
+          .attr('transform', `rotate(${decanRotationAngle}, ${decanX}, ${decanY})`)
+          .attr('opacity', 0.85); // Slightly transparent to avoid visual overload
+          
+        // Add error handling for decan image loading
+        decanImage.on('error', function() {
+          console.error(`Failed to load decan image: ${decanData.element}-${decanData.modality}-${decanData.force}`);
+        });
+      }
+    }

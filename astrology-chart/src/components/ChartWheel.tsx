@@ -16,6 +16,17 @@ const mapAngleNameToSymbol = (name: string): string => {
   return name.toUpperCase();
 };
 
+// Get CSS variable value for use in SVG
+const getCssVariable = (variableName: string): string => {
+  return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
+};
+
+// Utility function to get theme-aware colors
+const getThemeColor = (name: string): string => {
+  const cssVarName = `--color-${name}`;
+  return getCssVariable(cssVarName);
+};
+
 interface ChartWheelProps {
   chart: AstrologyChart;
   width?: number;
@@ -43,37 +54,184 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
       console.log(`  ${index + 1}. ${body.name}: ${body.longitude.toFixed(2)}° (${body.sign})`);
     });
 
+    // Clear previous chart
     const svg = d3.select(svgRef.current);
-    svg.selectAll("*").remove(); // Clear previous chart
+    svg.selectAll("*").remove();
 
     const radius = Math.min(width, height) / 2 - 40;
+    // Define the radius for the house wheel (2/3 of the main radius)
+    const houseRadius = radius * 0.8;
+    // Define the radius for the aspect area (inner circle)
+    const aspectAreaRadius = radius * 0.5;
+    
     const centerX = width / 2;
     const centerY = height / 2;
 
+    // Get theme colors for chart elements
+    const strokeColor = getThemeColor('border');
+    const textColor = getThemeColor('text-primary');
+    const secondaryTextColor = getThemeColor('text-secondary');
+    const surfaceColor = getThemeColor('surface');
+    const baseDarkColor = getThemeColor('base-dark');
+    const baseMediumColor = getThemeColor('base-medium');
+    
     // Create main group
     const g = svg.append('g')
       .attr('transform', `translate(${centerX}, ${centerY})`);
       
-    // Draw outer circle (zodiac wheel)
+    // Define gradients for chart rings
+    const defs = svg.append('defs');
+    
+    // Outer ring gradient (zodiac wheel)
+    const outerRingGradient = defs.append('radialGradient')
+      .attr('id', 'outerRingGradient')
+      .attr('cx', '50%')
+      .attr('cy', '50%')
+      .attr('r', '50%')
+      .attr('fx', '50%')
+      .attr('fy', '50%');
+      
+    outerRingGradient.append('stop')
+      .attr('offset', '0%')
+      .attr('stop-color', baseMediumColor)
+      .attr('stop-opacity', 0.8); // Increased opacity
+      
+    outerRingGradient.append('stop')
+      .attr('offset', '70%')
+      .attr('stop-color', baseMediumColor)
+      .attr('stop-opacity', 0.7); // Increased opacity
+      
+    outerRingGradient.append('stop')
+      .attr('offset', '100%')
+      .attr('stop-color', baseDarkColor)
+      .attr('stop-opacity', 0.6); // Increased opacity
+    
+    // House wheel gradient
+    const houseRingGradient = defs.append('radialGradient')
+      .attr('id', 'houseRingGradient')
+      .attr('cx', '50%')
+      .attr('cy', '50%')
+      .attr('r', '50%')
+      .attr('fx', '50%')
+      .attr('fy', '50%');
+      
+    houseRingGradient.append('stop')
+      .attr('offset', '0%')
+      .attr('stop-color', baseMediumColor)
+      .attr('stop-opacity', 0.9); // Increased opacity
+      
+    houseRingGradient.append('stop')
+      .attr('offset', '80%')
+      .attr('stop-color', baseDarkColor)
+      .attr('stop-opacity', 0.8); // Increased opacity
+      
+    // Center area gradient
+    const centerGradient = defs.append('radialGradient')
+      .attr('id', 'centerGradient')
+      .attr('cx', '50%')
+      .attr('cy', '50%')
+      .attr('r', '50%')
+      .attr('fx', '50%')
+      .attr('fy', '50%');
+      
+    centerGradient.append('stop')
+      .attr('offset', '0%')
+      .attr('stop-color', surfaceColor)
+      .attr('stop-opacity', 1); // Full opacity
+      
+    centerGradient.append('stop')
+      .attr('offset', '85%')
+      .attr('stop-color', baseMediumColor)
+      .attr('stop-opacity', 0.95); // Increased opacity
+      
+    centerGradient.append('stop')
+      .attr('offset', '100%')
+      .attr('stop-color', baseDarkColor)
+      .attr('stop-opacity', 0.9); // Increased opacity
+      
+    // Add a subtle grid pattern for the chart background
+    const gridPattern = defs.append('pattern')
+      .attr('id', 'gridPattern')
+      .attr('width', 20)
+      .attr('height', 20)
+      .attr('patternUnits', 'userSpaceOnUse');
+      
+    // Horizontal grid lines
+    gridPattern.append('path')
+      .attr('d', 'M 0 10 H 20')
+      .attr('stroke', strokeColor)
+      .attr('stroke-width', 0.5)
+      .attr('opacity', 0.25); // Increased opacity
+      
+    // Vertical grid lines
+    gridPattern.append('path')
+      .attr('d', 'M 10 0 V 20')
+      .attr('stroke', strokeColor)
+      .attr('stroke-width', 0.5)
+      .attr('opacity', 0.25); // Increased opacity
+      
+    // Add a subtle glow filter for highlights
+    const glowFilter = defs.append('filter')
+      .attr('id', 'glow')
+      .attr('x', '-50%')
+      .attr('y', '-50%')
+      .attr('width', '200%')
+      .attr('height', '200%');
+      
+    glowFilter.append('feGaussianBlur')
+      .attr('stdDeviation', '2.5')
+      .attr('result', 'coloredBlur');
+      
+    const glowMerge = glowFilter.append('feMerge');
+    glowMerge.append('feMergeNode')
+      .attr('in', 'coloredBlur');
+    glowMerge.append('feMergeNode')
+      .attr('in', 'SourceGraphic');
+      
+    // Add background rect with grid pattern and make it the background of the entire chart
+    g.append('circle')
+      .attr('r', radius + 20) // Slightly larger than outer zodiac wheel
+      .attr('fill', 'url(#gridPattern)')
+      .attr('opacity', 0.8); // Increased opacity
+
+    // Create outer ring (zodiac area) as an actual ring using two circles
+    // First the outer zodiac circle (outer edge)
     g.append('circle')
       .attr('r', radius)
       .attr('fill', 'none')
-      .attr('stroke', '#333')
+      .attr('stroke', strokeColor)
       .attr('stroke-width', 2);
-      
-    // Removed cosmic alignment disk background image
-
-    // Draw inner circle (house wheel)
-    const houseRadius = radius * 0.7;
-    // Define aspectAreaRadius early since it's used in multiple places
-    // Reduced to 90.25% of original size (0.5 * 0.95 * 0.95 = 0.45125)
-    const aspectAreaRadius = houseRadius * 0.45125; // Shrunk to 90.25% of original size
     
+    // Then create a ring between the zodiac and house wheels with gradient
+    const outerRingArc = d3.arc<any>()
+      .innerRadius(houseRadius)
+      .outerRadius(radius)
+      .startAngle(0)
+      .endAngle(2 * Math.PI);
+      
+    g.append('path')
+      .attr('d', outerRingArc as any)
+      .attr('fill', 'url(#outerRingGradient)')
+      .attr('opacity', 0.9); // Increased opacity
+      
+    // Draw inner circle (house wheel) edge
     g.append('circle')
       .attr('r', houseRadius)
       .attr('fill', 'none')
-      .attr('stroke', '#666')
-      .attr('stroke-width', 1);
+      .attr('stroke', strokeColor)
+      .attr('stroke-width', 1.5); // Increased stroke width
+      
+    // Create a ring between the house wheel and aspect area with gradient
+    const houseRingArc = d3.arc<any>()
+      .innerRadius(aspectAreaRadius)
+      .outerRadius(houseRadius)
+      .startAngle(0)
+      .endAngle(2 * Math.PI);
+      
+    g.append('path')
+      .attr('d', houseRingArc as any)
+      .attr('fill', 'url(#houseRingGradient)')
+      .attr('opacity', 0.9); // Increased opacity
 
     // Draw zodiac sign divisions
     for (let i = 0; i < 12; i++) {
@@ -88,14 +246,33 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
       const currentCosmicData = cosmicSymbols.zodiac[currentSignName as keyof typeof cosmicSymbols.zodiac];
       const lineColor = cosmicSymbols.elementColors[currentCosmicData.element as keyof typeof cosmicSymbols.elementColors];
       
+      // Create a linear gradient for each sign divider line
+      const dividerGradientId = `divider-gradient-${i}`;
+      const dividerGradient = defs.append('linearGradient')
+        .attr('id', dividerGradientId)
+        .attr('x1', '0%')
+        .attr('y1', '0%')
+        .attr('x2', '100%')
+        .attr('y2', '100%');
+        
+      dividerGradient.append('stop')
+        .attr('offset', '0%')
+        .attr('stop-color', lineColor)
+        .attr('stop-opacity', 0.4);
+        
+      dividerGradient.append('stop')
+        .attr('offset', '100%')
+        .attr('stop-color', lineColor)
+        .attr('stop-opacity', 0.9);
+      
       g.append('line')
         .attr('x1', x1)
         .attr('y1', y1)
         .attr('x2', x2)
         .attr('y2', y2)
-        .attr('stroke', lineColor)
-        .attr('stroke-width', 1.5)
-        .attr('opacity', 0.7);
+        .attr('stroke', `url(#${dividerGradientId})`)
+        .attr('stroke-width', 1.8) // Increased stroke width
+        .attr('filter', 'url(#glow)'); // Apply glow filter
 
       // Add cosmic modality symbols for zodiac signs (Base12)
       // Place on outer rim
@@ -136,7 +313,8 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
         .attr('width', symbolSize)
         .attr('height', symbolSize)
         .attr('preserveAspectRatio', 'xMidYMid meet')
-        .attr('transform', `rotate(${rotationAngle}, ${symbolX}, ${symbolY})`);
+        .attr('transform', `rotate(${rotationAngle}, ${symbolX}, ${symbolY})`)
+        .attr('filter', 'url(#glow)'); // Apply glow filter for better visibility
         
       // Add error handling for image loading
       image.on('error', function() {
@@ -255,7 +433,7 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
         .attr('y1', y1)
         .attr('x2', x2)
         .attr('y2', y2)
-        .attr('stroke', '#999')
+        .attr('stroke', secondaryTextColor)
         .attr('stroke-width', i % 3 === 0 ? 2 : 1) // Thicker lines for angular houses
         .attr('opacity', 0.7);
 
@@ -285,12 +463,12 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
         .attr('dominant-baseline', 'middle')
         .attr('font-size', '12px')
         .attr('font-family', fonts.primary)
-        .attr('fill', '#666')
+        .attr('fill', textColor)
         .attr('font-weight', 'bold')
         .text((i + 1).toString());
     }
 
-    // Draw planets - place on their own innermost rim
+    // Draw planets with theme-aware styling
     chart.bodies.forEach((body, index) => {
       const planetRadius = radius * 0.65; // Innermost rim for planets
       const angle = (body.longitude - 90) * (Math.PI / 180);
@@ -302,42 +480,50 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
       x += Math.cos(adjustmentAngle) * 5;
       y += Math.sin(adjustmentAngle) * 5;
 
-      // Planet circle
-      const planetColor = PLANET_SYMBOLS[body.name as keyof typeof PLANET_SYMBOLS]?.color || '#333';
+      // Use planet color with theme awareness (fallback to primary color if not defined)
+      const rawPlanetColor = PLANET_SYMBOLS[body.name as keyof typeof PLANET_SYMBOLS]?.color;
+      const planetColor = rawPlanetColor || getThemeColor('primary');
       
-      g.append('circle')
+      // Create planet group to apply filter to entire planet (circle + symbol)
+      const planetGroup = g.append('g')
+        .attr('class', 'planet-group')
+        .attr('data-planet', body.name)
+        .attr('filter', 'url(#planetGlow)');
+      
+      // Draw planet circle with theme-aware border
+      planetGroup.append('circle')
         .attr('cx', x)
         .attr('cy', y)
         .attr('r', 8)
         .attr('fill', planetColor)
-        .attr('stroke', '#fff')
+        .attr('stroke', surfaceColor)
         .attr('stroke-width', 1)
         .attr('opacity', 0.8);
 
-      // Planet symbol
-      g.append('text')
+      // Planet symbol with theme-aware text color
+      planetGroup.append('text')
         .attr('x', x)
         .attr('y', y)
         .attr('text-anchor', 'middle')
         .attr('dominant-baseline', 'middle')
         .attr('font-size', '12px')
         .attr('font-family', fonts.display)
-        .attr('fill', '#fff')
+        .attr('fill', surfaceColor)
         .attr('font-weight', 'bold')
         .text(body.symbol);
 
-      // Retrograde indicator
+      // Retrograde indicator with theme-aware color
       if (body.retrograde) {
-        g.append('text')
+        planetGroup.append('text')
           .attr('x', x + 12)
           .attr('y', y - 8)
           .attr('text-anchor', 'middle')
           .attr('font-size', '8px')
-          .attr('fill', '#ff0000')
+          .attr('fill', getThemeColor('warning'))
           .text('℞');
       }
 
-      // Draw line from planet to center (optional, but stops at aspect area boundary)
+      // Draw line from planet to center with theme-aware color and gradient opacity
       g.append('line')
         .attr('x1', Math.cos(angle) * (aspectAreaRadius))
         .attr('y1', Math.sin(angle) * (aspectAreaRadius))
@@ -345,10 +531,12 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
         .attr('y2', Math.sin(angle) * (houseRadius + 5))
         .attr('stroke', planetColor)
         .attr('stroke-width', 1)
-        .attr('opacity', 0.3);
+        .attr('opacity', 0.6)
+        .attr('stroke-dasharray', '1,1');
     });
 
     // Draw lunar nodes - place them on a specific rim between planets and decans
+    // Draw lunar nodes with theme-aware colors
     if (chart.nodes.northNode) {
       const nodeRadius = radius * 0.7; // Between planets and decans
       
@@ -364,7 +552,7 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
         .attr('dominant-baseline', 'middle')
         .attr('font-size', '16px')
         .attr('font-family', fonts.display)
-        .attr('fill', '#666')
+        .attr('fill', secondaryTextColor)
         .text(chart.nodes.northNode.symbol);
 
       // South Node
@@ -379,21 +567,19 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
         .attr('dominant-baseline', 'middle')
         .attr('font-size', '16px')
         .attr('font-family', fonts.display)
-        .attr('fill', '#666')
+        .attr('fill', secondaryTextColor)
         .text(chart.nodes.southNode.symbol);
     }
 
-    // Draw white background circle for aspect lines area
-    // This will be placed above house/zodiac lines but underneath the aspect lines
-    // to make aspects more visible by hiding the lines in the center
+    // Draw background circle for aspect lines area with theme-aware gradient
     g.append('circle')
       .attr('r', aspectAreaRadius)
-      .attr('fill', 'white')  // White fill to cover the underlying lines
-      .attr('stroke', '#333') // Black border
-      .attr('stroke-width', 1)
-      .attr('opacity', 0.9);  // Slightly transparent
+      .attr('fill', 'url(#centerGradient)')  // Use gradient instead of flat color
+      .attr('stroke', strokeColor) // Theme border color
+      .attr('stroke-width', 1.5)  // Increased stroke width
+      .attr('opacity', 1);  // Full opacity for better visibility
 
-    // Draw major aspects
+    // Draw major aspects with theme colors
     chart.aspects.forEach(aspect => {
       if (['Conjunction', 'Opposition', 'Trine', 'Square', 'Sextile'].includes(aspect.type)) {
         
@@ -410,30 +596,66 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
           const x2 = Math.cos(angle2) * aspectRadius;
           const y2 = Math.sin(angle2) * aspectRadius;
           
-          // Determine aspect color based on type
-          let aspectColor = '#aa0000'; // Default to challenging (red)
+          // Determine aspect color based on type using theme colors
+          let aspectColor;
+          let aspectGradientId;
+          
           if (aspect.type === 'Trine' || aspect.type === 'Sextile') {
-            aspectColor = '#00aa00'; // Harmonious (green)
+            aspectColor = getThemeColor('success'); // Harmonious (green)
+            aspectGradientId = 'aspect-success-gradient';
+          } else if (aspect.type === 'Square' || aspect.type === 'Opposition') {
+            aspectColor = getThemeColor('error'); // Challenging (red)
+            aspectGradientId = 'aspect-error-gradient';
+          } else {
+            aspectColor = getThemeColor('primary'); // Neutral (blue)
+            aspectGradientId = 'aspect-primary-gradient';
           }
           
-          const strokeWidth = aspect.type === 'Conjunction' || aspect.type === 'Opposition' ? 2 : 1;
+          // Create gradient if it doesn't exist yet
+          if (!defs.select(`#${aspectGradientId}`).node()) {
+            const gradient = defs.append('linearGradient')
+              .attr('id', aspectGradientId)
+              .attr('gradientUnits', 'userSpaceOnUse')
+              .attr('x1', x1)
+              .attr('y1', y1)
+              .attr('x2', x2)
+              .attr('y2', y2);
+              
+            gradient.append('stop')
+              .attr('offset', '0%')
+              .attr('stop-color', aspectColor)
+              .attr('stop-opacity', 0.9);
+              
+            gradient.append('stop')
+              .attr('offset', '50%')
+              .attr('stop-color', aspectColor)
+              .attr('stop-opacity', 0.7);
+              
+            gradient.append('stop')
+              .attr('offset', '100%')
+              .attr('stop-color', aspectColor)
+              .attr('stop-opacity', 0.9);
+          }
+          
+          const strokeWidth = aspect.type === 'Conjunction' || aspect.type === 'Opposition' ? 2.5 : 1.5;
           
           g.append('line')
             .attr('x1', x1)
             .attr('y1', y1)
             .attr('x2', x2)
             .attr('y2', y2)
-            .attr('stroke', aspectColor)
+            .attr('stroke', `url(#${aspectGradientId})`)
             .attr('stroke-width', strokeWidth)
-            .attr('opacity', 0.6)
-            .attr('stroke-dasharray', aspect.type === 'Square' ? '5,5' : 'none');
+            .attr('opacity', 0.85)
+            .attr('stroke-dasharray', aspect.type === 'Square' ? '5,5' : 'none')
+            .attr('filter', 'url(#glow)');
         }
       }
     });
 
     // Chart title and info have been removed for a cleaner interface
 
-    // Draw chart angles (ASC, DSC, MC, IC) if available
+    // Draw chart angles (ASC, DSC, MC, IC) with theme-aware colors
     if (chart.angles) {
       console.log('🔍 Rendering chart angles:', chart.angles);
       
@@ -449,7 +671,7 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
         });
       }
       
-      // Draw each angle symbol
+      // Draw each angle symbol with theme awareness
       Object.entries(chart.angles).forEach(([key, angle]) => {
         console.log(`🔶 Rendering angle: ${key} at ${angle.longitude.toFixed(2)}°`);
         
@@ -467,23 +689,25 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
         if (!angleSymbol) {
           console.error(`❌ Symbol not found for angle: ${key} (symbol key: ${symbolKey})`);
           
-          // Create a fallback symbol using the element color based on the angle
-          let fallbackColor = '#FF5733'; // Default fire color
-          if (key === 'ascendant') fallbackColor = '#FF5733'; // Fire
-          else if (key === 'descendant') fallbackColor = '#FFEB3B'; // Air
-          else if (key === 'midheaven') fallbackColor = '#4CAF50'; // Earth
-          else if (key === 'imumCoeli') fallbackColor = '#2196F3'; // Water
+          // Create a fallback symbol using theme colors
+          let fallbackColor;
+          if (key === 'ascendant') fallbackColor = getThemeColor('error'); // ASC
+          else if (key === 'descendant') fallbackColor = getThemeColor('warning'); // DSC
+          else if (key === 'midheaven') fallbackColor = getThemeColor('success'); // MC
+          else if (key === 'imumCoeli') fallbackColor = getThemeColor('info'); // IC
+          else fallbackColor = getThemeColor('primary'); // Default
           
-          // Create a simple circle as a fallback
+          // Create a simple circle as a fallback with theme-aware background
           const fallbackGroup = g.append('g')
             .attr('transform', `translate(${x},${y})`)
             .attr('class', 'chart-angle fallback');
             
-          // Draw a white circle without border
+          // Draw a circle with theme-aware gradient
           fallbackGroup.append('circle')
             .attr('r', 24)
-            .attr('fill', 'white')
-            .attr('stroke', 'none');
+            .attr('fill', 'url(#angleGradient)')
+            .attr('stroke', strokeColor)
+            .attr('stroke-width', 1);
             
           // Add the angle text (ASC, DSC, MC, IC)
           fallbackGroup.append('text')
@@ -499,18 +723,22 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
           return;
         }
         
-        // Create symbol group for the angle
+        // Create symbol group for the angle with theme-aware styling
         const angleGroup = g.append('g')
           .attr('transform', `translate(${x},${y})`)
           .attr('class', 'chart-angle');
         
-        // Add a white circle background without border
+        // Add a circle background with theme-aware gradient
         angleGroup.append('circle')
           .attr('r', 24)
-          .attr('fill', 'white')
-          .attr('stroke', 'none');
+          .attr('fill', 'url(#angleGradient)')
+          .attr('stroke', strokeColor)
+          .attr('stroke-width', 1);
           
-        // Render the angle text (ASC, DSC, MC, IC)
+        // Render the angle text (ASC, DSC, MC, IC) with original color or theme color
+        // Use the original color but make sure it's visible on both light and dark themes
+        const textColor = angleSymbol.color || getThemeColor('primary');
+        
         angleGroup.append('text')
           .attr('x', 0)
           .attr('y', 0)
@@ -518,28 +746,44 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
           .attr('dominant-baseline', 'middle')
           .attr('font-size', angleSymbol.fontSize || '16px')
           .attr('font-weight', angleSymbol.fontWeight || 'bold')
-          .attr('fill', angleSymbol.color)
+          .attr('fill', textColor)
           .text(angleSymbol.symbol);
-        
-        // Remove the rectangle and second text element for a cleaner look
         
         // Add a line connecting from the wheel to the angle symbol for better visibility
         const lineStartRadius = radius * 0.95;
         const lineStartX = Math.cos(anglePos) * lineStartRadius;
         const lineStartY = Math.sin(anglePos) * lineStartRadius;
         
-        // Draw line from wheel to angle
+        // Draw line from wheel to angle with theme-aware styling
         g.append('line')
           .attr('x1', lineStartX)
           .attr('y1', lineStartY)
           .attr('x2', x)
           .attr('y2', y)
-          .attr('stroke', angleSymbol.color)
+          .attr('stroke', textColor)
           .attr('stroke-width', 1.5)
           .attr('stroke-dasharray', '3,2')
           .attr('opacity', 0.7);
       });
     }
+
+    // Planet glow filter
+    const planetGlow = defs.append('filter')
+      .attr('id', 'planetGlow')
+      .attr('x', '-50%')
+      .attr('y', '-50%')
+      .attr('width', '200%')
+      .attr('height', '200%');
+      
+    planetGlow.append('feGaussianBlur')
+      .attr('stdDeviation', '2.5')
+      .attr('result', 'coloredBlur');
+      
+    const feMerge = planetGlow.append('feMerge');
+    feMerge.append('feMergeNode')
+      .attr('in', 'coloredBlur');
+    feMerge.append('feMergeNode')
+      .attr('in', 'SourceGraphic');
 
     // Return cleanup function to remove tooltips when component unmounts
     return () => {
@@ -659,7 +903,7 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
       width={width}
       height={height}
       className="chart-wheel"
-      style={{ background: '#fafafa', borderRadius: '8px' }}
+      style={{ background: 'transparent', borderRadius: '8px' }}
     />
   );
 };

@@ -12,7 +12,10 @@ Complete React TypeScript application for generating professional astrology birt
 - **Real-time chart calculation** using astronomical ephemeris data
 - **Beautiful chart wheel visualization** with D3.js and SVG
 - **Comprehensive planetary data** including all planets, nodes, houses, and aspects
-- **Modern responsive UI** with gradient styling and smooth animations
+- **Techno-mechanical UI** inspired by Starcraft and C&C Tiberian Sun interfaces
+- **Dark/Light Theme Support** with system detection and manual override
+- **Mobile-friendly design** with swipeable panels and responsive layout
+- **Hardware-style controls** with proper mechanical feedback animations
 - **Quick location presets** for major cities worldwide
 
 ## Features
