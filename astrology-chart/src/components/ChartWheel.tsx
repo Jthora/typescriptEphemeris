@@ -16,6 +16,46 @@ const mapAngleNameToSymbol = (name: string): string => {
   return name.toUpperCase();
 };
 
+// Calculate the smallest angular distance between two longitudes (0-360)
+const getAngularDistance = (longitude1: number, longitude2: number): number => {
+  // Ensure longitudes are between 0-360
+  const long1 = ((longitude1 % 360) + 360) % 360;
+  const long2 = ((longitude2 % 360) + 360) % 360;
+  
+  // Calculate the smallest angle between the two longitudes
+  const directDiff = Math.abs(long1 - long2);
+  return Math.min(directDiff, 360 - directDiff);
+};
+
+// Calculate opacity based on proximity to celestial bodies
+const calculateSymbolOpacity = (
+  symbolLongitude: number, 
+  bodies: Array<{longitude: number}>, 
+  baseOpacity: number = 0.1,
+  maxOpacity: number = 1.0,
+  orbSize: number = 15
+): number => {
+  if (!bodies || bodies.length === 0) return baseOpacity;
+  
+  // Find the closest body to this symbol
+  let minDistance = 180; // Start with max possible distance
+  
+  bodies.forEach(body => {
+    const distance = getAngularDistance(symbolLongitude, body.longitude);
+    if (distance < minDistance) {
+      minDistance = distance;
+    }
+  });
+  
+  // If outside the orb, return base opacity
+  if (minDistance >= orbSize) return baseOpacity;
+  
+  // Calculate opacity based on proximity (linear scale)
+  // The closer to 0 distance, the closer to maxOpacity
+  const opacityIncrease = (maxOpacity - baseOpacity) * (1 - minDistance / orbSize);
+  return baseOpacity + opacityIncrease;
+};
+
 // Get CSS variable value for use in SVG
 const getCssVariable = (variableName: string): string => {
   return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
@@ -304,8 +344,26 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
       // Adding exactly 180 degrees to the previous calculation
       const rotationAngle = ((i * 30) + 15 + 180 + 180) % 360;
       
+      // Calculate the absolute longitude of this zodiac symbol
+      const symbolLongitude = (i * 30) + 15; // Center of zodiac sign
       
-      // Add image with error handling and rotation
+      // Calculate opacity based on proximity to planets and other celestial bodies
+      // For zodiac signs, use a 15-degree orb
+      const allCelestialBodies = [
+        ...chart.bodies,
+        ...(chart.nodes.northNode ? [chart.nodes.northNode, chart.nodes.southNode] : []),
+        ...Object.values(chart.angles || {})
+      ];
+      
+      const symbolOpacity = calculateSymbolOpacity(
+        symbolLongitude,
+        allCelestialBodies,
+        0.1, // base opacity
+        1.0, // max opacity
+        15   // orb size in degrees
+      );
+      
+      // Add image with error handling, rotation, and dynamic opacity
       const image = symbolGroup.append('image')
         .attr('href', imageUrl)
         .attr('x', symbolX - symbolSize/2)
@@ -314,6 +372,7 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
         .attr('height', symbolSize)
         .attr('preserveAspectRatio', 'xMidYMid meet')
         .attr('transform', `rotate(${rotationAngle}, ${symbolX}, ${symbolY})`)
+        .attr('opacity', symbolOpacity) // Apply calculated opacity
         .attr('filter', 'url(#glow)'); // Apply glow filter for better visibility
         
       // Add error handling for image loading
@@ -355,6 +414,19 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
         .attr('data-force', cuspData.force)
         .attr('data-combo', cuspData.combo);
         
+      // Calculate the absolute longitude of this cusp symbol
+      const cuspLongitude = (i * 30) + 30; // Boundary between signs
+      
+      // Calculate opacity based on proximity to planets and other celestial bodies
+      // For cusps, use a 15-degree orb
+      const cuspOpacity = calculateSymbolOpacity(
+        cuspLongitude,
+        allCelestialBodies,
+        0.1, // base opacity
+        1.0, // max opacity
+        15   // orb size in degrees
+      );
+        
       const cuspImage = cuspGroup.append('image')
         .attr('href', cuspData.image)
         .attr('x', cuspX - cuspSize/2)
@@ -362,7 +434,8 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
         .attr('width', cuspSize)
         .attr('height', cuspSize)
         .attr('preserveAspectRatio', 'xMidYMid meet')
-        .attr('transform', `rotate(${cuspRotationAngle}, ${cuspX}, ${cuspY})`);
+        .attr('transform', `rotate(${cuspRotationAngle}, ${cuspX}, ${cuspY})`)
+        .attr('opacity', cuspOpacity); // Apply calculated opacity
         
       // Add error handling for cusp image loading
       cuspImage.on('error', function() {
@@ -401,6 +474,20 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
           .attr('data-force', decanData.force)
           .attr('data-zodiac-sign', decanData.zodiacSign)
           .attr('data-decan-position', decanData.decanPosition);
+        
+        // Calculate the absolute longitude of this decan symbol
+        // Each decan is 10° wide, centered at 5°, 15°, 25° within each sign
+        const decanLongitude = (i * 30) + (decanIndex * 10) + 5;
+        
+        // Calculate opacity based on proximity to planets and other celestial bodies
+        // For decans, use a 5-degree orb (smaller than zodiac/cusps)
+        const decanOpacity = calculateSymbolOpacity(
+          decanLongitude,
+          allCelestialBodies,
+          0.1,  // base opacity
+          0.85, // max opacity (keeping the original max of 0.85)
+          5     // orb size in degrees (smaller than zodiac)
+        );
           
         const decanImage = decanGroup.append('image')
           .attr('href', decanData.image)
@@ -410,7 +497,7 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
           .attr('height', decanSize)
           .attr('preserveAspectRatio', 'xMidYMid meet')
           .attr('transform', `rotate(${decanRotationAngle}, ${decanX}, ${decanY})`)
-          .attr('opacity', 0.85); // Slightly transparent to avoid visual overload
+          .attr('opacity', decanOpacity); // Use calculated opacity
           
         // Add error handling for decan image loading
         decanImage.on('error', function() {
@@ -484,11 +571,47 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
       const rawPlanetColor = PLANET_SYMBOLS[body.name as keyof typeof PLANET_SYMBOLS]?.color;
       const planetColor = rawPlanetColor || getThemeColor('primary');
       
+      // Determine if this planet is near a significant point (zodiac, cusp, or decan)
+      // Calculate which symbol types this planet is activating
+      const isNearZodiac = (body.longitude % 30 - 15) <= 15 && (body.longitude % 30 - 15) >= -15;
+      const isNearCusp = body.longitude % 30 <= 15 || body.longitude % 30 >= 25; // Within 5° of a boundary
+      const isNearDecan = Math.min(
+        Math.abs(body.longitude % 10 - 5),  // Distance to nearest decan center
+        Math.min(
+          Math.abs((body.longitude % 10) - 15 + 10), // Handle wraparound
+          Math.abs((body.longitude % 10) + 5 - 10)
+        )
+      ) <= 5;
+      
+      // Adjust glow intensity based on proximity to symbols
+      const glowIntensity = (isNearZodiac ? 1.5 : 1) * 
+                            (isNearCusp ? 1.3 : 1) * 
+                            (isNearDecan ? 1.2 : 1);
+      
+      // Create a custom glow filter for this planet based on its position
+      const planetGlowId = `planetGlow-${index}`;
+      const planetGlowFilter = defs.append('filter')
+        .attr('id', planetGlowId)
+        .attr('x', '-50%')
+        .attr('y', '-50%')
+        .attr('width', '200%')
+        .attr('height', '200%');
+        
+      planetGlowFilter.append('feGaussianBlur')
+        .attr('stdDeviation', 2.5 * glowIntensity) // Adjust blur based on symbol proximity
+        .attr('result', 'coloredBlur');
+        
+      const feMerge = planetGlowFilter.append('feMerge');
+      feMerge.append('feMergeNode')
+        .attr('in', 'coloredBlur');
+      feMerge.append('feMergeNode')
+        .attr('in', 'SourceGraphic');
+      
       // Create planet group to apply filter to entire planet (circle + symbol)
       const planetGroup = g.append('g')
         .attr('class', 'planet-group')
         .attr('data-planet', body.name)
-        .attr('filter', 'url(#planetGlow)');
+        .attr('filter', `url(#${planetGlowId})`);
       
       // Draw planet circle with theme-aware border
       planetGroup.append('circle')
@@ -766,24 +889,6 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
           .attr('opacity', 0.7);
       });
     }
-
-    // Planet glow filter
-    const planetGlow = defs.append('filter')
-      .attr('id', 'planetGlow')
-      .attr('x', '-50%')
-      .attr('y', '-50%')
-      .attr('width', '200%')
-      .attr('height', '200%');
-      
-    planetGlow.append('feGaussianBlur')
-      .attr('stdDeviation', '2.5')
-      .attr('result', 'coloredBlur');
-      
-    const feMerge = planetGlow.append('feMerge');
-    feMerge.append('feMergeNode')
-      .attr('in', 'coloredBlur');
-    feMerge.append('feMergeNode')
-      .attr('in', 'SourceGraphic');
 
     // Return cleanup function to remove tooltips when component unmounts
     return () => {
