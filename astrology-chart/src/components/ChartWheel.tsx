@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import type { AstrologyChart } from '../astrology';
 import { ZODIAC_SIGNS, PLANET_SYMBOLS } from '../astrology';
 import { fonts } from '../assets';
-import { cosmicSymbols } from '../assets/images';
+import { cosmicSymbols } from '../assets';
 import { scaleImageSizeForViewport } from '../utils/image-optimization';
 import './CosmicSymbols.css';
 

@@ -1,8 +1,11 @@
 /* Styles for cosmic symbols in the chart wheel */
 
+/* Allow dynamic opacity from JS to work properly */
+/* Previously forced full opacity which prevented dynamic changes:
 .cosmic-symbol image {
-  opacity: 1; /* Full opacity */
+  opacity: 1; 
 }
+*/
 
 /* Removed hover animations that moved symbols away from center */
 

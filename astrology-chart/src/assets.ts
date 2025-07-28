@@ -14,7 +14,8 @@ import {
   cosmicAlignmentDisks, 
   cypherDisks, 
   animations, 
-  customButtons 
+  customButtons,
+  cosmicSymbols
 } from './assets/images';
 
 // Centralized asset exports
@@ -24,7 +25,8 @@ export {
   cosmicAlignmentDisks,
   cypherDisks,
   animations,
-  customButtons
+  customButtons,
+  cosmicSymbols
 };
 
 // Default export for all assets
@@ -34,5 +36,6 @@ export default {
   cosmicAlignmentDisks,
   cypherDisks,
   animations,
-  customButtons
+  customButtons,
+  cosmicSymbols
 };
