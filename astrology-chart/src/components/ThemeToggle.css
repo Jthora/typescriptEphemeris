@@ -5,52 +5,46 @@
   z-index: 1000;
 }
 
-/* Main theme toggle button */
-.theme-toggle-button {
-  width: 36px;
-  height: 36px;
-  padding: 0;
+/* Theme icon styling */
+.theme-icon {
+  color: var(--color-text-primary);
+  transition: transform var(--animation-press) ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-panel);
-  position: relative;
-  overflow: hidden;
 }
 
-.theme-toggle-button:hover {
-  background-color: var(--color-surface);
-}
-
-.theme-toggle-button .theme-icon {
-  color: var(--color-primary);
-  transition: transform var(--animation-press) ease;
-}
-
-.theme-toggle-button:hover .theme-icon {
+.hardware-button:hover .theme-icon {
   transform: scale(1.2);
 }
 
-/* Theme dropdown panel */
-.theme-dropdown {
-  position: absolute;
-  top: calc(100% + 4px);
-  right: 0;
+/* Theme Toggle Menu - Fixed positioning to avoid context issues */
+.theme-toggle-menu {
+  position: fixed;
+  top: calc(var(--topbar-height, 48px));
+  right: 0px;
   width: 160px;
-  background-color: var(--color-panel);
+  background-color: var(--color-surface);
   border: var(--border-width) var(--border-style) var(--color-border);
   padding: 0;
-  z-index: 1001;
-  animation: fadeIn 0.2s ease-out;
+  z-index: 9999;
+  box-shadow: var(--inset-shadow), 0 4px 12px rgba(0, 0, 0, 0.3);
+  animation: slideDown 0.2s ease-out;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes slideDown {
+  from { 
+    opacity: 0; 
+    transform: translateY(-10px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
 }
 
-/* Digital display header */
-.theme-dropdown .digital-display {
+/* Menu header with digital display styling */
+.theme-menu-header {
   margin: 0 0 8px 0;
   padding: 6px 8px;
   background-color: var(--color-base-dark);
@@ -65,41 +59,44 @@
   text-align: center;
 }
 
-/* Theme option buttons */
-.theme-option {
+/* Menu options container */
+.theme-menu-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* Theme menu buttons - different from hardware buttons */
+.theme-menu-button {
   display: flex;
   align-items: center;
   width: 100%;
   padding: 8px 12px;
   text-align: left;
-  background-color: var(--color-panel);
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
   border: none;
   border-left: 2px solid transparent;
   border-radius: 0;
   gap: 8px;
-  margin-bottom: 1px;
-}
-
-.theme-option:last-child {
-  margin-bottom: 0;
-}
-
-.theme-option span {
   font-family: var(--font-primary);
   font-size: var(--font-size-small);
-  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.theme-option:hover {
-  background-color: var(--color-surface);
-  border-left: 2px solid var(--color-primary);
-}
-
-.theme-option.active {
+.theme-menu-button:hover {
   background-color: var(--color-base-medium);
   border-left: 2px solid var(--color-primary);
 }
 
-.theme-option.active span {
+.theme-menu-button.active {
+  background-color: var(--color-base-light);
+  border-left: 2px solid var(--color-primary);
   color: var(--color-primary);
+}
+
+.theme-menu-button span {
+  font-family: var(--font-primary);
+  font-size: var(--font-size-small);
 }

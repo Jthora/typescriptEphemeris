@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChartWheel } from './ChartWheel';
+import { ChartWheelPure as ChartWheel } from './ChartWheelPure';
 import type { AstrologyChart } from '../astrology';
 import './BirthChartVisualization.css';
 

@@ -2,9 +2,10 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 import type { TouchEvent } from 'react'
 import { CalendarDays, Loader2, Play, Pause, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react'
 import BirthChartVisualization from './components/BirthChartVisualization'
-import ThemeToggle from './components/ThemeToggle'
+import TopBar from './components/TopBar'
 import LeftSideDrawer from './components/LeftSideDrawer'
 import RightSideDrawer from './components/RightSideDrawer'
+import BottomBar from './components/BottomBar'
 import { AstrologyCalculator, type BirthData, type AstrologyChart } from './astrology'
 import './App.css'
 import './components/SideDrawers.css'
@@ -235,12 +236,7 @@ function App() {
       
       <main className="app-main">
         {/* Top bar */}
-        <div className="top-bar hardware-panel">
-          <div className="app-title">Astrology Chart</div>
-          <div className="top-bar-controls">
-            <ThemeToggle />
-          </div>
-        </div>
+        <TopBar />
         
         {/* Chart container - central content */}
         <div 
@@ -264,9 +260,12 @@ function App() {
         </div>
         
         {/* Bottom bar */}
-        <div className="bottom-bar">
-          {/* Can be filled with action buttons or status information later */}
-        </div>
+        <BottomBar 
+          isRealTimeMode={isRealTimeMode}
+          toggleRealTimeMode={toggleRealTimeMode}
+          resetToCurrentTime={resetToCurrentTime}
+          birthData={birthData}
+        />
         
         {/* Left panel - Birth Information */}
         <div className={`panel left-panel ${leftPanelOpen ? 'open' : ''}`}>

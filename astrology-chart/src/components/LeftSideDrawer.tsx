@@ -102,24 +102,7 @@ const LeftSideDrawer: React.FC<LeftSideDrawerProps> = ({
             />
           </div>
 
-          <div className="form-actions">
-            <button 
-              className={`action-button ${isRealTimeMode ? 'active' : ''}`}
-              onClick={toggleRealTimeMode}
-              title={isRealTimeMode ? "Pause real-time updates" : "Enable real-time updates"}
-            >
-              {isRealTimeMode ? <Clock size={18} /> : <Clock size={18} />}
-              {isRealTimeMode ? "Real-time" : "Manual"}
-            </button>
-
-            <button 
-              className="action-button"
-              onClick={resetToCurrentTime}
-              title="Reset to current time"
-            >
-              <Clock size={18} /> Now
-            </button>
-          </div>
+          {/* The form-actions div with Real-time and Now buttons has been moved to BottomBar component */}
         </div>
       </div>
     </div>

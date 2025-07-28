@@ -349,10 +349,10 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
       
       // Calculate opacity based on proximity to planets and other celestial bodies
       // For zodiac signs, use a 15-degree orb
+      // Note: Angles (ASC/DSC/MC/IC) are excluded as they have their own visual indicators
       const allCelestialBodies = [
         ...chart.bodies,
-        ...(chart.nodes.northNode ? [chart.nodes.northNode, chart.nodes.southNode] : []),
-        ...Object.values(chart.angles || {})
+        ...(chart.nodes.northNode ? [chart.nodes.northNode, chart.nodes.southNode] : [])
       ];
       
       const symbolOpacity = calculateSymbolOpacity(
