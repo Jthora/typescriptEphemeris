@@ -109,6 +109,20 @@ export const ChartDefinitions: React.FC<ChartDefinitionsProps> = ({
           <feMergeNode in="SourceGraphic" />
         </feMerge>
       </filter>
+
+      {/* Simple cusp shadow gradient - reusable */}
+      <radialGradient
+        id="cuspShadow"
+        cx="50%"
+        cy="50%"
+        r="50%"
+        gradientUnits="objectBoundingBox"
+      >
+        <stop offset="0%" stopColor="black" stopOpacity={0.6} />
+        <stop offset="30%" stopColor="black" stopOpacity={0.3} />
+        <stop offset="70%" stopColor="black" stopOpacity={0.1} />
+        <stop offset="100%" stopColor="black" stopOpacity={0} />
+      </radialGradient>
     </defs>
   );
 };

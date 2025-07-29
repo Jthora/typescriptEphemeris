@@ -122,22 +122,6 @@ export const ChartWheelPure: React.FC<ChartWheelProps> = ({
     angle: (cusp - 90) * (Math.PI / 180)
   }));
 
-  // Calculate zodiac data
-  const zodiacData = ZODIAC_SIGNS.map((sign, index) => {
-    const currentSignName = sign.name;
-    const currentCosmicData = cosmicSymbols.zodiac[currentSignName as keyof typeof cosmicSymbols.zodiac];
-    const lineColor = cosmicSymbols.elementColors[currentCosmicData.element as keyof typeof cosmicSymbols.elementColors];
-    
-    return {
-      index,
-      sign,
-      cosmicData: currentCosmicData,
-      lineColor,
-      angle: (index * 30 - 90) * (Math.PI / 180),
-      dividerGradientId: `divider-gradient-${index}`
-    };
-  });
-
   // Calculate planet data
   const planetData = chart.bodies.map((body) => {
     const zodiacIndex = Math.floor(body.longitude / 30);
@@ -240,17 +224,118 @@ export const ChartWheelPure: React.FC<ChartWheelProps> = ({
           houseRingGradientId="houseRingGradient"
         />
 
-        {/* Layer 5: Zodiac Dividers */}
-        {zodiacData.map((data) => (
-          <ZodiacDivider
-            key={data.index}
-            index={data.index}
-            houseRadius={houseRadius}
-            radius={radius}
-            lineColor={data.lineColor}
-            dividerGradientId={data.dividerGradientId}
-          />
-        ))}
+        {/* Layer 5: Zodiac Dividers - Dual Element Lines with Glow Effect */}
+        <g className="zodiac-dividers">
+          {ZODIAC_SIGNS.map((_, index) => {
+            // Get current and next zodiac signs
+            const currentSign = ZODIAC_SIGNS[index];
+            const nextSign = ZODIAC_SIGNS[(index + 1) % 12];
+            
+            // Get element colors for classical elements
+            const elementColors = {
+              fire: '#ff4444',    // Red
+              earth: '#44ff44',   // Green  
+              air: '#ffff44',     // Yellow
+              water: '#4444ff'    // Blue
+            };
+            
+            const currentElementColor = elementColors[currentSign.element.toLowerCase() as keyof typeof elementColors];
+            const nextElementColor = elementColors[nextSign.element.toLowerCase() as keyof typeof elementColors];
+            
+            // Calculate the cusp angle (between current and next sign)
+            const cuspAngleDegrees = ((index + 1) * 30) % 360; // 30°, 60°, 90°, etc.
+            const cuspAngleRadians = (cuspAngleDegrees - 90) * (Math.PI / 180);
+            
+            // Calculate cusp longitude for opacity calculation
+            const cuspLongitude = cuspAngleDegrees;
+            
+            // Calculate dynamic opacity based on proximity to celestial bodies
+            const dynamicOpacity = calculateSymbolOpacity(
+              cuspLongitude, 
+              allCelestialBodies, 
+              0.05, // Base opacity (very low)
+              0.8,  // Max opacity
+              15    // Orb size
+            );
+            
+            // Calculate line positions (slightly offset for side-by-side effect)
+            const lineOffset = 1; // Small offset in pixels
+            const cos = Math.cos(cuspAngleRadians);
+            const sin = Math.sin(cuspAngleRadians);
+            
+            // Perpendicular offset for side-by-side lines
+            const perpCos = Math.cos(cuspAngleRadians + Math.PI / 2);
+            const perpSin = Math.sin(cuspAngleRadians + Math.PI / 2);
+            
+            return (
+              <g key={`zodiac-cusp-${index}`} className="zodiac-cusp-divider">
+                {/* Glow effect layers for NEXT sign's element (thicker, more transparent) */}
+                <line
+                  x1={(cos * houseRadius) + (perpCos * lineOffset)}
+                  y1={(sin * houseRadius) + (perpSin * lineOffset)}
+                  x2={(cos * radius) + (perpCos * lineOffset)}
+                  y2={(sin * radius) + (perpSin * lineOffset)}
+                  stroke={nextElementColor}
+                  strokeWidth={8}
+                  opacity={dynamicOpacity * 0.2}
+                />
+                <line
+                  x1={(cos * houseRadius) + (perpCos * lineOffset)}
+                  y1={(sin * houseRadius) + (perpSin * lineOffset)}
+                  x2={(cos * radius) + (perpCos * lineOffset)}
+                  y2={(sin * radius) + (perpSin * lineOffset)}
+                  stroke={nextElementColor}
+                  strokeWidth={4}
+                  opacity={dynamicOpacity * 0.4}
+                />
+                
+                {/* Glow effect layers for CURRENT sign's element (thicker, more transparent) */}
+                <line
+                  x1={(cos * houseRadius) - (perpCos * lineOffset)}
+                  y1={(sin * houseRadius) - (perpSin * lineOffset)}
+                  x2={(cos * radius) - (perpCos * lineOffset)}
+                  y2={(sin * radius) - (perpSin * lineOffset)}
+                  stroke={currentElementColor}
+                  strokeWidth={8}
+                  opacity={dynamicOpacity * 0.2}
+                />
+                <line
+                  x1={(cos * houseRadius) - (perpCos * lineOffset)}
+                  y1={(sin * houseRadius) - (perpSin * lineOffset)}
+                  x2={(cos * radius) - (perpCos * lineOffset)}
+                  y2={(sin * radius) - (perpSin * lineOffset)}
+                  stroke={currentElementColor}
+                  strokeWidth={4}
+                  opacity={dynamicOpacity * 0.4}
+                />
+                
+                {/* Main line representing the NEXT sign's element (first line) */}
+                <line
+                  x1={(cos * houseRadius) + (perpCos * lineOffset)}
+                  y1={(sin * houseRadius) + (perpSin * lineOffset)}
+                  x2={(cos * radius) + (perpCos * lineOffset)}
+                  y2={(sin * radius) + (perpSin * lineOffset)}
+                  stroke={nextElementColor}
+                  strokeWidth={2}
+                  opacity={dynamicOpacity}
+                />
+                
+                {/* Main line representing the CURRENT sign's element (second line) */}
+                <line
+                  x1={(cos * houseRadius) - (perpCos * lineOffset)}
+                  y1={(sin * houseRadius) - (perpSin * lineOffset)}
+                  x2={(cos * radius) - (perpCos * lineOffset)}
+                  y2={(sin * radius) - (perpSin * lineOffset)}
+                  stroke={currentElementColor}
+                  strokeWidth={2}
+                  opacity={dynamicOpacity}
+                />
+              </g>
+            );
+          })}
+        </g>
+
+
 
         {/* Layer 6: Zodiac Symbols */}
         <ZodiacSymbols 

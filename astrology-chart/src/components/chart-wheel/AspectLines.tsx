@@ -43,12 +43,12 @@ export const AspectLines: React.FC<AspectLinesProps> = ({
     <g className="aspect-lines">
       {/* Create gradient definitions for each unique aspect type */}
       <defs>
-        {[...new Set(majorAspects.map(a => a.type))].map(aspectType => {
+        {[...new Set(majorAspects.map(a => a.type))].map((aspectType, index) => {
           const { aspectColor, aspectGradientId } = getAspectColorAndGradient(aspectType);
           
           return (
             <linearGradient
-              key={aspectGradientId}
+              key={`${aspectType}-${index}`}
               id={aspectGradientId}
               gradientUnits="userSpaceOnUse"
             >
