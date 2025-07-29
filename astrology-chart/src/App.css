@@ -23,6 +23,40 @@
   box-shadow: 0 0 0 3px rgba(0, 168, 255, 0.1);
 }
 
+/* Form select styling to match existing inputs */
+.form-select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 1rem;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: var(--font-primary);
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(0, 168, 255, 0.1);
+}
+
+.form-select option {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  padding: 0.5rem;
+}
+
+/* Form hint text for descriptions */
+.form-hint {
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
 /* Main app layout with CSS Grid */
 .app-main {
   display: grid;

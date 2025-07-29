@@ -2,11 +2,10 @@ import { useState, useCallback, useEffect, useRef } from 'react'
 import type { TouchEvent } from 'react'
 import { CalendarDays, Loader2, Play, Pause, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react'
 import BirthChartVisualization from './components/BirthChartVisualization'
-import TopBar from './components/TopBar'
+import ThemeToggle from './components/ThemeToggle'
 import LeftSideDrawer from './components/LeftSideDrawer'
 import RightSideDrawer from './components/RightSideDrawer'
-import BottomBar from './components/BottomBar'
-import { AstrologyCalculator, type BirthData, type AstrologyChart, type HouseSystemType } from './astrology'
+import { AstrologyCalculator, type BirthData, type AstrologyChart } from './astrology'
 import './App.css'
 import './components/SideDrawers.css'
 import themeManager from './theme-manager'
@@ -50,8 +49,6 @@ function App() {
   const [chart, setChart] = useState<AstrologyChart | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
   const [error, setError] = useState<string>('');
-  
-  // Remove house system state - defaulting to Equal House
   
   // Real-time mode state
   const [isRealTimeMode, setIsRealTimeMode] = useState(true); // Default to real-time mode
@@ -152,7 +149,7 @@ function App() {
       const newChart = await astrologyCalculator.calculateChart(birthData);
       console.log('✅ Chart calculated successfully:', newChart);
       console.log('📊 Number of bodies:', newChart.bodies.length);
-      console.log('🏠 Number of houses:', newChart.houses.cusps.length, 'System:', newChart.houses.system);
+      console.log('🏠 Number of houses:', newChart.houses.cusps.length);
       console.log('🔗 Number of aspects:', newChart.aspects.length);
       setChart(newChart);
     } catch (err) {
@@ -161,7 +158,7 @@ function App() {
     } finally {
       setIsCalculating(false);
     }
-  }, [birthData]); // Removed houseSystem dependency
+  }, [birthData]);
   
   // Format date for display
   const formatDateForInput = (date: Date): string => {
@@ -238,7 +235,12 @@ function App() {
       
       <main className="app-main">
         {/* Top bar */}
-        <TopBar />
+        <div className="top-bar hardware-panel">
+          <div className="app-title">Astrology Chart</div>
+          <div className="top-bar-controls">
+            <ThemeToggle />
+          </div>
+        </div>
         
         {/* Chart container - central content */}
         <div 
@@ -262,12 +264,9 @@ function App() {
         </div>
         
         {/* Bottom bar */}
-        <BottomBar 
-          isRealTimeMode={isRealTimeMode}
-          toggleRealTimeMode={toggleRealTimeMode}
-          resetToCurrentTime={resetToCurrentTime}
-          birthData={birthData}
-        />
+        <div className="bottom-bar">
+          {/* Can be filled with action buttons or status information later */}
+        </div>
         
         {/* Left panel - Birth Information */}
         <div className={`panel left-panel ${leftPanelOpen ? 'open' : ''}`}>
@@ -279,30 +278,29 @@ function App() {
             toggleRealTimeMode={toggleRealTimeMode}
             resetToCurrentTime={resetToCurrentTime}
           />
-          
-          {/* Left panel toggle button - attached to panel */}
-          <button 
-            className="panel-toggle left-panel-toggle"
-            onClick={toggleLeftPanel}
-            title="Birth Information"
-          >
-            {leftPanelOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
-          </button>
         </div>
         
         {/* Right panel - Planetary Harmonics */}
         <div className={`panel right-panel ${rightPanelOpen ? 'open' : ''}`}>
           <RightSideDrawer chart={chart} />
-          
-          {/* Right panel toggle button - attached to panel */}
-          <button 
-            className="panel-toggle right-panel-toggle"
-            onClick={toggleRightPanel}
-            title="Planetary Harmonics"
-          >
-            {rightPanelOpen ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
-          </button>
         </div>
+        
+        {/* Panel toggle buttons */}
+        <button 
+          className="panel-toggle left-panel-toggle"
+          onClick={toggleLeftPanel}
+          title="Birth Information"
+        >
+          <ChevronRight size={20} />
+        </button>
+        
+        <button 
+          className="panel-toggle right-panel-toggle"
+          onClick={toggleRightPanel}
+          title="Planetary Harmonics"
+        >
+          <ChevronLeft size={20} />
+        </button>
       </main>
     </div>
   );

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cusp Shadow Generator</title>
+</head>
+<body>
+    <h1>Cusp Shadow Generator</h1>
+    <canvas id="canvas" width="100" height="100" style="border: 1px solid #ccc;"></canvas>
+    <br><br>
+    <button onclick="generateShadow()">Generate Shadow PNG</button>
+    <br><br>
+    <a id="downloadLink" style="display: none;">Download cusp-shadow.png</a>
+
+    <script>
+        function generateShadow() {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, 100, 100);
+            
+            // Create radial gradient from center to edge
+            const gradient = ctx.createRadialGradient(50, 50, 0, 50, 50, 50);
+            gradient.addColorStop(0, 'rgba(0, 0, 0, 0.8)');    // Center: 80% opaque black
+            gradient.addColorStop(0.7, 'rgba(0, 0, 0, 0.3)');  // 70%: 30% opaque
+            gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');      // Edge: transparent
+            
+            // Fill circle with gradient
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(50, 50, 50, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Convert to blob and download
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const link = document.getElementById('downloadLink');
+                link.href = url;
+                link.download = 'cusp-shadow.png';
+                link.style.display = 'inline';
+                link.textContent = 'Download cusp-shadow.png';
+                link.click(); // Auto-download
+            }, 'image/png');
+        }
+        
+        // Auto-generate on load
+        window.onload = function() {
+            generateShadow();
+        };
+    </script>
+</body>
+</html>

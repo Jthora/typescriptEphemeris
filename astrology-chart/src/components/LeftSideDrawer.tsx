@@ -102,6 +102,8 @@ const LeftSideDrawer: React.FC<LeftSideDrawerProps> = ({
             />
           </div>
 
+          {/* House System dropdown removed - using Equal House only */}
+
           {/* The form-actions div with Real-time and Now buttons has been moved to BottomBar component */}
         </div>
       </div>

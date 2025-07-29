@@ -24,7 +24,7 @@ export const DecanSymbols: React.FC<DecanSymbolsProps> = ({
   calculateSymbolOpacity,
   allCelestialBodies
 }) => {
-  const decanRadius = radius * 0.75; // Inner rim for Base36 decan symbols
+  const decanRadius = radius * 0.55; // Just outside the AspectArea rim (AspectArea is at 0.5, so 0.55 puts it just outside)
 
   return (
     <g className="decan-symbols">
@@ -56,13 +56,13 @@ export const DecanSymbols: React.FC<DecanSymbolsProps> = ({
           const decanLongitude = (i * 30) + (decanIndex * 10) + 5;
           
           // Calculate opacity based on proximity to planets and other celestial bodies
-          // For decans, use a 5-degree orb (smaller than zodiac/cusps)
+          // For decans, use a 8-degree orb (larger for easier activation)
           const decanOpacity = calculateSymbolOpacity(
             decanLongitude,
             allCelestialBodies,
-            0.1,  // base opacity
-            0.85, // max opacity (keeping the original max of 0.85)
-            5     // orb size in degrees (smaller than zodiac)
+            0.02, // base opacity (changed from 0.05 to 0.02)
+            1.0,  // max opacity (increased to allow full opacity)
+            8     // orb size in degrees (increased from 5 to 8 for easier activation)
           );
 
           return (

@@ -129,7 +129,8 @@ export const CuspSymbols: React.FC<CuspSymbolsProps> = ({
   calculateSymbolOpacity,
   allCelestialBodies
 }) => {
-  const cuspRadius = radius * 0.85; // Middle rim for Base24 cusp symbols
+  const houseRadius = radius * 0.8; // House radius
+  const cuspRadius = houseRadius * 0.93; // Position cusp symbols a bit further inside the house rim
 
   return (
     <g className="cusp-symbols">
@@ -172,7 +173,7 @@ export const CuspSymbols: React.FC<CuspSymbolsProps> = ({
         const cuspOpacity = calculateSymbolOpacity(
           cuspLongitude,
           allCelestialBodies,
-          0.1, // base opacity
+          0.02, // base opacity (changed from 0.1 to 0.02)
           1.0, // max opacity
           15   // orb size in degrees
         );
@@ -184,6 +185,7 @@ export const CuspSymbols: React.FC<CuspSymbolsProps> = ({
             data-force={cuspData.force}
             data-combo={cuspData.combo}
           >
+            {/* Cusp symbol positioned at the outer edge of house rim */}
             <image
               href={cuspData.image}
               x={cuspX - cuspSize/2}
