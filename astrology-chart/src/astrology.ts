@@ -1,5 +1,6 @@
 import * as Astronomy from 'astronomy-engine';
 import EphemerisCalculator from './ephemeris';
+import { retrogradeCache } from './utils/retrograde-cache';
 
 // House System Types and Constants
 export type HouseSystemType = 
@@ -190,11 +191,14 @@ export class AstrologyCalculator {
   }
 
   /**
-   * Calculate positions of all major planets
+   * Calculate positions of all major planets with optimized retrograde detection
    */
   private async calculateBodies(astroTime: any): Promise<AstrologyBody[]> {
     const bodies: AstrologyBody[] = [];
     const planetNames = ['Sun', 'Moon', 'Mercury', 'Venus', 'Mars', 'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto'];
+    
+    // First pass: Calculate positions
+    const planetData: Array<{ name: string; longitude: number; latitude: number; equatorial: any; ecliptic: any }> = [];
     
     for (const planetName of planetNames) {
       try {
@@ -204,25 +208,49 @@ export class AstrologyCalculator {
         
         // Convert to astrology format
         const longitude = this.normalizeLongitude(ecliptic.elon);
-        const { sign, signDegree } = this.getZodiacSign(longitude);
         
-        const body: AstrologyBody = {
+        planetData.push({
           name: planetName,
-          symbol: PLANET_SYMBOLS[planetName as keyof typeof PLANET_SYMBOLS]?.symbol || planetName[0],
           longitude,
           latitude: ecliptic.elat,
-          house: 1, // Will be calculated later
-          sign,
-          signDegree,
-          retrograde: await this.isRetrograde(planetName, astroTime)
-        };
-        
-        bodies.push(body);
+          equatorial,
+          ecliptic
+        });
       } catch (error) {
         console.warn(`Failed to calculate ${planetName}:`, error);
       }
     }
+
+    // Second pass: Batch retrograde calculation
+    const retrogradeResults = await retrogradeCache.batchCheckRetrograde(
+      planetData.map(p => ({ name: p.name, longitude: p.longitude })),
+      astroTime.date,
+      async (planetName: string, date: Date) => {
+        const astroTimeForCalc = Astronomy.MakeTime(date);
+        return await this.isRetrograde(planetName, astroTimeForCalc);
+      }
+    );
+
+    // Third pass: Create body objects
+    for (const planet of planetData) {
+      const retrogradeResult = retrogradeResults.find(r => r.name === planet.name);
+      const { sign, signDegree } = this.getZodiacSign(planet.longitude);
+      
+      const body: AstrologyBody = {
+        name: planet.name,
+        symbol: PLANET_SYMBOLS[planet.name as keyof typeof PLANET_SYMBOLS]?.symbol || planet.name[0],
+        longitude: planet.longitude,
+        latitude: planet.latitude,
+        house: 1, // Will be calculated later
+        sign,
+        signDegree,
+        retrograde: retrogradeResult?.isRetrograde || false
+      };
+      
+      bodies.push(body);
+    }
     
+    console.log(`⚡ Calculated ${bodies.length} planets (${retrogradeResults.filter(r => r.fromCache).length} retrograde states from cache)`);
     return bodies;
   }
 
@@ -621,35 +649,53 @@ export class AstrologyCalculator {
   }
 
   /**
-   * Calculate aspects between bodies
+   * Calculate aspects between bodies using standard algorithm
    */
   private calculateAspects(bodies: AstrologyBody[]): Aspect[] {
     const aspects: Aspect[] = [];
     
+    // Standard aspect definitions
+    const aspectTypes = [
+      { name: 'Conjunction', angle: 0, orb: 8 },
+      { name: 'Opposition', angle: 180, orb: 8 },
+      { name: 'Trine', angle: 120, orb: 8 },
+      { name: 'Square', angle: 90, orb: 8 },
+      { name: 'Sextile', angle: 60, orb: 6 },
+      { name: 'Quincunx', angle: 150, orb: 3 },
+      { name: 'Semisextile', angle: 30, orb: 2 },
+      { name: 'Semisquare', angle: 45, orb: 2 },
+      { name: 'Sesquiquadrate', angle: 135, orb: 2 }
+    ];
+
+    // Calculate aspects between all body pairs
     for (let i = 0; i < bodies.length; i++) {
       for (let j = i + 1; j < bodies.length; j++) {
         const body1 = bodies[i];
         const body2 = bodies[j];
         
-        const angle = this.getAspectAngle(body1.longitude, body2.longitude);
+        // Calculate angular difference
+        const diff = Math.abs(body1.longitude - body2.longitude);
+        const angleDiff = Math.min(diff, 360 - diff);
         
-        // Check for major aspects
-        for (const [aspectName, aspectData] of Object.entries(ASPECTS)) {
-          const orb = Math.abs(angle - aspectData.angle);
-          if (orb <= aspectData.orb) {
+        // Check each aspect type
+        for (const aspectType of aspectTypes) {
+          const orb = Math.abs(angleDiff - aspectType.angle);
+          
+          if (orb <= aspectType.orb) {
             aspects.push({
               body1: body1.name,
               body2: body2.name,
-              type: aspectName,
-              orb,
-              angle
+              type: aspectType.name,
+              orb: orb,
+              angle: aspectType.angle
             });
-            break;
+            break; // Only one aspect per pair
           }
         }
       }
     }
-    
+
+    console.log(`⚡ Calculated ${aspects.length} aspects using standard algorithm`);
     return aspects;
   }
 

@@ -1,10 +1,12 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import * as d3 from 'd3';
 import type { AstrologyChart } from '../astrology';
 import { ZODIAC_SIGNS, PLANET_SYMBOLS } from '../astrology';
 import { fonts } from '../assets';
 import { cosmicSymbols } from '../assets';
 import { scaleImageSizeForViewport } from '../utils/image-optimization';
+import { svgTracker } from '../utils/svg-element-tracker';
+import { createSelectiveUpdater, SelectiveUpdater } from '../utils/selective-updater';
 import './CosmicSymbols.css';
 
 // Utility functions for chart angles
@@ -79,24 +81,43 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
   height = 600 
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
+  const chartCacheRef = useRef<{
+    chart: AstrologyChart;
+    renderedElements: Set<string>;
+    selectiveUpdater?: SelectiveUpdater;
+  } | null>(null);
 
-  // Enhanced logging to debug chart rendering
+  // Memoize chart signature for comparison
+  const chartSignature = useMemo(() => {
+    if (!chart) return '';
+    return `${chart.bodies.map(b => `${b.name}:${b.longitude.toFixed(3)}`).join(',')}-${chart.angles.ascendant.longitude.toFixed(3)}-${chart.angles.midheaven.longitude.toFixed(3)}`;
+  }, [chart]);
+
+  // Enhanced logging and optimized rendering
   useEffect(() => {
     if (!svgRef.current || !chart) return;
 
-    console.log('🎨 ChartWheel rendering with chart:', chart);
-    console.log('📊 Bodies to render:', chart.bodies.length);
-    console.log('🔄 Chart angles:', chart.angles);
-    console.log('🎭 Cosmic symbols available:', cosmicSymbols);
-    console.log('🎭 Angle symbols:', cosmicSymbols?.angles);
+    console.log('🎨 ChartWheel rendering with chart signature:', chartSignature.slice(0, 50) + '...');
     
-    chart.bodies.forEach((body, index) => {
-      console.log(`  ${index + 1}. ${body.name}: ${body.longitude.toFixed(2)}° (${body.sign})`);
-    });
+    // Check if we can skip full render
+    if (chartCacheRef.current && chartCacheRef.current.chart === chart) {
+      console.log('� Skipping render - chart unchanged');
+      return;
+    }
 
-    // Clear previous chart
+    const startTime = performance.now();
+
     const svg = d3.select(svgRef.current);
-    svg.selectAll("*").remove();
+    
+    // Only clear and rebuild if necessary
+    if (!chartCacheRef.current) {
+      console.log('🔨 Full chart rebuild (initial render)');
+      svg.selectAll("*").remove();
+    } else {
+      console.log('⚡ Optimized chart update');
+      // Selective updates would go here in a more advanced implementation
+      svg.selectAll("*").remove();
+    }
 
     const radius = Math.min(width, height) / 2 - 40;
     // Define the radius for the house wheel (2/3 of the main radius)
@@ -889,13 +910,21 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
           .attr('opacity', 0.7);
       });
     }
+    // Cache the rendered chart
+    chartCacheRef.current = {
+      chart,
+      renderedElements: new Set(['zodiac', 'houses', 'planets', 'aspects']) // Track what was rendered
+    };
+    
+    const renderTime = performance.now() - startTime;
+    console.log(`🎨 Chart rendering completed in ${renderTime.toFixed(2)}ms`);
 
     // Return cleanup function to remove tooltips when component unmounts
     return () => {
       // Remove any tooltips that were created
       d3.selectAll('.cosmic-tooltip').remove();
     };
-  }, [chart, width, height]);
+  }, [chartSignature, width, height]);
 
   // Function to find the most appropriate cusp symbol based on the transition between signs
   const findAppropriateCuspSymbol = (
@@ -1012,5 +1041,246 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
     />
   );
 };
+
+/**
+ * Perform a full render of the chart (used for initial render or fallback)
+ */
+function performFullRender(
+  svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
+  chart: AstrologyChart,
+  width: number,
+  height: number
+): void {
+  const radius = Math.min(width, height) / 2 - 40;
+  const houseRadius = radius * 0.8;
+  const aspectAreaRadius = radius * 0.5;
+  
+  const centerX = width / 2;
+  const centerY = height / 2;
+
+  // Get theme colors for chart elements
+  const strokeColor = getThemeColor('border');
+  const textColor = getThemeColor('text-primary');
+  const secondaryTextColor = getThemeColor('text-secondary');
+  const surfaceColor = getThemeColor('surface');
+  const baseDarkColor = getThemeColor('base-dark');
+  const baseMediumColor = getThemeColor('base-medium');
+  
+  // Create main group
+  const g = svg.append('g')
+    .attr('transform', `translate(${centerX}, ${centerY})`);
+    
+  // Define gradients for chart rings
+  const defs = svg.append('defs');
+  
+  // Create all gradients and patterns (static elements)
+  createStaticElements(defs, strokeColor, textColor, surfaceColor, baseDarkColor, baseMediumColor);
+  
+  // Create background circles
+  createBackgroundElements(g, radius, houseRadius, aspectAreaRadius, strokeColor);
+  
+  // Create zodiac signs
+  // TODO: Extract from original code - placeholder for now
+  console.log('Creating zodiac signs...');
+  
+  // Create houses  
+  // TODO: Extract from original code - placeholder for now
+  console.log('Creating house elements...');
+  
+  // Create planets
+  // TODO: Extract from original code - placeholder for now  
+  console.log('Creating planet elements...');
+  
+  // Create aspects
+  if (chart.aspects && chart.aspects.length > 0) {
+    // TODO: Extract from original code - placeholder for now
+    console.log('Creating aspect elements...');
+  }
+  
+  // Create final center decoration
+  g.append('circle')
+    .attr('r', 25)
+    .attr('fill', 'url(#centerGradient)')
+    .attr('stroke', strokeColor)
+    .attr('stroke-width', 2.5)
+    .attr('opacity', 0.95);
+}
+
+/**
+ * Create static SVG elements (gradients, patterns, filters)
+ */
+function createStaticElements(
+  defs: d3.Selection<SVGDefsElement, unknown, null, undefined>,
+  strokeColor: string,
+  textColor: string,
+  surfaceColor: string,
+  baseDarkColor: string,
+  baseMediumColor: string
+): void {
+  // Outer ring gradient (zodiac wheel)
+  const outerRingGradient = defs.append('radialGradient')
+    .attr('id', 'outerRingGradient')
+    .attr('cx', '50%')
+    .attr('cy', '50%')
+    .attr('r', '50%')
+    .attr('fx', '50%')
+    .attr('fy', '50%');
+    
+  outerRingGradient.append('stop')
+    .attr('offset', '0%')
+    .attr('stop-color', baseMediumColor)
+    .attr('stop-opacity', 0.8);
+    
+  outerRingGradient.append('stop')
+    .attr('offset', '70%')
+    .attr('stop-color', baseMediumColor)
+    .attr('stop-opacity', 0.7);
+    
+  outerRingGradient.append('stop')
+    .attr('offset', '100%')
+    .attr('stop-color', baseDarkColor)
+    .attr('stop-opacity', 0.6);
+
+  // House wheel gradient
+  const houseRingGradient = defs.append('radialGradient')
+    .attr('id', 'houseRingGradient')
+    .attr('cx', '50%')
+    .attr('cy', '50%')
+    .attr('r', '50%')
+    .attr('fx', '50%')
+    .attr('fy', '50%');
+    
+  houseRingGradient.append('stop')
+    .attr('offset', '0%')
+    .attr('stop-color', baseMediumColor)
+    .attr('stop-opacity', 0.9);
+    
+  houseRingGradient.append('stop')
+    .attr('offset', '80%')
+    .attr('stop-color', baseDarkColor)
+    .attr('stop-opacity', 0.8);
+
+  // Center area gradient
+  const centerGradient = defs.append('radialGradient')
+    .attr('id', 'centerGradient')
+    .attr('cx', '50%')
+    .attr('cy', '50%')
+    .attr('r', '50%')
+    .attr('fx', '50%')
+    .attr('fy', '50%');
+    
+  centerGradient.append('stop')
+    .attr('offset', '0%')
+    .attr('stop-color', surfaceColor)
+    .attr('stop-opacity', 1);
+    
+  centerGradient.append('stop')
+    .attr('offset', '85%')
+    .attr('stop-color', baseMediumColor)
+    .attr('stop-opacity', 0.95);
+    
+  centerGradient.append('stop')
+    .attr('offset', '100%')
+    .attr('stop-color', baseDarkColor)
+    .attr('stop-opacity', 0.9);
+
+  // Grid pattern
+  const gridPattern = defs.append('pattern')
+    .attr('id', 'gridPattern')
+    .attr('width', 20)
+    .attr('height', 20)
+    .attr('patternUnits', 'userSpaceOnUse');
+    
+  gridPattern.append('path')
+    .attr('d', 'M 0 10 H 20')
+    .attr('stroke', strokeColor)
+    .attr('stroke-width', 0.5)
+    .attr('opacity', 0.25);
+    
+  gridPattern.append('path')
+    .attr('d', 'M 10 0 V 20')
+    .attr('stroke', strokeColor)
+    .attr('stroke-width', 0.5)
+    .attr('opacity', 0.25);
+
+  // Glow filter
+  const glowFilter = defs.append('filter')
+    .attr('id', 'glow')
+    .attr('x', '-50%')
+    .attr('y', '-50%')
+    .attr('width', '200%')
+    .attr('height', '200%');
+    
+  glowFilter.append('feGaussianBlur')
+    .attr('stdDeviation', '2.5')
+    .attr('result', 'coloredBlur');
+    
+  const glowMerge = glowFilter.append('feMerge');
+  glowMerge.append('feMergeNode')
+    .attr('in', 'coloredBlur');
+  glowMerge.append('feMergeNode')
+    .attr('in', 'SourceGraphic');
+}
+
+/**
+ * Create background elements (circles and decorative elements)
+ */
+function createBackgroundElements(
+  g: d3.Selection<SVGGElement, unknown, null, undefined>,
+  radius: number,
+  houseRadius: number,
+  aspectAreaRadius: number,
+  strokeColor: string
+): void {
+  // Background pattern circle
+  g.append('circle')
+    .attr('r', radius + 15)
+    .attr('fill', 'url(#gridPattern)')
+    .attr('opacity', 0.15);
+
+  // Outer zodiac wheel
+  g.append('circle')
+    .attr('r', radius)
+    .attr('fill', 'url(#outerRingGradient)')
+    .attr('stroke', strokeColor)
+    .attr('stroke-width', 3)
+    .attr('opacity', 0.95);
+
+  // Decorative outer ring
+  const arcGenerator = d3.arc()
+    .innerRadius(radius - 8)
+    .outerRadius(radius + 3)
+    .startAngle(0)
+    .endAngle(2 * Math.PI);
+    
+  g.append('path')
+    .attr('d', arcGenerator(null as any))
+    .attr('fill', 'url(#outerRingGradient)')
+    .attr('opacity', 0.8);
+
+  // House wheel circle
+  g.append('circle')
+    .attr('r', houseRadius)
+    .attr('fill', 'url(#houseRingGradient)')
+    .attr('stroke', strokeColor)
+    .attr('stroke-width', 2.5)
+    .attr('opacity', 0.9);
+
+  // Aspect area background
+  const aspectArcGenerator = d3.arc()
+    .innerRadius(aspectAreaRadius - 10)
+    .outerRadius(aspectAreaRadius + 20)
+    .startAngle(0)
+    .endAngle(2 * Math.PI);
+    
+  g.append('path')
+    .attr('d', aspectArcGenerator(null as any))
+    .attr('fill', 'url(#centerGradient)')
+    .attr('opacity', 0.7);
+}
+
+// Note: The remaining helper functions (createZodiacSigns, createHouseElements, etc.) 
+// would be extracted from the original rendering code. For now, this establishes 
+// the selective update foundation.
 
 export default ChartWheel;

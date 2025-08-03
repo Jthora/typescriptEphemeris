@@ -17,11 +17,11 @@ const BottomBar: React.FC<BottomBarProps> = ({
 }) => {
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
-  // Update current time every second
+  // Update current time every second for UI display (independent of chart calculations)
   useEffect(() => {
     const intervalId = setInterval(() => {
       setCurrentDateTime(new Date());
-    }, 1000);
+    }, 1000); // Keep 1-second UI updates for responsive time display
     
     return () => clearInterval(intervalId);
   }, []);

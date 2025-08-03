@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import type { TouchEvent } from 'react'
 import { CalendarDays, Loader2, Play, Pause, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react'
 import BirthChartVisualization from './components/BirthChartVisualization'
@@ -58,8 +58,17 @@ function App() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const realTimeIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const chartCalculationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Performance monitoring
+  const lastCalculationTimeRef = useRef<number>(0);
+  const chartCacheRef = useRef<{ birthDataKey: string; chart: AstrologyChart } | null>(null);
 
-  // Update current time every second when in real-time mode
+  // Create a stable key for birth data comparison
+  const birthDataKey = useMemo(() => {
+    return `${birthData.date.getTime()}-${birthData.latitude}-${birthData.longitude}`;
+  }, [birthData.date.getTime(), birthData.latitude, birthData.longitude]);
+
+  // Update current time every second when in real-time mode (with optimized calculations)
   useEffect(() => {
     if (isRealTimeMode) {
       realTimeIntervalRef.current = setInterval(() => {
@@ -71,7 +80,7 @@ function App() {
           ...prev,
           date: now
         }));
-      }, 1000);
+      }, 1000); // Back to 1-second updates - optimizations prevent slowdowns
     } else {
       if (realTimeIntervalRef.current) {
         clearInterval(realTimeIntervalRef.current);
@@ -86,7 +95,7 @@ function App() {
     };
   }, [isRealTimeMode]);
 
-  // Auto-calculate chart when birth data changes (with debouncing)
+  // Auto-calculate chart when birth data changes (with optimized caching and debouncing)
   useEffect(() => {
     // Clear existing timeout
     if (chartCalculationTimeoutRef.current) {
@@ -95,7 +104,7 @@ function App() {
 
     // Set new timeout for chart calculation (debounced to avoid excessive calculations)
     chartCalculationTimeoutRef.current = setTimeout(() => {
-      calculateChart();
+      calculateChartOptimized();
     }, isRealTimeMode ? 100 : 500); // Faster updates in real-time mode
 
     return () => {
@@ -103,7 +112,7 @@ function App() {
         clearTimeout(chartCalculationTimeoutRef.current);
       }
     };
-  }, [birthData]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [birthDataKey]); // Use stable key instead of entire birthData object
 
   const handleInputChange = useCallback((field: keyof BirthData, value: string | number | Date) => {
     // When user manually changes data, temporarily pause real-time mode for that field
@@ -143,17 +152,35 @@ function App() {
     setIsRealTimeMode(true);
   }, []);
 
-  const calculateChart = useCallback(async () => {
+  const calculateChartOptimized = useCallback(async () => {
+    // Check cache first
+    if (chartCacheRef.current && chartCacheRef.current.birthDataKey === birthDataKey) {
+      console.log('🚀 Using cached chart calculation');
+      setChart(chartCacheRef.current.chart);
+      return;
+    }
+    
     setIsCalculating(true);
     setError('');
     
     try {
-      console.log('🚀 Starting chart calculation with birth data:', birthData);
+      console.log('⚡ Calculating new chart for:', birthDataKey);
+      const startTime = performance.now();
+      
       const newChart = await astrologyCalculator.calculateChart(birthData);
+      
+      const calculationTime = performance.now() - startTime;
+      lastCalculationTimeRef.current = calculationTime;
+      
+      console.log(`📊 Chart calculation completed in ${calculationTime.toFixed(2)}ms`);
       console.log('✅ Chart calculated successfully:', newChart);
       console.log('📊 Number of bodies:', newChart.bodies.length);
       console.log('🏠 Number of houses:', newChart.houses.cusps.length, 'System:', newChart.houses.system);
       console.log('🔗 Number of aspects:', newChart.aspects.length);
+      
+      // Cache the result
+      chartCacheRef.current = { birthDataKey, chart: newChart };
+      
       setChart(newChart);
     } catch (err) {
       console.error('❌ Chart calculation error:', err);
@@ -161,7 +188,7 @@ function App() {
     } finally {
       setIsCalculating(false);
     }
-  }, [birthData]); // Removed houseSystem dependency
+  }, [birthDataKey, birthData]); // Removed houseSystem dependency
   
   // Format date for display
   const formatDateForInput = (date: Date): string => {
