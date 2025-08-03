@@ -1,0 +1,640 @@
+/**
+ * Modern Mechanical Design System for Planetary Harmonics Sidebar
+ * Aligned with techno-mechanical theme using CSS variables
+ */
+
+/* Base sidebar container */
+.planetary-harmonics-sidebar {
+  font-family: var(--font-primary);
+  background: var(--color-surface);
+  border: var(--border-width) var(--border-style) var(--color-border);
+  border-radius: var(--corner-radius-medium);
+  color: var(--color-text-primary);
+  overflow: hidden;
+  box-shadow: var(--outset-shadow);
+  transition: all var(--animation-duration-open) var(--animation-easing-open);
+}
+
+.planetary-harmonics-sidebar:hover {
+  border-color: var(--color-border-highlight);
+  box-shadow: 0 4px 8px var(--color-shadow);
+}
+
+/* Mechanical panel structure */
+.mechanical-panel {
+  position: relative;
+  background: var(--color-surface);
+  border-radius: var(--corner-radius-medium);
+  overflow: hidden;
+}
+
+.mechanical-panel--primary {
+  border: 2px solid var(--color-border-highlight);
+}
+
+.mechanical-panel--secondary {
+  border: var(--border-width) var(--border-style) var(--color-border);
+}
+
+/* Panel header with mechanical aesthetics */
+.panel-header {
+  position: relative;
+  padding: var(--panel-padding);
+  background: linear-gradient(135deg, 
+    var(--color-panel) 0%,
+    var(--color-surface) 100%);
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.panel-header::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--panel-lip-width);
+  background: linear-gradient(to bottom, 
+    var(--color-border-highlight) 0%,
+    var(--color-border) 20%,
+    var(--color-border) 80%,
+    var(--color-border-highlight) 100%);
+}
+
+.panel-header--with-rivets::after {
+  content: "⚫ ⚫";
+  position: absolute;
+  top: 50%;
+  right: var(--panel-padding);
+  transform: translateY(-50%);
+  font-size: var(--screw-size);
+  color: var(--color-border);
+  letter-spacing: 4px;
+}
+
+.panel-title {
+  font-size: var(--font-size-large);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+  padding-left: calc(var(--panel-lip-width) + var(--section-gap));
+}
+
+/* Content sections */
+.panel-content {
+  padding: var(--panel-padding);
+}
+
+.section-divider {
+  height: var(--border-width);
+  background: linear-gradient(90deg, 
+    transparent 0%,
+    var(--color-border) 20%,
+    var(--color-border) 80%,
+    transparent 100%);
+  margin: var(--panel-padding) 0;
+}
+
+/* Progress bars with mechanical styling */
+.progress-bar {
+  position: relative;
+  height: 6px;
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--corner-radius-small);
+  box-shadow: var(--inset-shadow);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, 
+    var(--color-primary), 
+    var(--color-info));
+  border-radius: var(--corner-radius-small);
+  box-shadow: var(--outset-shadow);
+  transition: width var(--animation-duration-open) var(--animation-easing-open);
+}
+
+.progress-bar--harmonic .progress-fill {
+  background: linear-gradient(90deg, 
+    var(--color-success), 
+    var(--color-primary));
+}
+
+.progress-bar--force .progress-fill {
+  background: linear-gradient(90deg, 
+    var(--color-warning), 
+    var(--color-error));
+}
+
+.progress-bar--magnitude .progress-fill {
+  background: linear-gradient(90deg, 
+    var(--color-info), 
+    var(--color-success));
+}
+
+/* Force indicators */
+.force-indicator {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--color-border);
+  border-radius: var(--corner-radius-small);
+  box-shadow: var(--inset-shadow);
+  transition: all var(--animation-duration-open) var(--animation-easing-open);
+}
+
+.force-indicator--interactive:hover {
+  transform: scale(1.1);
+  border-color: var(--color-border-highlight);
+  box-shadow: var(--outset-shadow);
+}
+
+.force-indicator--dot {
+  border-radius: 50%;
+}
+
+.force-indicator--bar {
+  border-radius: var(--corner-radius-small);
+}
+
+/* Button system */
+.mechanical-button {
+  background: var(--color-primary);
+  color: var(--color-text-primary);
+  border: var(--border-width) solid var(--color-border-highlight);
+  border-radius: var(--corner-radius-medium);
+  font-family: var(--font-primary);
+  font-size: var(--font-size-normal);
+  font-weight: 500;
+  padding: calc(var(--section-gap) + 2px) var(--panel-padding);
+  cursor: pointer;
+  transition: all var(--animation-press);
+  box-shadow: var(--outset-shadow);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  height: var(--control-height);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--section-gap);
+}
+
+.mechanical-button:hover {
+  background: var(--color-primary-dim);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px var(--color-shadow);
+}
+
+.mechanical-button:active {
+  transform: translateY(0);
+  box-shadow: var(--inset-shadow);
+}
+
+.mechanical-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.mechanical-button--secondary {
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  border-color: var(--color-border);
+}
+
+.mechanical-button--secondary:hover {
+  background: var(--color-panel);
+}
+
+/* Status indicators */
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--section-gap);
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+}
+
+.status-indicator--calculating {
+  color: var(--color-warning);
+  animation: mechanical-pulse var(--animation-glow) ease-in-out infinite;
+}
+
+.status-indicator--ready {
+  color: var(--color-success);
+}
+
+.status-indicator--error {
+  color: var(--color-error);
+}
+
+/* Data visualization cards */
+.data-card {
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--corner-radius-medium);
+  padding: var(--panel-padding);
+  margin-bottom: var(--panel-padding);
+  box-shadow: var(--inset-shadow);
+  transition: all var(--animation-duration-open) var(--animation-easing-open);
+}
+
+.data-card:hover {
+  border-color: var(--color-border-highlight);
+  box-shadow: var(--outset-shadow);
+}
+
+.data-card-title {
+  font-size: var(--font-size-normal);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--section-gap);
+  padding-bottom: var(--section-gap);
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.data-card-content {
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+/* Loading states */
+.loading-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--panel-padding);
+  color: var(--color-text-secondary);
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-border);
+  border-top: 2px solid var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-bars {
+  display: flex;
+  gap: 2px;
+}
+
+.loading-bar {
+  width: 3px;
+  height: 16px;
+  background: var(--color-primary);
+  border-radius: 1px;
+  animation: loading-bars 1.2s ease-in-out infinite;
+}
+
+.loading-bar:nth-child(2) { animation-delay: 0.1s; }
+.loading-bar:nth-child(3) { animation-delay: 0.2s; }
+.loading-bar:nth-child(4) { animation-delay: 0.3s; }
+
+/* Mechanical panel structure */
+.mechanical-panel {
+  position: relative;
+  background: var(--color-surface);
+  border-radius: var(--corner-radius-medium);
+  overflow: hidden;
+}
+
+.mechanical-panel--primary {
+  border: 2px solid var(--color-border-highlight);
+}
+
+.mechanical-panel--secondary {
+  border: 1px solid var(--color-border);
+}
+
+/* Panel header with mechanical aesthetics */
+.panel-header {
+  position: relative;
+  padding: var(--spacing-medium);
+  background: linear-gradient(135deg, 
+    var(--color-surface) 0%,
+    var(--color-surface-dim) 100%);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.panel-header::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(to bottom, 
+    var(--color-border-highlight) 0%,
+    var(--color-border) 20%,
+    var(--color-border) 80%,
+    var(--color-border-highlight) 100%);
+}
+
+.panel-header--with-rivets::after {
+  content: "⚫ ⚫";
+  position: absolute;
+  top: 50%;
+  right: var(--spacing-medium);
+  transform: translateY(-50%);
+  font-size: 8px;
+  color: var(--color-border);
+  letter-spacing: 4px;
+}
+
+.panel-title {
+  font-size: var(--font-size-large);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+  padding-left: var(--spacing-large);
+}
+
+/* Content sections */
+.panel-content {
+  padding: var(--spacing-medium);
+}
+
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent 0%,
+    var(--color-border) 20%,
+    var(--color-border) 80%,
+    transparent 100%);
+  margin: var(--spacing-large) 0;
+}
+
+/* Progress bars with mechanical styling */
+.progress-bar {
+  position: relative;
+  height: 6px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--corner-radius-small);
+  box-shadow: var(--inset-shadow);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, 
+    var(--color-primary), 
+    var(--color-info));
+  border-radius: var(--corner-radius-small);
+  box-shadow: var(--outset-shadow);
+  transition: width var(--animation-duration-open) var(--animation-easing-open);
+}
+
+.progress-bar--harmonic .progress-fill {
+  background: linear-gradient(90deg, 
+    var(--color-success), 
+    var(--color-primary));
+}
+
+.progress-bar--force .progress-fill {
+  background: linear-gradient(90deg, 
+    var(--color-warning), 
+    var(--color-danger));
+}
+
+.progress-bar--magnitude .progress-fill {
+  background: linear-gradient(90deg, 
+    var(--color-info), 
+    var(--color-success));
+}
+
+/* Force indicators */
+.force-indicator {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--color-border);
+  border-radius: var(--corner-radius-small);
+  box-shadow: var(--inset-shadow);
+  transition: all var(--animation-duration-open) var(--animation-easing-open);
+}
+
+.force-indicator--interactive:hover {
+  transform: scale(1.1);
+  border-color: var(--color-border-highlight);
+  box-shadow: var(--outset-shadow);
+}
+
+.force-indicator--dot {
+  border-radius: 50%;
+}
+
+.force-indicator--bar {
+  border-radius: var(--corner-radius-small);
+}
+
+/* Button system */
+.mechanical-button {
+  background: var(--color-primary);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-highlight);
+  border-radius: var(--corner-radius-medium);
+  font-family: var(--font-primary);
+  font-size: var(--font-size-medium);
+  font-weight: var(--font-weight-medium);
+  padding: var(--spacing-small) var(--spacing-medium);
+  cursor: pointer;
+  transition: all var(--animation-press);
+  box-shadow: var(--outset-shadow);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mechanical-button:hover {
+  background: var(--color-primary-dim);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px var(--color-shadow);
+}
+
+.mechanical-button:active {
+  transform: translateY(0);
+  box-shadow: var(--inset-shadow);
+}
+
+.mechanical-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.mechanical-button--secondary {
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  border-color: var(--color-border);
+}
+
+.mechanical-button--secondary:hover {
+  background: var(--color-surface-dim);
+}
+
+/* Status indicators */
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-small);
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+}
+
+.status-indicator--calculating {
+  color: var(--color-warning);
+  animation: mechanical-pulse var(--animation-glow) ease-in-out infinite;
+}
+
+.status-indicator--ready {
+  color: var(--color-success);
+}
+
+.status-indicator--error {
+  color: var(--color-danger);
+}
+
+/* Data visualization cards */
+.data-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--corner-radius-medium);
+  padding: var(--spacing-medium);
+  margin-bottom: var(--spacing-medium);
+  box-shadow: var(--inset-shadow);
+  transition: all var(--animation-duration-open) var(--animation-easing-open);
+}
+
+.data-card:hover {
+  border-color: var(--color-border-highlight);
+  box-shadow: var(--outset-shadow);
+}
+
+.data-card-title {
+  font-size: var(--font-size-medium);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-small);
+  padding-bottom: var(--spacing-small);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.data-card-content {
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+/* Loading states */
+.loading-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-large);
+  color: var(--color-text-secondary);
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-border);
+  border-top: 2px solid var(--color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-bars {
+  display: flex;
+  gap: 2px;
+}
+
+.loading-bar {
+  width: 3px;
+  height: 16px;
+  background: var(--color-primary);
+  border-radius: 1px;
+  animation: loading-bars 1.2s ease-in-out infinite;
+}
+
+/* Animations */
+@keyframes mechanical-pulse {
+  0%, 100% { 
+    opacity: 1;
+    box-shadow: var(--outset-shadow);
+  }
+  50% { 
+    opacity: 0.7;
+    box-shadow: var(--inset-shadow);
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes loading-bars {
+  0%, 40%, 100% { 
+    transform: scaleY(0.4);
+    opacity: 0.5;
+  }
+  20% { 
+    transform: scaleY(1.0);
+    opacity: 1;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .planetary-harmonics-sidebar {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+  
+  .panel-header {
+    padding: var(--section-gap) var(--panel-padding);
+  }
+  
+  .panel-title {
+    font-size: var(--font-size-normal);
+  }
+  
+  .mechanical-button {
+    font-size: var(--font-size-small);
+    padding: var(--section-gap);
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .planetary-harmonics-sidebar {
+    border-width: 2px;
+  }
+  
+  .progress-fill {
+    background: var(--color-text-primary);
+  }
+  
+  .force-indicator {
+    border-width: 3px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .planetary-harmonics-sidebar,
+  .progress-fill,
+  .force-indicator,
+  .mechanical-button,
+  .data-card {
+    transition: none;
+  }
+  
+  .mechanical-pulse,
+  .loading-spinner,
+  .loading-bars {
+    animation: none;
+  }
+}

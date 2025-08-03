@@ -1,0 +1,1943 @@
+/**
+ * Component-specific styles for Planetary Harmonics Sidebar
+ * Extends foundation styles with specialized layouts
+ */
+
+/* Harmonics Overview Styles */
+.harmonics-overview {
+  padding: var(--panel-padding);
+}
+
+.harmonics-overview h4 {
+  font-size: var(--font-size-normal);
+  color: var(--color-text-primary);
+  margin: var(--panel-padding) 0 var(--section-gap) 0;
+  padding-bottom: var(--section-gap);
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.force-distribution {
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-gap);
+  margin-bottom: var(--panel-padding);
+}
+
+.force-item {
+  display: flex;
+  align-items: center;
+  gap: var(--section-gap);
+  padding: var(--section-gap);
+  background: var(--color-panel);
+  border-radius: var(--corner-radius-small);
+  border: var(--border-width) solid var(--color-border);
+  transition: all var(--animation-duration-open) var(--animation-easing-open);
+}
+
+.force-item:hover {
+  background: var(--color-surface);
+  border-color: var(--color-border-highlight);
+}
+
+.force-header {
+  display: flex;
+  align-items: center;
+  gap: var(--section-gap);
+  flex: 1;
+}
+
+.force-name {
+  font-weight: 500;
+  color: var(--color-text-primary);
+  min-width: 60px;
+}
+
+.force-description {
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+.force-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--corner-radius-small);
+  overflow: hidden;
+  margin: 0 var(--section-gap);
+  box-shadow: var(--inset-shadow);
+}
+
+.force-fill {
+  height: 100%;
+  border-radius: var(--corner-radius-small);
+  transition: width var(--animation-duration-open) var(--animation-easing-open);
+  box-shadow: var(--outset-shadow);
+}
+
+.force-weight {
+  font-size: var(--font-size-small);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  min-width: 45px;
+  text-align: right;
+}
+
+/* Planetary Force Summary */
+.planetary-force-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-gap);
+  margin-bottom: var(--panel-padding);
+}
+
+.planet-force-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--section-gap);
+  background: var(--color-panel);
+  border-radius: var(--corner-radius-small);
+  border: var(--border-width) solid var(--color-border);
+}
+
+.planet-name {
+  font-weight: 500;
+  color: var(--color-text-primary);
+  flex: 1;
+}
+
+.planet-primary-force {
+  display: flex;
+  align-items: center;
+  gap: var(--section-gap);
+}
+
+.force-label {
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+  min-width: 50px;
+}
+
+.force-percentage {
+  font-size: var(--font-size-small);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  min-width: 35px;
+  text-align: right;
+}
+
+/* Harmonic Summary */
+.harmonic-summary {
+  margin-bottom: var(--panel-padding);
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--section-gap);
+  margin-bottom: var(--panel-padding);
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  padding: var(--section-gap);
+  background: var(--color-panel);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--corner-radius-small);
+  text-align: center;
+}
+
+.summary-item .label {
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+  margin-bottom: calc(var(--section-gap) / 2);
+}
+
+.summary-item .value {
+  font-size: var(--font-size-normal);
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+/* Demo Section */
+.demo-section {
+  padding: var(--panel-padding);
+  background: var(--color-panel);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--corner-radius-medium);
+  text-align: center;
+}
+
+.demo-section h5 {
+  font-size: var(--font-size-normal);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--section-gap) 0;
+}
+
+.demo-description {
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+  margin: 0 0 var(--panel-padding) 0;
+  line-height: 1.4;
+}
+
+/* Force Bar Container for simplified layouts */
+.force-bar-container {
+  display: flex;
+  align-items: center;
+  gap: var(--section-gap);
+  width: 100%;
+}
+
+.force-bar-container .force-bar {
+  flex: 1;
+  height: 6px;
+}
+
+/* Progress Label */
+.progress-label {
+  position: absolute;
+  top: 50%;
+  right: var(--section-gap);
+  transform: translateY(-50%);
+  font-size: var(--font-size-small);
+  color: var(--color-text-primary);
+  font-weight: 500;
+  pointer-events: none;
+}
+
+/* Status Styles */
+.status-indicator {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  background: var(--surface-color);
+  font-family: var(--font-mechanical);
+  font-size: var(--text-size-xs);
+  font-weight: 600;
+  transition: all var(--animation-fast) ease;
+  overflow: hidden;
+}
+
+.status-indicator--small {
+  padding: 2px var(--spacing-xs);
+  font-size: 10px;
+}
+
+.status-indicator--medium {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--text-size-xs);
+}
+
+.status-indicator--large {
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--text-size-sm);
+}
+
+.status-indicator--idle {
+  border-color: var(--gray-400);
+  background: var(--gray-100);
+  color: var(--gray-600);
+}
+
+.status-indicator--calculating {
+  border-color: var(--accent-color);
+  background: var(--accent-light);
+  color: var(--accent-dark);
+  box-shadow: 0 0 8px rgba(139, 69, 19, 0.3);
+}
+
+.status-indicator--complete {
+  border-color: var(--green-500);
+  background: var(--green-100);
+  color: var(--green-700);
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.2);
+}
+
+.status-indicator--error {
+  border-color: var(--red-500);
+  background: var(--red-100);
+  color: var(--red-700);
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.2);
+}
+
+.status-indicator__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  position: relative;
+}
+
+.status-indicator--loading-pulse .status-indicator__icon {
+  animation: statusPulse 1.5s ease-in-out infinite;
+}
+
+.status-indicator--loading-spinner .status-indicator__icon::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: statusSpin 1s linear infinite;
+}
+
+.status-indicator--loading-bars .status-indicator__icon {
+  display: flex;
+  gap: 2px;
+}
+
+.status-indicator--loading-bars .status-indicator__icon::before,
+.status-indicator--loading-bars .status-indicator__icon::after {
+  content: '';
+  width: 2px;
+  height: 8px;
+  background: currentColor;
+  animation: statusBars 1.2s ease-in-out infinite;
+}
+
+.status-indicator--loading-bars .status-indicator__icon::after {
+  animation-delay: 0.3s;
+}
+
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.1); }
+}
+
+@keyframes statusSpin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes statusBars {
+  0%, 80%, 100% { height: 4px; opacity: 0.5; }
+  40% { height: 12px; opacity: 1; }
+}
+
+/* Collapse Indicator */
+.collapse-indicator {
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+  margin-left: var(--section-gap);
+  transition: transform var(--animation-duration-open) var(--animation-easing-open);
+}
+
+/* Loading Button State */
+.mechanical-button--loading {
+  opacity: 0.8;
+  cursor: wait;
+}
+
+.mechanical-button--loading .loading-spinner {
+  margin-right: var(--section-gap);
+}
+
+/* Enhanced Data Visualization Styles */
+.force-distribution-enhanced {
+  display: flex;
+  flex-direction: column;
+  gap: var(--panel-padding);
+  margin-bottom: var(--panel-padding);
+}
+
+.force-item-enhanced {
+  padding: var(--panel-padding);
+  background: var(--color-panel);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--corner-radius-medium);
+  transition: all var(--animation-duration-open) var(--animation-easing-open);
+}
+
+.force-item-enhanced:hover {
+  background: var(--color-surface);
+  border-color: var(--color-border-highlight);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px var(--color-shadow);
+}
+
+.force-progress-bar {
+  margin: var(--section-gap) 0;
+}
+
+.force-weight-enhanced {
+  font-size: var(--font-size-normal);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  text-align: center;
+  display: block;
+  margin-top: var(--section-gap);
+}
+
+/* Planetary Breakdown Grid */
+.planetary-breakdown {
+  margin-top: var(--panel-padding);
+}
+
+.planetary-force-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--section-gap);
+  margin-top: var(--panel-padding);
+}
+
+.planet-force-card {
+  padding: var(--panel-padding);
+  background: var(--color-panel);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--corner-radius-medium);
+  transition: all var(--animation-duration-open) var(--animation-easing-open);
+}
+
+.planet-force-card:hover {
+  border-color: var(--color-border-highlight);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px var(--color-shadow);
+}
+
+.planet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--section-gap);
+}
+
+.planet-name {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.planet-force-details {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--section-gap) / 2);
+}
+
+.primary-force-label {
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+}
+
+.planet-force-bar {
+  height: 4px;
+}
+
+.primary-force-percentage {
+  font-size: var(--font-size-small);
+  font-weight: 500;
+  color: var(--color-text-primary);
+  text-align: right;
+}
+
+/* Enhanced Summary Metrics */
+.harmonic-summary-enhanced {
+  margin-bottom: var(--panel-padding);
+}
+
+.summary-grid-enhanced {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--section-gap);
+  margin-bottom: var(--panel-padding);
+}
+
+.summary-metric {
+  display: flex;
+  align-items: center;
+  gap: var(--section-gap);
+  padding: var(--panel-padding);
+  background: var(--color-panel);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--corner-radius-medium);
+  transition: all var(--animation-duration-open) var(--animation-easing-open);
+}
+
+.summary-metric:hover {
+  border-color: var(--color-border-highlight);
+  transform: translateY(-1px);
+}
+
+.metric-icon {
+  font-size: var(--font-size-large);
+  flex-shrink: 0;
+}
+
+.metric-content {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--section-gap) / 2);
+}
+
+.metric-label {
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+}
+
+.metric-value {
+  font-size: var(--font-size-normal);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.metric-value--success {
+  color: var(--color-success);
+}
+
+.metric-value--warning {
+  color: var(--color-warning);
+}
+
+/* Detailed Planetary Harmonics */
+.planetary-harmonics-detailed {
+  margin-top: var(--panel-padding);
+}
+
+.harmonics-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--panel-padding);
+  margin-top: var(--panel-padding);
+}
+
+.harmonic-item {
+  padding: var(--panel-padding);
+  background: var(--color-panel);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--corner-radius-medium);
+}
+
+.harmonic-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--panel-padding);
+}
+
+.planet-name-detailed {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.base-frequency {
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+}
+
+.harmonic-visualization {
+  margin-top: var(--section-gap);
+}
+
+.frequency-bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-gap);
+}
+
+.frequency-bar-container {
+  display: flex;
+  align-items: center;
+  gap: var(--section-gap);
+}
+
+.harmonic-label {
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+  min-width: 30px;
+  font-family: var(--font-mono);
+}
+
+.frequency-bar {
+  flex: 1;
+  height: 4px;
+}
+
+.frequency-value {
+  font-size: var(--font-size-small);
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
+  min-width: 80px;
+  text-align: right;
+}
+
+/* Quantum State Display */
+.quantum-state-display {
+  margin-top: var(--panel-padding);
+}
+
+.quantum-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: var(--panel-padding);
+  margin-top: var(--panel-padding);
+}
+
+.quantum-metric {
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-gap);
+}
+
+.quantum-label {
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+.quantum-bar {
+  height: 6px;
+}
+
+.phase-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--section-gap);
+  background: var(--color-panel);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--corner-radius-small);
+}
+
+.phase-value {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.normalization-status {
+  padding: var(--section-gap);
+  border-radius: var(--corner-radius-small);
+  text-align: center;
+  font-weight: 500;
+}
+
+.normalization-status.normalized {
+  background: var(--color-success);
+  color: var(--color-text-primary);
+}
+
+.normalization-status.unstable {
+  background: var(--color-warning);
+  color: var(--color-text-primary);
+}
+
+/* Dimensional Coordinates Display */
+.dimensional-coordinates-display {
+  margin-top: var(--panel-padding);
+}
+
+.coordinates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--section-gap);
+  margin-top: var(--panel-padding);
+}
+
+.coordinate-item {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--section-gap) / 2);
+  padding: var(--section-gap);
+  background: var(--color-panel);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--corner-radius-small);
+  text-align: center;
+}
+
+.coordinate-label {
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+}
+
+.coordinate-bar {
+  height: 3px;
+}
+
+.coordinate-value {
+  font-size: var(--font-size-small);
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
+  font-weight: 500;
+}
+
+.coordinate-forces {
+  font-size: 10px;
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+/* Enhanced Progress Bar Styles */
+.progress-bar {
+  position: relative;
+  width: 100%;
+  height: 8px; /* Increased from 6px */
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--corner-radius-small);
+  overflow: hidden;
+  box-shadow: var(--inset-shadow);
+}
+
+.progress-track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--progress-color, var(--color-primary));
+  border-radius: var(--corner-radius-small);
+  position: relative;
+  box-shadow: var(--outset-shadow);
+  transition: width var(--animation-duration-open) var(--animation-easing-open);
+}
+
+.progress-bar--animated .progress-fill {
+  transition-delay: var(--stagger-delay, 0ms);
+}
+
+.progress-bar--mechanical .progress-highlight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.3) 50%, 
+    transparent 100%);
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+.progress-bar--force .progress-fill {
+  background: linear-gradient(90deg, 
+    var(--progress-color, var(--color-primary)), 
+    var(--color-info));
+}
+
+.progress-bar--harmonic .progress-fill {
+  background: linear-gradient(90deg, 
+    var(--color-primary), 
+    var(--color-accent));
+}
+
+.progress-bar--magnitude .progress-fill {
+  background: linear-gradient(90deg, 
+    var(--color-warning), 
+    var(--color-error));
+}
+
+.progress-label {
+  position: absolute;
+  top: 50%;
+  right: var(--section-gap);
+  transform: translateY(-50%);
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+  font-family: var(--font-family-mono);
+  pointer-events: none;
+}
+
+/* Enhanced Force Indicator Styles */
+.force-indicator {
+  display: inline-block;
+  position: relative;
+  transition: all var(--animation-duration-fast) var(--animation-easing-open);
+}
+
+.force-indicator--dot {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--corner-radius-small);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--inset-shadow);
+}
+
+.force-indicator--interactive {
+  cursor: pointer;
+}
+
+.force-indicator--interactive:hover,
+.force-indicator--hovered {
+  transform: scale(1.1);
+  box-shadow: 
+    var(--inset-shadow),
+    0 0 8px var(--force-color);
+  border-color: var(--force-color);
+}
+
+.force-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-gap);
+  padding: var(--section-gap);
+  background: var(--color-surface);
+  border-radius: var(--corner-radius-small);
+  border: var(--border-width) solid var(--color-border);
+  transition: all var(--animation-duration-fast) var(--animation-easing-open);
+}
+
+.force-item:hover {
+  background: var(--color-panel);
+  border-color: var(--color-border-highlight);
+  transform: translateY(-1px);
+}
+
+.force-header {
+  display: flex;
+  align-items: center;
+  gap: var(--section-gap);
+}
+
+.force-name {
+  font-weight: 500;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-small);
+}
+
+.force-description {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-small);
+  flex: 1;
+}
+
+.force-weight {
+  font-family: var(--font-family-mono);
+  color: var(--color-accent);
+  font-size: var(--font-size-small);
+  margin-left: auto;
+}
+
+.force-bar-wrapper {
+  position: relative;
+}
+
+.force-bar {
+  position: relative;
+  height: 6px;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--corner-radius-small);
+  overflow: hidden;
+  box-shadow: var(--inset-shadow);
+}
+
+.force-fill {
+  height: 100%;
+  position: relative;
+  transition: width var(--animation-duration-open) var(--animation-easing-open);
+  box-shadow: var(--outset-shadow);
+}
+
+.force-bar-highlight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.2) 50%, 
+    transparent 100%);
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+.force-bar-container {
+  display: flex;
+  align-items: center;
+  gap: var(--section-gap);
+}
+
+.force-percentage {
+  font-family: var(--font-family-mono);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-small);
+  min-width: 40px;
+  text-align: right;
+}
+
+/* Enhanced Mechanical Button Styles */
+.mechanical-button {
+  position: relative;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-primary);
+  font-size: var(--font-size-small);
+  font-weight: 500;
+  color: var(--color-text-inverse);
+  padding: 0;
+  outline: none;
+  user-select: none;
+  transition: all var(--animation-duration-fast) var(--animation-easing-open);
+}
+
+.button-surface {
+  position: relative;
+  padding: var(--section-gap) var(--panel-padding);
+  background: var(--color-primary);
+  border: var(--border-width) solid var(--color-border-highlight);
+  border-radius: var(--corner-radius-medium);
+  box-shadow: 
+    var(--outset-shadow),
+    0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: all var(--animation-duration-fast) var(--animation-easing-open);
+  z-index: 2;
+}
+
+.button-shadow {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: -2px;
+  bottom: -2px;
+  background: var(--color-shadow);
+  border-radius: var(--corner-radius-medium);
+  z-index: 1;
+  transition: all var(--animation-duration-fast) var(--animation-easing-open);
+}
+
+.mechanical-button--primary .button-surface {
+  background: linear-gradient(135deg, 
+    var(--color-primary) 0%, 
+    var(--color-info) 100%);
+}
+
+.mechanical-button--secondary .button-surface {
+  background: linear-gradient(135deg, 
+    var(--color-surface) 0%, 
+    var(--color-panel) 100%);
+  color: var(--color-text-primary);
+}
+
+.mechanical-button--hovered .button-surface {
+  transform: translateY(-1px);
+  box-shadow: 
+    var(--outset-shadow),
+    0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.mechanical-button--hovered .button-shadow {
+  transform: translateY(1px);
+  opacity: 0.8;
+}
+
+.mechanical-button--pressed .button-surface {
+  transform: translateY(1px);
+  box-shadow: var(--inset-shadow);
+}
+
+.mechanical-button--pressed .button-shadow {
+  transform: translateY(0);
+  opacity: 0.3;
+}
+
+.mechanical-button--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mechanical-button--disabled .button-surface {
+  background: var(--color-border);
+  transform: none !important;
+}
+
+.loading-content,
+.button-content {
+  display: flex;
+  align-items: center;
+  gap: var(--section-gap);
+  justify-content: center;
+}
+
+.loading-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.loading-text {
+  color: inherit;
+}
+
+/* Shimmer Animation */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Spinner Animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Mechanical interaction refinements */
+.force-indicator--interactive,
+.mechanical-button {
+  transform-origin: center;
+}
+
+.force-indicator--interactive:active {
+  transform: scale(0.95);
+}
+
+/* Enhanced accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .progress-fill,
+  .force-fill,
+  .force-indicator,
+  .mechanical-button,
+  .button-surface,
+  .button-shadow {
+    transition: none;
+  }
+  
+  .progress-highlight,
+  .force-bar-highlight,
+  .loading-spinner {
+    animation: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .force-indicator,
+  .force-bar,
+  .progress-bar {
+    border-width: 2px;
+  }
+  
+  .button-surface {
+    border-width: 2px;
+  }
+}
+
+/* Harmonic Magnitudes Styles */
+.harmonic-magnitudes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--section-gap);
+  margin-bottom: var(--panel-padding);
+}
+
+.harmonic-magnitude-item {
+  display: flex;
+  align-items: center;
+  gap: var(--section-gap);
+  padding: var(--section-gap);
+  background: var(--color-surface);
+  border-radius: var(--corner-radius-small);
+  border: var(--border-width) solid var(--color-border);
+}
+
+.magnitude-label {
+  min-width: 80px;
+  font-size: var(--font-size-small);
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+.harmonic-magnitude-item .progress-bar {
+  flex: 1;
+  margin-left: var(--section-gap);
+}
+
+/* Enhanced overview tab layout */
+.overview-tab .force-distribution {
+  margin-bottom: var(--panel-padding);
+}
+
+.overview-tab .summary-grid-compact {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--section-gap);
+}
+
+.overview-tab .summary-grid-compact .summary-item {
+  padding: var(--section-gap);
+  background: var(--color-panel);
+  border-radius: var(--corner-radius-small);
+  border: var(--border-width) solid var(--color-border);
+}
+
+/* Enhanced responsive behavior */
+@media (max-width: 768px) {
+  .harmonic-magnitude-item {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+  
+  .magnitude-label {
+    min-width: auto;
+    margin-bottom: var(--section-gap);
+  }
+  
+  .harmonic-magnitude-item .progress-bar {
+    margin-left: 0;
+  }
+}
+
+/* Enhanced Status Indicator with Mechanical Animations */
+.status-indicator {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  background: var(--surface-color);
+  font-family: var(--font-mechanical);
+  font-size: var(--text-size-xs);
+  font-weight: 600;
+  transition: all var(--animation-fast) ease;
+  overflow: hidden;
+}
+
+.status-indicator--small {
+  padding: 2px var(--spacing-xs);
+  font-size: 10px;
+}
+
+.status-indicator--medium {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--text-size-xs);
+}
+
+.status-indicator--large {
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--text-size-sm);
+}
+
+.status-indicator--idle {
+  border-color: var(--gray-400);
+  background: var(--gray-100);
+  color: var(--gray-600);
+}
+
+.status-indicator--calculating {
+  border-color: var(--accent-color);
+  background: var(--accent-light);
+  color: var(--accent-dark);
+  box-shadow: 0 0 8px rgba(139, 69, 19, 0.3);
+}
+
+.status-indicator--complete {
+  border-color: var(--green-500);
+  background: var(--green-100);
+  color: var(--green-700);
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.2);
+}
+
+.status-indicator--error {
+  border-color: var(--red-500);
+  background: var(--red-100);
+  color: var(--red-700);
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.2);
+}
+
+/* Loading variants */
+.status-indicator__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  position: relative;
+}
+
+.status-indicator--loading-pulse .status-indicator__icon {
+  animation: statusPulse 1.5s ease-in-out infinite;
+}
+
+.status-indicator--loading-spinner .status-indicator__icon::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: statusSpin 1s linear infinite;
+}
+
+.status-indicator--loading-bars .status-indicator__icon {
+  display: flex;
+  gap: 2px;
+}
+
+.status-indicator--loading-bars .status-indicator__icon::before,
+.status-indicator--loading-bars .status-indicator__icon::after {
+  content: '';
+  width: 2px;
+  height: 8px;
+  background: currentColor;
+  animation: statusBars 1.2s ease-in-out infinite;
+}
+
+.status-indicator--loading-bars .status-indicator__icon::after {
+  animation-delay: 0.3s;
+}
+
+/* Status animations */
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.1); }
+}
+
+@keyframes statusSpin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes statusBars {
+  0%, 80%, 100% { height: 4px; opacity: 0.5; }
+  40% { height: 12px; opacity: 1; }
+}
+
+/* Professional Harmonics Display - No Demo Interface */
+.harmonics-display-professional {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-color);
+  font-family: var(--font-mechanical);
+}
+
+.harmonics-header {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: 1px solid var(--border-color);
+  background: linear-gradient(180deg, 
+    var(--surface-color) 0%,
+    rgba(139, 69, 19, 0.02) 100%);
+}
+
+.analysis-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Professional Tab Navigation */
+.harmonics-tabs-professional {
+  display: flex;
+  background: var(--gray-100);
+  border-bottom: 1px solid var(--border-color);
+  padding: 2px;
+  gap: 2px;
+  overflow-x: auto;
+}
+
+.harmonics-tab {
+  flex: 1;
+  min-width: 120px;
+  padding: var(--spacing-sm) var(--spacing-xs);
+  background: var(--gray-200);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  font-family: var(--font-mechanical);
+  font-size: var(--text-size-xs);
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--animation-fast) ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+  white-space: nowrap;
+}
+
+.harmonics-tab:hover {
+  background: var(--surface-color);
+  color: var(--text-primary);
+  border-color: var(--accent-color-alpha);
+  transform: translateY(-1px);
+}
+
+.harmonics-tab.active {
+  background: var(--accent-light);
+  color: var(--accent-dark);
+  border-color: var(--accent-color);
+  box-shadow: 0 2px 4px rgba(139, 69, 19, 0.2);
+  transform: translateY(-2px);
+}
+
+.harmonics-tab:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.tab-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.tab-text {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Content Wrapper */
+.harmonics-content-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-md);
+}
+
+.harmonics-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* No Data State */
+.harmonics-no-data {
+  text-align: center;
+  padding: var(--spacing-lg);
+}
+
+.data-requirements {
+  margin-top: var(--spacing-md);
+  text-align: left;
+}
+
+.data-requirements h4 {
+  margin-bottom: var(--spacing-sm);
+  color: var(--text-primary);
+  font-size: var(--text-size-sm);
+}
+
+.data-requirements ul {
+  list-style: none;
+  padding: 0;
+}
+
+.data-requirements li {
+  padding: var(--spacing-xs) 0;
+  color: var(--text-secondary);
+  font-size: var(--text-size-xs);
+}
+
+.data-requirements li::before {
+  content: '▸ ';
+  color: var(--accent-color);
+  font-weight: bold;
+}
+
+/* Force Analysis */
+.force-analysis {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.force-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm);
+  background: rgba(139, 69, 19, 0.02);
+  border-radius: var(--border-radius-sm);
+  border: 1px solid rgba(139, 69, 19, 0.1);
+}
+
+.primary-force-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.primary-force-indicator .label {
+  font-size: var(--text-size-xs);
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.primary-force-indicator .value {
+  font-size: var(--text-size-sm);
+  color: var(--text-primary);
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.force-distribution-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* Planetary Overview */
+.planetary-overview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.planet-summary-item {
+  padding: var(--spacing-sm);
+  background: rgba(139, 69, 19, 0.02);
+  border-radius: var(--border-radius-sm);
+  border: 1px solid rgba(139, 69, 19, 0.1);
+}
+
+.planet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-xs);
+}
+
+.planet-name {
+  font-size: var(--text-size-sm);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.harmonic-count {
+  font-size: var(--text-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.planet-stats {
+  margin-top: var(--spacing-xs);
+  display: flex;
+  justify-content: space-between;
+}
+
+.stat {
+  font-size: var(--text-size-xs);
+  color: var(--text-secondary);
+}
+
+/* Analysis Metrics */
+.analysis-metrics {
+  padding: var(--spacing-md);
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-sm);
+}
+
+.metric-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--spacing-sm);
+  background: rgba(139, 69, 19, 0.02);
+  border-radius: var(--border-radius-sm);
+  border: 1px solid rgba(139, 69, 19, 0.1);
+}
+
+.metric-label {
+  font-size: var(--text-size-xs);
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.metric-value {
+  font-size: var(--text-size-sm);
+  color: var(--text-primary);
+  font-weight: 600;
+  font-family: var(--font-mechanical);
+}
+
+/* Harmonics Detailed Analysis */
+.harmonics-detailed-analysis {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.planet-harmonics-section {
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: var(--spacing-md);
+}
+
+.planet-section-title {
+  margin: 0 0 var(--spacing-md) 0;
+  color: var(--text-primary);
+  font-size: var(--text-size-md);
+  font-weight: 700;
+}
+
+.harmonics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--spacing-sm);
+}
+
+.harmonic-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-sm);
+  background: rgba(139, 69, 19, 0.02);
+  border-radius: var(--border-radius-sm);
+  border: 1px solid rgba(139, 69, 19, 0.1);
+}
+
+.harmonic-order {
+  font-size: var(--text-size-xs);
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin-bottom: var(--spacing-xs);
+}
+
+.harmonic-magnitude {
+  width: 100%;
+  margin-bottom: var(--spacing-xs);
+}
+
+.harmonic-value {
+  font-size: var(--text-size-xs);
+  color: var(--text-primary);
+  font-weight: 500;
+  font-family: var(--font-mechanical);
+}
+
+/* Quantum Analysis */
+.quantum-analysis {
+  padding: var(--spacing-md);
+}
+
+.quantum-status {
+  margin-bottom: var(--spacing-md);
+}
+
+.quantum-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.amplitude-analysis h5 {
+  margin: 0 0 var(--spacing-sm) 0;
+  color: var(--text-primary);
+  font-size: var(--text-size-sm);
+  font-weight: 600;
+}
+
+.amplitude-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xs);
+  padding: var(--spacing-xs);
+  background: rgba(139, 69, 19, 0.02);
+  border-radius: var(--border-radius-sm);
+}
+
+.amplitude-label {
+  min-width: 80px;
+  font-size: var(--text-size-xs);
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.phase-value {
+  min-width: 80px;
+  font-size: var(--text-size-xs);
+  color: var(--text-primary);
+  font-family: var(--font-mechanical);
+  text-align: right;
+}
+
+/* Dimensional Analysis */
+.dimensional-analysis {
+  padding: var(--spacing-md);
+}
+
+.coordinate-summary {
+  margin-bottom: var(--spacing-md);
+}
+
+.coordinates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-sm);
+}
+
+.coordinate-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm);
+  background: rgba(139, 69, 19, 0.02);
+  border-radius: var(--border-radius-sm);
+  border: 1px solid rgba(139, 69, 19, 0.1);
+}
+
+.coordinate-label {
+  font-size: var(--text-size-xs);
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-align: center;
+}
+
+.coordinate-value {
+  width: 100%;
+}
+
+/* Synodic Analysis */
+.synodic-analysis {
+  padding: var(--spacing-md);
+}
+
+.synodic-summary {
+  margin-bottom: var(--spacing-md);
+}
+
+.synodic-periods {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.synodic-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: var(--spacing-sm);
+  align-items: center;
+  padding: var(--spacing-sm);
+  background: rgba(139, 69, 19, 0.02);
+  border-radius: var(--border-radius-sm);
+  border: 1px solid rgba(139, 69, 19, 0.1);
+}
+
+.synodic-pair {
+  font-size: var(--text-size-sm);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.synodic-period {
+  font-size: var(--text-size-xs);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+.synodic-years {
+  font-size: var(--text-size-xs);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+/* Progress Bar Size Variants */
+.progress-bar--small {
+  height: 4px;
+}
+
+.progress-bar--medium {
+  height: 6px;
+}
+
+.progress-bar--large {
+  height: 8px;
+}
+
+.progress-bar--small .progress-label {
+  font-size: 9px;
+}
+
+.progress-bar--medium .progress-label {
+  font-size: var(--text-size-xs);
+}
+
+.progress-bar--large .progress-label {
+  font-size: var(--text-size-sm);
+}
+
+/* Error Handling */
+.error-message {
+  text-align: center;
+  padding: var(--spacing-md);
+}
+
+.error-message p {
+  color: var(--red-700);
+  margin-bottom: var(--spacing-sm);
+}
+
+.error-message button {
+  background: var(--accent-color);
+  color: var(--surface-color);
+  border: none;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-sm);
+  font-family: var(--font-mechanical);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--animation-fast) ease;
+}
+
+.error-message button:hover {
+  background: var(--accent-dark);
+  transform: translateY(-1px);
+}
+
+.error-message button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Cosmic Symbol Styles */
+.cosmic-symbol-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+}
+
+.cosmic-symbol {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+  transition: all var(--animation-duration-fast) var(--animation-easing-open);
+}
+
+.cosmic-symbol-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cosmic-symbol-dot .cosmic-symbol {
+  width: 16px;
+  height: 16px;
+}
+
+.force-item:hover .cosmic-symbol {
+  transform: scale(1.1);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.force-indicator--interactive .cosmic-symbol {
+  cursor: pointer;
+}
+
+.force-indicator--hovered .cosmic-symbol {
+  transform: scale(1.15);
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
+}
+
+/* Dark mode cosmic symbols */
+@media (prefers-color-scheme: dark) {
+  .cosmic-symbol {
+    filter: invert(1) drop-shadow(0 1px 2px rgba(255, 255, 255, 0.1));
+  }
+  
+  .force-item:hover .cosmic-symbol {
+    filter: invert(1) drop-shadow(0 2px 4px rgba(255, 255, 255, 0.2));
+  }
+  
+  .force-indicator--hovered .cosmic-symbol {
+    filter: invert(1) drop-shadow(0 3px 6px rgba(255, 255, 255, 0.3));
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .harmonics-tabs-professional {
+    overflow-x: auto;
+  }
+  
+  .harmonics-tab {
+    min-width: 100px;
+    padding: var(--spacing-xs);
+  }
+  
+  .tab-text {
+    font-size: 9px;
+  }
+  
+  .metric-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .harmonics-grid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  }
+  
+  .coordinates-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .synodic-item {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-xs);
+    text-align: center;
+  }
+}
+
+/* Compact Force Indicator Styles */
+.force-item-compact {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  background: var(--color-panel);
+  border-radius: var(--corner-radius-small);
+  border: var(--border-width) solid var(--color-border);
+  transition: all var(--animation-duration-open) var(--animation-easing-open);
+  min-height: 40px;
+}
+
+.force-item-compact:hover {
+  background: var(--color-surface);
+  border-color: var(--color-border-highlight);
+}
+
+.force-symbols-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 32px;
+}
+
+.cosmic-symbol-main {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.cosmic-symbol-main .cosmic-symbol {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.element-composition {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  height: 32px;
+  justify-content: center;
+}
+
+.element-symbol {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  opacity: 0.7;
+  display: block;
+}
+
+.element-plus {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  line-height: 1;
+  margin: 0 2px;
+}
+
+.force-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.force-info .force-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  text-transform: capitalize;
+  line-height: 1.2;
+}
+
+.force-info .force-percentage {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.force-bar-compact {
+  flex: 1;
+  height: 6px;
+  background: var(--color-panel-dark);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+  margin-left: 8px;
+}
+
+.force-bar-compact .force-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+  border-radius: 3px;
+  position: relative;
+}
+
+.force-bar-compact .force-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Ensure cosmic symbols are properly aligned */
+.cosmic-symbol {
+  display: block;
+  object-fit: contain;
+  max-width: 100%;
+  max-height: 100%;
+}

@@ -1,5 +1,5 @@
 import React from 'react';
-import PlanetaryHarmonicsSidebar from './PlanetaryHarmonicsSidebar';
+import { PlanetaryHarmonicsSidebar } from './PlanetaryHarmonicsSidebar/index';
 import type { AstrologyChart } from '../astrology';
 
 interface RightSideDrawerProps {
