@@ -1,15 +1,9 @@
 /**
  * TypeScript interfaces for Planetary Harmonics Sidebar components
- * Supports modulaexport interface MechanicalPanelProps {
-  title: string;
-  children: React.ReactNode;
-  variant?: 'primary' | 'secondary' | 'accent';
-  showRivets?: boolean;
-  collapsible?: boolean;
-  className?: string;
-}ent architecture with type safety
+ * Supports modular architecture with type safety
  */
 
+import * as React from 'react';
 import type { AstrologyChart } from '../../astrology';
 import type { 
   PlanetaryHarmonics, 
@@ -40,6 +34,16 @@ export interface AggregatedForces {
 export interface PlanetaryHarmonicsSidebarProps {
   chart: AstrologyChart;
   onDemo?: () => void;
+}
+
+// Demo button component interfaces
+export interface DemoButtonProps {
+  onDemo: () => void;
+  loading?: boolean;
+  disabled?: boolean;
+  variant?: 'primary' | 'secondary';
+  children?: React.ReactNode;
+  className?: string;
 }
 
 // Tab navigation types

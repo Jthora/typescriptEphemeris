@@ -30,8 +30,8 @@ export const CosmicForcesDisplay: React.FC<CosmicForcesDisplayProps> = ({
     );
   }
 
-  // Calculate aggregated forces across all planets
-  const aggregatedForces = React.useMemo(() => {
+  // Calculate aggregated forces across all planets with semantic values
+  const processedForceData = React.useMemo(() => {
     const aggregated = new Map<string, number>();
     const allForces = ['Core', 'Void', 'Order', 'Chaos', 'Alpha', 'Omega'];
     
@@ -53,37 +53,53 @@ export const CosmicForcesDisplay: React.FC<CosmicForcesDisplayProps> = ({
       });
     }
     
-    return Object.fromEntries(aggregated);
+    // Convert to processed data with semantic values
+    const weights = Array.from(aggregated.values());
+    const maxWeight = Math.max(...weights);
+    const avgWeight = weights.reduce((sum, w) => sum + w, 0) / weights.length;
+    const minWeight = Math.min(...weights);
+    
+    return Array.from(aggregated.entries()).map(([force, rawWeight]) => ({
+      name: force,
+      rawWeight,
+      color: getCosmicForceColor(force),
+      description: getCosmicForceDescription(force),
+      normalized: rawWeight / maxWeight,
+      fractional: rawWeight,
+      differential: maxWeight > minWeight 
+        ? (rawWeight - avgWeight) / (maxWeight - minWeight) * 0.5 + 0.5
+        : 0.5
+    })).sort((a, b) => b.rawWeight - a.rawWeight);
   }, [forces]);
-
-  const sortedForces = sortForcesByWeight(aggregatedForces);
 
   const renderAggregatedForces = () => (
     <div className="force-distribution-enhanced">
-      {sortedForces.map(([force, weight], index) => (
-        <div key={force} className="force-item-enhanced">
+      {processedForceData.map((forceData, index) => (
+        <div key={forceData.name} className="force-item-enhanced">
           <div className="force-header">
             <ForceIndicator
               force={{
-                name: force,
-                weight,
-                color: getCosmicForceColor(force),
-                description: getCosmicForceDescription(force)
+                name: forceData.name,
+                weight: forceData.fractional,
+                color: forceData.color,
+                description: forceData.description
               }}
-              weight={weight}
+              normalizedValue={forceData.normalized}
+              fractionalValue={forceData.fractional}
+              differentialValue={forceData.differential}
               variant="dot"
               interactive={true}
             />
-            <span className="force-name">{force}</span>
+            <span className="force-name">{forceData.name}</span>
             <span className="force-description">
-              {getCosmicForceDescription(force)}
+              {forceData.description}
             </span>
           </div>
           
           <AnimatedProgressBar
-            value={weight}
+            value={forceData.fractional}
             variant="force"
-            color={getCosmicForceColor(force)}
+            color={forceData.color}
             showLabel={true}
             animated={true}
             staggerDelay={index * 100}
@@ -92,7 +108,7 @@ export const CosmicForcesDisplay: React.FC<CosmicForcesDisplayProps> = ({
           />
           
           <span className="force-weight-enhanced">
-            {(weight * 100).toFixed(1)}%
+            {(forceData.fractional * 100).toFixed(1)}%
           </span>
         </div>
       ))}
@@ -116,7 +132,9 @@ export const CosmicForcesDisplay: React.FC<CosmicForcesDisplayProps> = ({
                     color: getCosmicForceColor(primaryForce.name),
                     description: getCosmicForceDescription(primaryForce.name)
                   }}
-                  weight={primaryForce.weight}
+                  normalizedValue={primaryForce.weight}
+                  fractionalValue={primaryForce.weight}
+                  differentialValue={0.5}
                   variant="dot"
                   interactive={false}
                 />
@@ -148,7 +166,7 @@ export const CosmicForcesDisplay: React.FC<CosmicForcesDisplayProps> = ({
     <>
       <DataVisualizationCard
         title="🌌 Comprehensive Cosmic Force Distribution"
-        data={aggregatedForces}
+        data={processedForceData}
         renderContent={renderAggregatedForces}
         className="cosmic-forces-card"
       />

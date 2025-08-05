@@ -80,8 +80,9 @@ export const PieChart: React.FC<PieChartProps> = ({
               stroke="var(--color-border)"
               strokeWidth="1"
               className="pie-segment"
-              title={`${segment.label}: ${segment.percentage.toFixed(1)}%`}
-            />
+            >
+              <title>{`${segment.label}: ${segment.percentage.toFixed(1)}%`}</title>
+            </path>
             
             {/* Add percentage labels if enabled and segment is large enough */}
             {showLabels && segment.percentage > 8 && (
