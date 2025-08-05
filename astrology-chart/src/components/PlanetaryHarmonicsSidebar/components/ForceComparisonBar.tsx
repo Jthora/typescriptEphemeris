@@ -34,7 +34,7 @@ export const ForceComparisonBar: React.FC<ForceComparisonProps> = ({
   size = 'medium',
   showLabels = true
 }) => {
-  const { leftForce, rightForce, leftValue, rightValue, balance } = comparison;
+  const { leftForce, rightForce, leftValue, rightValue, balance, prominence } = comparison;
   
   const leftColor = getCosmicForceColor(leftForce);
   const rightColor = getCosmicForceColor(rightForce);
@@ -54,6 +54,24 @@ export const ForceComparisonBar: React.FC<ForceComparisonProps> = ({
   
   // Balance bar position (0-100%)
   const balancePosition = balance * 100;
+  
+  // Prominence bar calculation: convert [-1, 1] to position and width
+  const prominenceWidth = Math.abs(prominence) * 50; // 0 to 50% width
+  
+  // Calculate left edge position to ensure bar stays within bounds
+  let prominenceLeft: number;
+  if (prominence >= 0) {
+    // Positive prominence: bar grows from center to right
+    prominenceLeft = 50;
+  } else {
+    // Negative prominence: bar grows from center to left
+    prominenceLeft = 50 - prominenceWidth;
+  }
+  
+  // Ensure the bar never exceeds container bounds
+  prominenceLeft = Math.max(0, Math.min(prominenceLeft, 100 - prominenceWidth));
+  
+  const prominenceColor = prominence >= 0 ? rightColor : leftColor;
   
   const sizeClasses = {
     small: 'force-comparison-small',
@@ -84,7 +102,19 @@ export const ForceComparisonBar: React.FC<ForceComparisonProps> = ({
       )}
       
       <div className="comparison-bars-container">
-        {/* Balance indicator bar (white) */}
+        {/* Prominence bar (4th bar) - shows magnitude of difference */}
+        <div className="prominence-bar-track">
+          <div 
+            className="prominence-indicator"
+            style={{ 
+              left: `${prominenceLeft}%`,
+              width: `${prominenceWidth}%`,
+              backgroundColor: prominenceColor
+            }}
+          />
+        </div>
+        
+        {/* Balance indicator bar (3rd bar - white) */}
         <div className="balance-bar-track">
           <div 
             className="balance-indicator"
@@ -93,35 +123,6 @@ export const ForceComparisonBar: React.FC<ForceComparisonProps> = ({
               transform: 'translateX(-50%)'
             }}
           />
-        </div>
-        
-        {/* Force comparison bars */}
-        <div className="force-bars-container">
-          {/* Left force bar (grows leftward) */}
-          <div className="left-bar-track">
-            <div 
-              className="force-bar left-bar"
-              style={{ 
-                width: `${leftWidth}%`,
-                backgroundColor: leftColor,
-                marginLeft: 'auto'
-              }}
-            />
-          </div>
-          
-          {/* Center divider */}
-          <div className="center-divider" />
-          
-          {/* Right force bar (grows rightward) */}
-          <div className="right-bar-track">
-            <div 
-              className="force-bar right-bar"
-              style={{ 
-                width: `${rightWidth}%`,
-                backgroundColor: rightColor
-              }}
-            />
-          </div>
         </div>
       </div>
     </div>

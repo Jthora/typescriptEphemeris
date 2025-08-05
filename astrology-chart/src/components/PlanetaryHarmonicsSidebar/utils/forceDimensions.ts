@@ -10,6 +10,7 @@ export interface ForceComparison {
   rightValue: number;
   ratio: number; // -1 to 1, negative means left is stronger, positive means right is stronger
   balance: number; // 0 to 1, for the white balance bar
+  prominence: number; // -1 to 1, normalized across all 15 comparisons, shows magnitude of difference
 }
 
 /**
@@ -44,7 +45,8 @@ export function calculateForceComparisons(
     processedForceData.map(force => [force.name, force])
   );
   
-  return forcePairs.map(([leftForce, rightForce]) => {
+  // First pass: calculate basic comparisons without prominence
+  const rawComparisons = forcePairs.map(([leftForce, rightForce]) => {
     const leftData = forceMap.get(leftForce);
     const rightData = forceMap.get(rightForce);
     
@@ -55,7 +57,8 @@ export function calculateForceComparisons(
         leftValue: 0,
         rightValue: 0,
         ratio: 0,
-        balance: 0.5
+        balance: 0.5,
+        absDifference: 0
       };
     }
     
@@ -69,13 +72,39 @@ export function calculateForceComparisons(
     // Calculate balance position for white bar: 0 (left) to 1 (right)
     const balance = total > 0 ? rightValue / total : 0.5;
     
+    // Calculate absolute difference for prominence normalization
+    const absDifference = Math.abs(leftValue - rightValue);
+    
     return {
       leftForce,
       rightForce,
       leftValue,
       rightValue,
       ratio,
-      balance
+      balance,
+      absDifference
+    };
+  });
+  
+  // Find the maximum absolute difference for normalization
+  const maxAbsDifference = Math.max(...rawComparisons.map(comp => comp.absDifference));
+  
+  // Second pass: calculate prominence normalized to [-1, 1] range
+  return rawComparisons.map(comp => {
+    // Prominence: 0 = balanced, ±1 = maximum difference
+    // Sign follows the ratio (negative = left stronger, positive = right stronger)
+    const prominence = maxAbsDifference > 0 
+      ? (comp.absDifference / maxAbsDifference) * Math.sign(comp.ratio)
+      : 0;
+    
+    return {
+      leftForce: comp.leftForce,
+      rightForce: comp.rightForce,
+      leftValue: comp.leftValue,
+      rightValue: comp.rightValue,
+      ratio: comp.ratio,
+      balance: comp.balance,
+      prominence
     };
   });
 }
