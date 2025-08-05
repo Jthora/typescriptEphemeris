@@ -1,0 +1,298 @@
+/* Dimensional Force Comparisons Styling */
+
+.dimensional-comparisons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0; /* Remove padding that creates remnant border */
+  margin-top: 1rem; /* Add some separation from the force indicators above */
+}
+
+.dimensional-description {
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.dimensional-description p {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.dimension-count {
+  font-size: 0.8rem;
+  color: var(--accent-color);
+  font-weight: 500;
+}
+
+.dimensional-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem;
+  color: var(--text-secondary);
+}
+
+.loading-spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--accent-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Grid Layout */
+.comparisons-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.comparison-row {
+  display: flex;
+  gap: 0.25rem;
+  justify-content: space-between;
+}
+
+.comparison-cell {
+  flex: 1;
+  min-width: 0; /* Allows flex items to shrink below content size */
+  border: 1px solid rgba(var(--border-color-rgb, 128, 128, 128), 0.2); /* Subtle default border */
+  border-radius: 4px;
+  padding: 0.25rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.comparison-cell:hover {
+  border-color: var(--accent-color);
+  background: rgba(var(--accent-color-rgb, 255, 255, 255), 0.05);
+  box-shadow: 0 0 8px rgba(var(--accent-color-rgb, 255, 255, 255), 0.1);
+}
+
+/* Force Comparison Bar Styles */
+.force-comparison-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.force-comparison-small {
+  font-size: 0.7rem;
+}
+
+.force-comparison-medium {
+  font-size: 0.8rem;
+}
+
+.force-comparison-large {
+  font-size: 0.9rem;
+}
+
+/* Labels */
+.comparison-labels {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+  height: 1.2rem; /* Fixed height for consistent alignment */
+}
+
+.force-label-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.force-label-container.left {
+  justify-content: center;
+}
+
+.force-label-container.right {
+  justify-content: center;
+}
+
+.force-symbol {
+  width: 0.8rem;
+  height: 0.8rem;
+  object-fit: contain;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.3));
+}
+
+.vs-separator-line {
+  width: 1px;
+  height: 0.8rem;
+  background: var(--border-color);
+  margin: 0 0.25rem;
+  flex-shrink: 0;
+}
+
+/* Bars Container */
+.comparison-bars-container {
+  position: relative;
+  width: 100%;
+  margin-top: 0.125rem; /* Small gap between labels and bars */
+}
+
+.balance-bar-track {
+  position: relative;
+  height: 3px;
+  background: var(--border-color);
+  border-radius: 1.5px;
+  margin-bottom: 3px;
+}
+
+.balance-indicator {
+  position: absolute;
+  top: -1px;
+  width: 6px;
+  height: 5px;
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  z-index: 10; /* Ensure it stays above other elements */
+}
+
+.force-bars-container {
+  display: flex;
+  align-items: center;
+  height: 10px; /* Slightly taller bars for better visibility */
+  gap: 1px;
+}
+
+.left-bar-track,
+.right-bar-track {
+  flex: 1;
+  height: 100%;
+  background: var(--surface-darker);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.center-divider {
+  width: 1px;
+  height: 100%;
+  background: var(--border-color);
+}
+
+.force-bar {
+  height: 100%;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+  opacity: 0.8;
+}
+
+.left-bar {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.right-bar {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.force-bar:hover {
+  opacity: 1;
+}
+
+/* Legend */
+.dimensional-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+}
+
+.balance-indicator-sample {
+  width: 6px;
+  height: 5px;
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 2px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.legend-note {
+  font-size: 0.65rem;
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .comparison-row {
+    gap: 0.125rem;
+  }
+  
+  .comparison-cell {
+    padding: 0.125rem;
+  }
+  
+  .force-comparison-small {
+    font-size: 0.6rem;
+  }
+  
+  .force-symbol {
+    width: 0.7rem;
+    height: 0.7rem;
+  }
+  
+  .vs-separator-line {
+    display: none;
+  }
+  
+  .force-label-container {
+    gap: 0.2rem;
+  }
+}
+
+/* Animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Hover Effects */
+.comparison-cell:hover .balance-indicator {
+  background: white;
+  border-color: var(--accent-color);
+  transform: translateX(-50%) scale(1.2);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.8), 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.comparison-cell:hover .force-bar {
+  opacity: 1;
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.2);
+}
+
+/* Legacy hover support for direct force-comparison-bar hover */
+.force-comparison-bar:hover .balance-indicator {
+  background: white;
+  border-color: var(--accent-color);
+  transform: translateX(-50%) scale(1.2);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.8), 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.force-comparison-bar:hover .force-bar {
+  opacity: 1;
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.2);
+}

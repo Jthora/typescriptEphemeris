@@ -263,3 +263,11 @@ export const percentageToDecimal = (percentage: number): number => {
 export const decimalToPercentage = (decimal: number): string => {
   return `${(decimal * 100).toFixed(1)}%`;
 };
+
+// Re-export dimensional comparison utilities
+export { 
+  calculateForceComparisons, 
+  organizeComparisonsGrid,
+  generateForcePairs,
+  type ForceComparison 
+} from './utils/forceDimensions';

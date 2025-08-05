@@ -4,6 +4,8 @@ import { ForceIndicator } from './ForceIndicator';
 import { ProgressBar } from './ProgressBar';
 import { StatusIndicator } from './StatusIndicator';
 import { MechanicalPanel } from './MechanicalPanel';
+import { DimensionalComparisons } from './DimensionalComparisons';
+import './DimensionalComparisons.css';
 import { 
   calculateAggregatedForces, 
   sortForcesByWeight, 
@@ -120,6 +122,14 @@ export const HarmonicsDisplay: React.FC<HarmonicsDisplayProps> = ({
               />
             ))}
           </div>
+        </div>
+        
+        {/* Dimensional Comparisons Section */}
+        <div className="dimensional-analysis">
+          <DimensionalComparisons 
+            processedForceData={processedForceData}
+            isCalculating={isCalculating}
+          />
         </div>
     </div>
   );
