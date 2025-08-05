@@ -63,7 +63,9 @@ export interface ProgressBarProps {
 // Force indicator component interfaces
 export interface ForceIndicatorProps {
   force: CosmicForce;
-  weight: number;
+  normalizedValue: number;   // 0-1: Relative strength compared to strongest force
+  fractionalValue: number;   // 0-1: Actual percentage of total cosmic force energy
+  differentialValue: number; // 0-1: Position relative to range, centered at 0.5 (avg)
   variant: 'dot' | 'bar' | 'detailed';
   interactive?: boolean;
   showPercentage?: boolean;
@@ -179,12 +181,12 @@ export type CosmicForceColors = {
 
 // Constants for cosmic force data
 export const COSMIC_FORCE_COLORS: CosmicForceColors = {
-  'Core': '#FF6B35',    // Fire+Earth: Orange-red
-  'Void': '#4ECDC4',    // Water+Air: Teal
-  'Order': '#45B7D1',   // Air+Earth: Sky blue
-  'Chaos': '#96CEB4',   // Fire+Water: Sea green
-  'Alpha': '#FFEAA7',   // Fire+Air: Golden yellow
-  'Omega': '#DDA0DD'    // Earth+Water: Plum
+  'Core': '#FF8C00',    // Gold orange (Fire+Earth)
+  'Void': '#1E90FF',    // Opposite of gold orange: Electric blue (Water+Air)
+  'Order': '#FFD700',   // Opposite of chaos: Golden yellow (Air+Earth)
+  'Chaos': '#8A2BE2',   // Purple (Fire+Water)
+  'Alpha': '#8B0000',   // Most masculine: Dark red (Fire+Air)
+  'Omega': '#FFB6C1'    // Opposite of masculine: Light pink (Earth+Water)
 };
 
 export const COSMIC_FORCE_DESCRIPTIONS: { [K in CosmicForceName]: string } = {

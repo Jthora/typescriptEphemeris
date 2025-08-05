@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import type { HarmonicsDisplayProps } from '../types';
 import { ForceIndicator } from './ForceIndicator';
 import { ProgressBar } from './ProgressBar';
@@ -17,24 +17,6 @@ import {
   getPrimaryCosmicForce
 } from '../utils';
 
-type TabType = 'overview';
-
-interface TabConfig {
-  id: TabType;
-  label: string;
-  icon: string;
-  description: string;
-}
-
-const TAB_CONFIGS: TabConfig[] = [
-  { 
-    id: 'overview', 
-    label: 'Cosmic Forces', 
-    icon: '🌌', 
-    description: 'Base-12 Circular Logic: Cosmic Force Distribution & Quantum Emotional Dynamics'
-  }
-];
-
 /**
  * Professional Harmonics Display - Real Data Processing Interface
  * Focused on computational accuracy and practical astronomical analysis
@@ -43,8 +25,6 @@ export const HarmonicsDisplay: React.FC<HarmonicsDisplayProps> = ({
   data,
   isCalculating
 }) => {
-  const [activeTab, setActiveTab] = useState<TabType>('overview');
-
   // Memoized calculations for performance
   const aggregatedForces = useMemo(() => {
     return data ? calculateAggregatedForces(data) : {};
@@ -53,6 +33,38 @@ export const HarmonicsDisplay: React.FC<HarmonicsDisplayProps> = ({
   const sortedForces = useMemo(() => {
     return sortForcesByWeight(aggregatedForces);
   }, [aggregatedForces]);
+
+  // Custom order for cosmic forces display
+  const orderedForces = useMemo(() => {
+    const forceOrder = ['Core', 'Void', 'Order', 'Chaos', 'Alpha', 'Omega'];
+    const forceMap = new Map(sortedForces);
+    
+    return forceOrder.map(forceName => [
+      forceName, 
+      forceMap.get(forceName) || 0
+    ] as [string, number]);
+  }, [sortedForces]);
+
+  // Centralized force data processing with clear semantic meaning
+  const processedForceData = useMemo(() => {
+    const weights = orderedForces.map(([, weight]) => weight);
+    const maxWeight = Math.max(...weights);
+    const avgWeight = weights.reduce((sum, w) => sum + w, 0) / weights.length;
+    const minWeight = Math.min(...weights);
+    
+    return orderedForces.map(([force, rawWeight]) => ({
+      name: force,
+      color: getCosmicForceColor(force),
+      description: getCosmicForceDescription(force),
+      
+      // Core data values with clear semantics
+      fractional: rawWeight,  // 0-1: Actual percentage of total cosmic force energy
+      normalized: rawWeight / maxWeight,  // 0-1: Relative strength compared to strongest force
+      differential: maxWeight > minWeight 
+        ? (rawWeight - avgWeight) / (maxWeight - minWeight) * 0.5 + 0.5  // 0-1: Position relative to range, centered at 0.5
+        : 0.5  // If all equal, show at center
+    }));
+  }, [orderedForces]);
 
   const calculationStatus = useMemo(() => {
     if (isCalculating) return 'calculating';
@@ -85,46 +97,23 @@ export const HarmonicsDisplay: React.FC<HarmonicsDisplayProps> = ({
     );
   }
 
-  // Tab navigation component
-  const renderTabNavigation = () => (
-    <div className="harmonics-tabs-professional">
-      {TAB_CONFIGS.map(tab => (
-        <button
-          key={tab.id}
-          className={`harmonics-tab ${activeTab === tab.id ? 'active' : ''}`}
-          onClick={() => setActiveTab(tab.id)}
-          disabled={isCalculating}
-          title={tab.description}
-          aria-label={`Switch to ${tab.label} analysis`}
-        >
-          <span className="tab-icon">{tab.icon}</span>
-          <span className="tab-text">{tab.label}</span>
-        </button>
-      ))}
-    </div>
-  );
-
-  // Overview tab - comprehensive analysis
+  // Overview content - comprehensive analysis
   const renderOverview = () => (
     <div className="harmonics-content overview">
-      <MechanicalPanel title="Cosmic Force Distribution" variant="secondary" showRivets>
-        <div className="force-analysis">
-          <div className="primary-force-indicator">
-            <span className="label">Primary Force:</span>
-            <span className="value">{getPrimaryCosmicForce(data)?.name || 'Undefined'}</span>
-          </div>
-          
-          <div className="force-distribution-list">
-            {sortedForces.slice(0, 6).map(([force, weight]) => (
-              <ForceIndicator
-                key={force}
+      <div className="force-analysis">
+        <div className="force-distribution-list">
+          {processedForceData.map((forceData) => (
+            <ForceIndicator
+                key={forceData.name}
                 force={{
-                  name: force,
-                  weight,
-                  color: getCosmicForceColor(force),
-                  description: getCosmicForceDescription(force)
+                  name: forceData.name,
+                  weight: forceData.fractional,
+                  color: forceData.color,
+                  description: forceData.description
                 }}
-                weight={weight}
+                normalizedValue={forceData.normalized}
+                fractionalValue={forceData.fractional}
+                differentialValue={forceData.differential}
                 variant="detailed"
                 interactive={true}
                 showPercentage={true}
@@ -132,15 +121,12 @@ export const HarmonicsDisplay: React.FC<HarmonicsDisplayProps> = ({
             ))}
           </div>
         </div>
-      </MechanicalPanel>
     </div>
   );
 
   // Main render
   return (
     <div className="harmonics-display-professional">
-      {renderTabNavigation()}
-      
       <div className="harmonics-content-wrapper">
         {renderOverview()}
       </div>

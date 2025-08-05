@@ -27,7 +27,7 @@
   display: flex;
   align-items: center;
   gap: var(--section-gap);
-  padding: var(--section-gap);
+  padding: 0;
   background: var(--color-panel);
   border-radius: var(--corner-radius-small);
   border: var(--border-width) solid var(--color-border);
@@ -1310,13 +1310,13 @@
 .harmonics-content-wrapper {
   flex: 1;
   overflow-y: auto;
-  padding: var(--spacing-md);
+  padding: 0;
 }
 
 .harmonics-content {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: 0;
 }
 
 /* No Data State */
@@ -1357,7 +1357,7 @@
 .force-analysis {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: 0;
 }
 
 .force-summary {
@@ -1392,7 +1392,7 @@
 .force-distribution-list {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: 0;
 }
 
 /* Planetary Overview */
@@ -1759,15 +1759,15 @@
 /* Dark mode cosmic symbols */
 @media (prefers-color-scheme: dark) {
   .cosmic-symbol {
-    filter: invert(1) drop-shadow(0 1px 2px rgba(255, 255, 255, 0.1));
+    filter: drop-shadow(0 1px 2px rgba(255, 255, 255, 0.1));
   }
   
   .force-item:hover .cosmic-symbol {
-    filter: invert(1) drop-shadow(0 2px 4px rgba(255, 255, 255, 0.2));
+    filter: drop-shadow(0 2px 4px rgba(255, 255, 255, 0.2));
   }
   
   .force-indicator--hovered .cosmic-symbol {
-    filter: invert(1) drop-shadow(0 3px 6px rgba(255, 255, 255, 0.3));
+    filter: drop-shadow(0 3px 6px rgba(255, 255, 255, 0.3));
   }
 }
 
@@ -1809,13 +1809,12 @@
 .force-item-compact {
   display: flex;
   align-items: center;
-  padding: 8px 12px;
-  margin-bottom: 6px;
+  padding: 0;
+  margin-bottom: 0;
   background: var(--color-panel);
   border-radius: var(--corner-radius-small);
   border: var(--border-width) solid var(--color-border);
   transition: all var(--animation-duration-open) var(--animation-easing-open);
-  min-height: 40px;
 }
 
 .force-item-compact:hover {
@@ -1826,9 +1825,8 @@
 .force-symbols-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   width: 100%;
-  min-height: 32px;
 }
 
 .cosmic-symbol-main {
@@ -1882,7 +1880,7 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 2px;
-  min-width: 80px;
+  min-width: 60px;
   flex-shrink: 0;
 }
 
@@ -1911,9 +1909,61 @@
   margin-left: 8px;
 }
 
+/* Triple bar container */
+.force-bars-triple {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-left: 8px;
+  min-width: 120px;
+}
+
+.force-bars-triple .force-bar-compact {
+  margin-left: 0;
+  height: 4px;
+  flex: none;
+  position: relative;
+}
+
+/* Mini pie chart */
+.force-mini-pie {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  margin-left: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.force-mini-pie svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Bar tick marks */
+.bar-tick-marks {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.bar-tick-marks .tick {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.4);
+  transform: translateX(-0.5px);
+}
+
 .force-bar-compact .force-fill {
   height: 100%;
-  transition: width 0.3s ease;
   border-radius: 3px;
   position: relative;
 }
@@ -1926,12 +1976,6 @@
   right: 0;
   bottom: 0;
   background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
-  animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
 }
 
 /* Ensure cosmic symbols are properly aligned */

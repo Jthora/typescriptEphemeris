@@ -9,12 +9,12 @@ import themeManager, { THEMES } from '../../../theme-manager';
  */
 const getCosmicForceSymbol = (forceName: string, isDarkMode: boolean = false): string => {
   const symbolMap: Record<string, string> = {
-    'alpha': !isDarkMode ? 'symbols-o2-alpha-white.png' : 'symbols-o2-alpha-standard.png',
-    'omega': !isDarkMode ? 'symbols-o2-omega-white.png' : 'symbols-o2-omega-standard.png', 
-    'order': !isDarkMode ? 'symbols-o2-order-white.png' : 'symbols-o2-order-standard.png',
-    'chaos': !isDarkMode ? 'symbols-o2-chaos-white.png' : 'symbols-o2-chaos-standard.png',
-    'void': !isDarkMode ? 'symbols-o2-void-white.png' : 'symbols-o2-void-standard.png',
-    'core': !isDarkMode ? 'symbols-o2-core-white.png' : 'symbols-o2-core-standard.png'
+    'alpha': isDarkMode ? 'symbols-o2-alpha-white.png' : 'symbols-o2-alpha-standard.png',
+    'omega': isDarkMode ? 'symbols-o2-omega-white.png' : 'symbols-o2-omega-standard.png', 
+    'order': isDarkMode ? 'symbols-o2-order-white.png' : 'symbols-o2-order-standard.png',
+    'chaos': isDarkMode ? 'symbols-o2-chaos-white.png' : 'symbols-o2-chaos-standard.png',
+    'void': isDarkMode ? 'symbols-o2-void-white.png' : 'symbols-o2-void-standard.png',
+    'core': isDarkMode ? 'symbols-o2-core-white.png' : 'symbols-o2-core-standard.png'
   };
   
   const normalizedName = forceName.toLowerCase();
@@ -58,7 +58,9 @@ const getCosmicForceElements = (forceName: string): [string, string] => {
  */
 export const ForceIndicator: React.FC<ForceIndicatorProps> = ({
   force,
-  weight,
+  normalizedValue,
+  fractionalValue,
+  differentialValue,
   variant = 'dot',
   interactive = false,
   showPercentage = true
@@ -147,19 +149,104 @@ export const ForceIndicator: React.FC<ForceIndicatorProps> = ({
           <div className="force-info">
             <span className="force-name">{force.name}</span>
             {showPercentage && (
-              <span className="force-percentage">{decimalToPercentage(Math.max(weight, 0))}</span>
+              <span className="force-percentage">{decimalToPercentage(Math.max(fractionalValue, 0))}</span>
             )}
           </div>
           
-          {/* Compact progress bar */}
-          <div className="force-bar-compact">
-            <div 
-              className="force-fill"
-              style={{ 
-                width: `${Math.max(weight * 100, 2)}%`, // minimum 2% for visibility
-                backgroundColor: color
-              }}
-            />
+          {/* Mini pie chart */}
+          <div className="force-mini-pie">
+            <svg width="24" height="24" viewBox="0 0 24 24">
+              {/* Outer circle border */}
+              <circle 
+                cx="12" 
+                cy="12" 
+                r="10" 
+                fill="none" 
+                stroke="var(--color-border)" 
+                strokeWidth="1"
+              />
+              {/* Pie chart ring - Normalized relative strength (same as top bar) */}
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+                fill="none"
+                stroke={color}
+                strokeWidth="2"
+                strokeDasharray={`${Math.max(normalizedValue * 62.83, 1)} 62.83`}
+                strokeDashoffset="15.71"
+                transform="rotate(-90 12 12)"
+                opacity="0.8"
+              />
+              {/* Inner filling circle - Differential deviation (same as bottom bar) */}
+              <circle
+                cx="12"
+                cy="12"
+                r={Math.max(differentialValue * 8, 0.5)}
+                fill={color}
+                opacity="0.6"
+              />
+            </svg>
+          </div>
+          
+          {/* Triple progress bars with tick marks */}
+          <div className="force-bars-triple">
+            {/* Bar 1: Normalized (relative to strongest force) */}
+            <div className="force-bar-compact normalized">
+              <div className="bar-tick-marks">
+                <div className="tick" style={{left: '0%'}}></div>
+                <div className="tick" style={{left: '25%'}}></div>
+                <div className="tick" style={{left: '50%'}}></div>
+                <div className="tick" style={{left: '75%'}}></div>
+                <div className="tick" style={{left: '100%'}}></div>
+              </div>
+              <div 
+                className="force-fill"
+                style={{ 
+                  width: `${Math.max(normalizedValue * 100, 2)}%`,
+                  backgroundColor: color,
+                  opacity: 0.9
+                }}
+              />
+            </div>
+            
+            {/* Bar 2: Fractional (actual percentage 0-100%) */}
+            <div className="force-bar-compact fractional">
+              <div className="bar-tick-marks">
+                <div className="tick" style={{left: '0%'}}></div>
+                <div className="tick" style={{left: '25%'}}></div>
+                <div className="tick" style={{left: '50%'}}></div>
+                <div className="tick" style={{left: '75%'}}></div>
+                <div className="tick" style={{left: '100%'}}></div>
+              </div>
+              <div 
+                className="force-fill"
+                style={{ 
+                  width: `${Math.max(fractionalValue * 100, 2)}%`,
+                  backgroundColor: color,
+                  opacity: 0.7
+                }}
+              />
+            </div>
+            
+            {/* Bar 3: Deviation from average (centered at 50%) */}
+            <div className="force-bar-compact deviation">
+              <div className="bar-tick-marks">
+                <div className="tick" style={{left: '0%'}}></div>
+                <div className="tick" style={{left: '25%'}}></div>
+                <div className="tick" style={{left: '50%'}}></div>
+                <div className="tick" style={{left: '75%'}}></div>
+                <div className="tick" style={{left: '100%'}}></div>
+              </div>
+              <div 
+                className="force-fill"
+                style={{ 
+                  width: `${Math.max(differentialValue * 100, 2)}%`,
+                  backgroundColor: differentialValue > 0.5 ? color : `${color}80`,
+                  opacity: 0.8
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -177,15 +264,15 @@ export const ForceIndicator: React.FC<ForceIndicatorProps> = ({
           <div 
             className="force-fill"
             style={{ 
-              width: `${Math.max(weight * 100, 0)}%`,
+              width: `${Math.max(normalizedValue * 100, 0)}%`,
               backgroundColor: color,
-              '--fill-percentage': `${Math.max(weight * 100, 0)}%`
+              '--fill-percentage': `${Math.max(normalizedValue * 100, 0)}%`
             } as any}
           />
           <div className="force-bar-highlight" />
         </div>
         {showPercentage && (
-          <span className="force-percentage">{decimalToPercentage(Math.max(weight, 0))}</span>
+          <span className="force-percentage">{decimalToPercentage(Math.max(fractionalValue, 0))}</span>
         )}
       </div>
     );
@@ -198,7 +285,7 @@ export const ForceIndicator: React.FC<ForceIndicatorProps> = ({
         src={symbolPath}
         alt={`${force.name} cosmic symbol`}
         className={indicatorClass}
-        title={`${force.name} ${description}: ${decimalToPercentage(Math.max(weight, 0))}`}
+        title={`${force.name} ${description}: ${decimalToPercentage(Math.max(fractionalValue, 0))}`}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       />

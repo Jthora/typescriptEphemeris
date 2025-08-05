@@ -60,17 +60,6 @@
     var(--color-border-highlight) 100%);
 }
 
-.panel-header--with-rivets::after {
-  content: "⚫ ⚫";
-  position: absolute;
-  top: 50%;
-  right: var(--panel-padding);
-  transform: translateY(-50%);
-  font-size: var(--screw-size);
-  color: var(--color-border);
-  letter-spacing: 4px;
-}
-
 .panel-title {
   font-size: var(--font-size-large);
   font-weight: 600;
@@ -331,17 +320,6 @@
     var(--color-border) 20%,
     var(--color-border) 80%,
     var(--color-border-highlight) 100%);
-}
-
-.panel-header--with-rivets::after {
-  content: "⚫ ⚫";
-  position: absolute;
-  top: 50%;
-  right: var(--spacing-medium);
-  transform: translateY(-50%);
-  font-size: 8px;
-  color: var(--color-border);
-  letter-spacing: 4px;
 }
 
 .panel-title {
