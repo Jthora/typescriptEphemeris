@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Clock } from 'lucide-react';
+import { Clock, ChevronUp, ChevronDown } from 'lucide-react';
 import type { BirthData } from '../astrology';
 
 interface BottomBarProps {
@@ -7,13 +7,17 @@ interface BottomBarProps {
   toggleRealTimeMode: () => void;
   resetToCurrentTime: () => void;
   birthData: BirthData;
+  bottomPanelOpen?: boolean;
+  toggleBottomPanel?: () => void;
 }
 
 const BottomBar: React.FC<BottomBarProps> = ({
   isRealTimeMode,
   toggleRealTimeMode,
   resetToCurrentTime,
-  birthData
+  birthData,
+  bottomPanelOpen = false,
+  toggleBottomPanel
 }) => {
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
@@ -66,8 +70,15 @@ const BottomBar: React.FC<BottomBarProps> = ({
           </div>
         </div>
         
-        <div className="bottom-bar-section">
-          {/* Center of the bottom bar */}
+        <div className="bottom-bar-section center-toggle">
+          {/* Center toggle button for bottom drawer */}
+          <button
+            className="hardware-button bottom-drawer-toggle"
+            onClick={toggleBottomPanel}
+            title={bottomPanelOpen ? 'Hide tools' : 'Show tools'}
+          >
+            {bottomPanelOpen ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+          </button>
         </div>
         
         <div className="bottom-bar-section controls">

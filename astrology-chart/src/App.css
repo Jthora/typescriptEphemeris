@@ -158,6 +158,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0 1rem;
+  position: relative;
 }
 
 .bottom-bar-section {
@@ -170,6 +171,19 @@
 
 .bottom-bar-section.controls {
   margin-left: auto;
+}
+
+.bottom-bar-section.center-toggle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0; /* override gaps */
+  z-index: 2; /* above other buttons */
+}
+
+.bottom-bar-section.center-toggle .bottom-drawer-toggle {
+  min-width: 48px;
 }
 
 .bottom-bar-section .hardware-button {
@@ -243,24 +257,7 @@
 }
 
 /* Panel overlay background */
-.panel-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--animation-duration-close) ease;
-  z-index: var(--z-index-overlay);
-  backdrop-filter: blur(2px);
-}
-
-.panel-overlay.active {
-  opacity: 1;
-  pointer-events: all;
-}
+.panel-overlay { display: none; }
 
 /* Panel styles - mechanical look */
 .panel {
@@ -1210,3 +1207,29 @@ input:focus-visible {
 }
 
 /* Bottom bar section styling */
+
+.bottom-panel {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: var(--bottombar-height, 40px); /* sit just above bottom bar */
+  height: var(--bottom-panel-height, 300px); /* full height occupied logically */
+  pointer-events: none; /* content disabled until open */
+  z-index: calc(var(--z-index-panel) - 1);
+}
+
+.bottom-panel .bottom-panel-content-wrapper {
+  position: absolute;
+  inset: 0;
+  background: var(--panel-background);
+  border-top: 1px solid var(--color-border-highlight);
+  box-shadow: 0 -4px 12px var(--color-shadow);
+  transform: translateY(calc(100% - 6px)); /* leave small lip */
+  transition: transform var(--animation-duration-close) var(--animation-easing-close);
+  pointer-events: auto;
+}
+
+.bottom-panel.open { pointer-events: auto; }
+.bottom-panel.open .bottom-panel-content-wrapper { transform: translateY(0); transition-duration: var(--animation-duration-open); }
+
+.bottom-bar .bottom-drawer-toggle { min-width: 40px; justify-content: center; }

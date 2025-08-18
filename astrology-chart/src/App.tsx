@@ -1,11 +1,12 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
 import type { TouchEvent } from 'react'
-import { CalendarDays, Loader2, Play, Pause, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react'
+import { CalendarDays, Loader2, Play, Pause, RotateCcw, ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from 'lucide-react'
 import BirthChartVisualization from './components/BirthChartVisualization'
 import TopBar from './components/TopBar'
 import LeftSideDrawer from './components/LeftSideDrawer'
 import RightSideDrawer from './components/RightSideDrawer'
 import BottomBar from './components/BottomBar'
+import BottomDrawer from './components/BottomDrawer'
 import { AstrologyCalculator, type BirthData, type AstrologyChart, type HouseSystemType } from './astrology'
 import './App.css'
 import './components/SideDrawers.css'
@@ -30,11 +31,12 @@ function App() {
   // UI state for panel visibility
   const [leftPanelOpen, setLeftPanelOpen] = useState(false);
   const [rightPanelOpen, setRightPanelOpen] = useState(false);
+  const [bottomPanelOpen, setBottomPanelOpen] = useState(false);
   
   // Touch gesture handling
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
-  const minSwipeDistance = 70; // Minimum distance for swipe detection
+  const minSwipeDistance = 70 // Minimum distance for swipe detection
   
   const [birthData, setBirthData] = useState<BirthData>(() => {
     // Set to current date/time in Seattle timezone
@@ -215,13 +217,11 @@ function App() {
     // Detect swipe direction if it exceeds minimum distance
     if (Math.abs(deltaX) > minSwipeDistance) {
       if (deltaX > 0) {
-        // Swipe right - open left panel
+        // Swipe right - open left panel (do not force close right panel)
         setLeftPanelOpen(true);
-        setRightPanelOpen(false);
       } else {
-        // Swipe left - open right panel
+        // Swipe left - open right panel (do not force close left panel)
         setRightPanelOpen(true);
-        setLeftPanelOpen(false);
       }
     }
     
@@ -230,39 +230,23 @@ function App() {
     touchEndX.current = null;
   };
 
-  // Toggle panel functions
+  // Toggle panel functions (no longer mutually exclusive)
   const toggleLeftPanel = () => {
     setLeftPanelOpen(prev => !prev);
-    
-    // Close right panel if it's open
-    if (rightPanelOpen) {
-      setRightPanelOpen(false);
-    }
   };
 
   const toggleRightPanel = () => {
     setRightPanelOpen(prev => !prev);
-    
-    // Close left panel if it's open
-    if (leftPanelOpen) {
-      setLeftPanelOpen(false);
-    }
   };
 
-  // Close panels when clicking overlay
-  const handleOverlayClick = () => {
-    setLeftPanelOpen(false);
-    setRightPanelOpen(false);
+  const toggleBottomPanel = () => {
+    setBottomPanelOpen(prev => !prev);
   };
 
   return (
     <div className="app">
-      {/* Panel overlay - darkens background when panels are open */}
-      <div 
-        className={`panel-overlay ${leftPanelOpen || rightPanelOpen ? 'active' : ''}`}
-        onClick={handleOverlayClick}
-      />
-      
+      {/* Removed panel overlay to keep chart fully visible without dimming */}
+      {/* <div className={`panel-overlay ${leftPanelOpen || rightPanelOpen ? 'active' : ''}`} onClick={handleOverlayClick} /> */}
       <main className="app-main">
         {/* Top bar */}
         <TopBar />
@@ -288,12 +272,20 @@ function App() {
           )}
         </div>
         
+        {/* Bottom panel - slides above bottom bar */}
+        <div className={`bottom-panel ${bottomPanelOpen ? 'open' : ''}`}>
+          <div className="bottom-panel-content-wrapper">
+            <BottomDrawer />
+          </div>
+        </div>
         {/* Bottom bar */}
         <BottomBar 
           isRealTimeMode={isRealTimeMode}
           toggleRealTimeMode={toggleRealTimeMode}
           resetToCurrentTime={resetToCurrentTime}
           birthData={birthData}
+          bottomPanelOpen={bottomPanelOpen}
+          toggleBottomPanel={toggleBottomPanel}
         />
         
         {/* Left panel - Birth Information */}
