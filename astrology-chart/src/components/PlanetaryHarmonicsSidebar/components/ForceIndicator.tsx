@@ -2,38 +2,60 @@ import React, { useState, useEffect } from 'react';
 import type { ForceIndicatorProps } from '../types';
 import { getCosmicForceColor, getCosmicForceDescription, decimalToPercentage } from '../utils';
 import themeManager, { THEMES } from '../../../theme-manager';
+import {
+  symbolsO2AlphaStandard,
+  symbolsO2AlphaWhite,
+  symbolsO2ChaosStandard,
+  symbolsO2ChaosWhite,
+  symbolsO2CoreStandard,
+  symbolsO2CoreWhite,
+  symbolsO2OmegaStandard,
+  symbolsO2OmegaWhite,
+  symbolsO2OrderStandard,
+  symbolsO2OrderWhite,
+  symbolsO2VoidStandard,
+  symbolsO2VoidWhite,
+  symbolsO1AirStandard,
+  symbolsO1AirWhite,
+  symbolsO1EarthStandard,
+  symbolsO1EarthWhite,
+  symbolsO1FireStandard,
+  symbolsO1FireWhite,
+  symbolsO1WaterStandard,
+  symbolsO1WaterWhite,
+} from '../../../assets/images/symbols/universal';
 
 /**
- * Maps cosmic force names to their symbol filenames from the existing o2 series
+ * Maps cosmic force names to their symbol imports from the existing o2 series
  * Note: o2 symbols have reversed naming - "white" variants are for light theme, "standard" for dark theme
  */
 const getCosmicForceSymbol = (forceName: string, isDarkMode: boolean = false): string => {
   const symbolMap: Record<string, string> = {
-    'alpha': isDarkMode ? 'symbols-o2-alpha-white.png' : 'symbols-o2-alpha-standard.png',
-    'omega': isDarkMode ? 'symbols-o2-omega-white.png' : 'symbols-o2-omega-standard.png', 
-    'order': isDarkMode ? 'symbols-o2-order-white.png' : 'symbols-o2-order-standard.png',
-    'chaos': isDarkMode ? 'symbols-o2-chaos-white.png' : 'symbols-o2-chaos-standard.png',
-    'void': isDarkMode ? 'symbols-o2-void-white.png' : 'symbols-o2-void-standard.png',
-    'core': isDarkMode ? 'symbols-o2-core-white.png' : 'symbols-o2-core-standard.png'
+    'alpha': isDarkMode ? symbolsO2AlphaWhite : symbolsO2AlphaStandard,
+    'omega': isDarkMode ? symbolsO2OmegaWhite : symbolsO2OmegaStandard, 
+    'order': isDarkMode ? symbolsO2OrderWhite : symbolsO2OrderStandard,
+    'chaos': isDarkMode ? symbolsO2ChaosWhite : symbolsO2ChaosStandard,
+    'void': isDarkMode ? symbolsO2VoidWhite : symbolsO2VoidStandard,
+    'core': isDarkMode ? symbolsO2CoreWhite : symbolsO2CoreStandard
   };
   
   const normalizedName = forceName.toLowerCase();
-  return symbolMap[normalizedName] || 'symbols-o2-core-standard.png'; // fallback to core symbol
+  return symbolMap[normalizedName] || symbolsO2CoreStandard; // fallback to core symbol
 };
 
 /**
- * Maps element names to their o1 symbol filenames  
+ * Maps element names to their o1 symbol imports  
  */
 const getElementSymbol = (elementName: string, isDarkMode: boolean = false): string => {
   const symbolMap: Record<string, string> = {
-    'fire': isDarkMode ? 'symbols-o1-fire-white.png' : 'symbols-o1-fire-standard.png',
-    'earth': isDarkMode ? 'symbols-o1-earth-white.png' : 'symbols-o1-earth-standard.png',
-    'air': isDarkMode ? 'symbols-o1-air-white.png' : 'symbols-o1-air-standard.png',
-    'water': isDarkMode ? 'symbols-o1-water-white.png' : 'symbols-o1-water-standard.png'
+    'fire': isDarkMode ? symbolsO1FireWhite : symbolsO1FireStandard,
+    'earth': isDarkMode ? symbolsO1EarthWhite : symbolsO1EarthStandard,
+    'air': isDarkMode ? symbolsO1AirWhite : symbolsO1AirStandard,
+    'water': isDarkMode ? symbolsO1WaterWhite : symbolsO1WaterStandard
   };
   
   const normalizedName = elementName.toLowerCase();
-  return symbolMap[normalizedName] || 'symbols-o1-fire-standard.png';
+  return symbolMap[normalizedName] || symbolsO1FireStandard; // fallback to fire
 };
 
 /**
@@ -87,13 +109,34 @@ export const ForceIndicator: React.FC<ForceIndicatorProps> = ({
       themeManager.removeListener(updateTheme);
     };
   }, []);
+
+  const mapForceToSymbol = (name: string, dark: boolean) => {
+    const n = name.toLowerCase();
+    if (n === 'alpha') return dark ? symbolsO2AlphaWhite : symbolsO2AlphaStandard;
+    if (n === 'omega') return dark ? symbolsO2OmegaWhite : symbolsO2OmegaStandard;
+    if (n === 'order') return dark ? symbolsO2OrderWhite : symbolsO2OrderStandard;
+    if (n === 'chaos') return dark ? symbolsO2ChaosWhite : symbolsO2ChaosStandard;
+    if (n === 'void') return dark ? symbolsO2VoidWhite : symbolsO2VoidStandard;
+    if (n === 'core') return dark ? symbolsO2CoreWhite : symbolsO2CoreStandard;
+    return dark ? symbolsO2CoreWhite : symbolsO2CoreStandard;
+  };
+
+  const mapElementToSymbol = (name: string, dark: boolean) => {
+    const n = name.toLowerCase();
+    if (n === 'air') return dark ? symbolsO1AirWhite : symbolsO1AirStandard;
+    if (n === 'earth') return dark ? symbolsO1EarthWhite : symbolsO1EarthStandard;
+    if (n === 'fire') return dark ? symbolsO1FireWhite : symbolsO1FireStandard;
+    if (n === 'water') return dark ? symbolsO1WaterWhite : symbolsO1WaterStandard;
+    return dark ? symbolsO1AirWhite : symbolsO1AirStandard;
+  };
+
+  const symbolPath = mapForceToSymbol(force.name, isDarkMode);
+  const [element1, element2] = getCosmicForceElements(force.name);
+  const element1Path = mapElementToSymbol(element1, isDarkMode);
+  const element2Path = mapElementToSymbol(element2, isDarkMode);
   
   const color = getCosmicForceColor(force.name);
   const description = getCosmicForceDescription(force.name);
-  const symbolPath = `/src/assets/images/symbols/universal/${getCosmicForceSymbol(force.name, isDarkMode)}`;
-  const [element1, element2] = getCosmicForceElements(force.name);
-  const element1Path = `/src/assets/images/symbols/universal/${getElementSymbol(element1, isDarkMode)}`;
-  const element2Path = `/src/assets/images/symbols/universal/${getElementSymbol(element2, isDarkMode)}`;
   
   const indicatorClass = [
     'force-indicator',

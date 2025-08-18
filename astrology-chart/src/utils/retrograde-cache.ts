@@ -19,6 +19,7 @@ export class RetrogradeCache {
   private cache = new Map<string, RetrogradeCacheEntry>();
   private readonly TTL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
   private readonly POSITION_TOLERANCE = 0.1; // degrees
+  private readonly MAX_CACHE_ENTRIES = 1000; // Prevent unbounded growth
   
   /**
    * Generate cache key for a given date (rounded to nearest hour)
@@ -54,7 +55,7 @@ export class RetrogradeCache {
     const planetEntry = cacheEntry[planetName];
     
     if (this.isValidEntry(planetEntry, longitude)) {
-      console.log(`💾 Retrograde cache hit for ${planetName}`);
+      if (import.meta.env.DEV) console.log(`💾 Retrograde cache hit for ${planetName}`);
       return planetEntry.isRetrograde;
     }
 
@@ -84,7 +85,13 @@ export class RetrogradeCache {
       longitude
     };
 
-    console.log(`💾 Cached retrograde state for ${planetName}: ${isRetrograde}`);
+    if (import.meta.env.DEV) console.log(`💾 Cached retrograde state for ${planetName}: ${isRetrograde}`);
+
+    // LRU-like eviction based on oldest keys when exceeding max entries
+    if (this.cache.size > this.MAX_CACHE_ENTRIES) {
+      const firstKey = this.cache.keys().next().value;
+      if (firstKey) this.cache.delete(firstKey);
+    }
   }
 
   /**
@@ -116,7 +123,7 @@ export class RetrogradeCache {
 
     // Second pass: calculate missing values in parallel
     if (planetsToCalculate.length > 0) {
-      console.log(`🔄 Calculating retrograde for ${planetsToCalculate.length} planets`);
+      if (import.meta.env.DEV) console.log(`🔄 Calculating retrograde for ${planetsToCalculate.length} planets`);
       
       const calculations = planetsToCalculate.map(async (planet) => {
         const isRetrograde = await calculateRetrogradeFn(planet.name, date);
@@ -166,7 +173,7 @@ export class RetrogradeCache {
       }
     }
 
-    if (removedCount > 0) {
+    if (removedCount > 0 && import.meta.env.DEV) {
       console.log(`🧹 Cleaned up ${removedCount} expired retrograde cache entries`);
     }
   }
@@ -211,7 +218,7 @@ export class RetrogradeCache {
    */
   clear(): void {
     this.cache.clear();
-    console.log('🧹 Retrograde cache cleared');
+    if (import.meta.env.DEV) console.log('🧹 Retrograde cache cleared');
   }
 
   /**
@@ -223,7 +230,7 @@ export class RetrogradeCache {
     planets: string[],
     calculateRetrogradeFn: (planetName: string, date: Date) => Promise<boolean>
   ): Promise<void> {
-    console.log(`🔄 Preloading retrograde cache from ${startDate} to ${endDate}`);
+    if (import.meta.env.DEV) console.log(`🔄 Preloading retrograde cache from ${startDate} to ${endDate}`);
     
     const hourlyIntervals: Date[] = [];
     const current = new Date(startDate);
@@ -244,16 +251,37 @@ export class RetrogradeCache {
       await Promise.all(calculations);
     }
 
-    console.log(`✅ Preloaded retrograde cache for ${hourlyIntervals.length} time intervals`);
+    if (import.meta.env.DEV) console.log(`✅ Preloaded retrograde cache for ${hourlyIntervals.length} time intervals`);
   }
 }
 
-// Singleton instance
-export const retrogradeCache = new RetrogradeCache();
+// Singleton instance with HMR-safe global guard
+declare global {
+  // eslint-disable-next-line no-var
+  var __retrogradeCache__: RetrogradeCache | undefined;
+  // eslint-disable-next-line no-var
+  var __retrogradeCleanupInterval__: number | undefined;
+}
 
-// Auto-cleanup every hour
+// Prefer existing instance if present (avoids leaks during HMR)
+export const retrogradeCache = globalThis.__retrogradeCache__ ?? new RetrogradeCache();
+globalThis.__retrogradeCache__ = retrogradeCache;
+
+// Auto-cleanup every hour (guarded to avoid multiple intervals in dev/HMR)
 if (typeof window !== 'undefined') {
-  setInterval(() => {
+  if (globalThis.__retrogradeCleanupInterval__) {
+    clearInterval(globalThis.__retrogradeCleanupInterval__);
+  }
+  globalThis.__retrogradeCleanupInterval__ = window.setInterval(() => {
     retrogradeCache.cleanup();
   }, 60 * 60 * 1000); // 1 hour
+
+  if (import.meta.hot) {
+    import.meta.hot.dispose(() => {
+      if (globalThis.__retrogradeCleanupInterval__) {
+        clearInterval(globalThis.__retrogradeCleanupInterval__);
+        globalThis.__retrogradeCleanupInterval__ = undefined;
+      }
+    });
+  }
 }

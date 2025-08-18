@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:ipfs": "tsc -b && VITE_IPFS=true vite build",
+    "deploy:ipfs": "node ./scripts/deploy-ipfs.mjs",
+    "ipfs": "npm run build:ipfs && npm run deploy:ipfs",
     "lint": "eslint .",
     "preview": "vite preview",
     "test-symbols": "vite --config vite.config.ts --mode development --force --host --port 5555 --open ./src/test-symbols.tsx"
@@ -30,6 +33,7 @@
     "globals": "^16.3.0",
     "typescript": "^5.2.2",
     "typescript-eslint": "^8.35.1",
-    "vite": "^4.5.2"
+    "vite": "^4.5.2",
+    "web3.storage": "^7.0.0"
   }
 }

@@ -1,22 +1,37 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { getCosmicForceColor } from '../utils';
 import type { ForceComparison } from '../utils/forceDimensions';
+import {
+  symbolsO2AlphaStandard,
+  symbolsO2AlphaWhite,
+  symbolsO2ChaosStandard,
+  symbolsO2ChaosWhite,
+  symbolsO2CoreStandard,
+  symbolsO2CoreWhite,
+  symbolsO2OmegaStandard,
+  symbolsO2OmegaWhite,
+  symbolsO2OrderStandard,
+  symbolsO2OrderWhite,
+  symbolsO2VoidStandard,
+  symbolsO2VoidWhite
+} from '../../../assets/images/symbols/universal';
+import themeManager, { THEMES } from '../../../theme-manager';
 
 /**
- * Maps cosmic force names to their symbol filenames from the existing o2 series
+ * Maps cosmic force names to their symbol imports from the existing o2 series
  */
 const getCosmicForceSymbol = (forceName: string, isDarkMode: boolean = false): string => {
   const symbolMap: Record<string, string> = {
-    'alpha': isDarkMode ? 'symbols-o2-alpha-white.png' : 'symbols-o2-alpha-standard.png',
-    'omega': isDarkMode ? 'symbols-o2-omega-white.png' : 'symbols-o2-omega-standard.png', 
-    'order': isDarkMode ? 'symbols-o2-order-white.png' : 'symbols-o2-order-standard.png',
-    'chaos': isDarkMode ? 'symbols-o2-chaos-white.png' : 'symbols-o2-chaos-standard.png',
-    'void': isDarkMode ? 'symbols-o2-void-white.png' : 'symbols-o2-void-standard.png',
-    'core': isDarkMode ? 'symbols-o2-core-white.png' : 'symbols-o2-core-standard.png'
+    'alpha': isDarkMode ? symbolsO2AlphaWhite : symbolsO2AlphaStandard,
+    'omega': isDarkMode ? symbolsO2OmegaWhite : symbolsO2OmegaStandard, 
+    'order': isDarkMode ? symbolsO2OrderWhite : symbolsO2OrderStandard,
+    'chaos': isDarkMode ? symbolsO2ChaosWhite : symbolsO2ChaosStandard,
+    'void': isDarkMode ? symbolsO2VoidWhite : symbolsO2VoidStandard,
+    'core': isDarkMode ? symbolsO2CoreWhite : symbolsO2CoreStandard
   };
   
   const normalizedName = forceName.toLowerCase();
-  return symbolMap[normalizedName] || 'symbols-o2-core-standard.png';
+  return symbolMap[normalizedName] || symbolsO2CoreStandard;
 };
 
 interface ForceComparisonProps {
@@ -29,7 +44,7 @@ interface ForceComparisonProps {
  * Individual force comparison component showing dual-directional bars
  * with balance indicator
  */
-export const ForceComparisonBar: React.FC<ForceComparisonProps> = ({
+const ForceComparisonBarBase: React.FC<ForceComparisonProps> = ({
   comparison,
   size = 'medium',
   showLabels = true
@@ -39,13 +54,12 @@ export const ForceComparisonBar: React.FC<ForceComparisonProps> = ({
   const leftColor = getCosmicForceColor(leftForce);
   const rightColor = getCosmicForceColor(rightForce);
   
-  // Detect dark mode from document or body class
-  const isDarkMode = document.documentElement.classList.contains('dark') || 
-                     document.body.classList.contains('dark-theme') ||
-                     window.matchMedia?.('(prefers-color-scheme: dark)').matches;
+  // Use ThemeManager instead of DOM reads; returns 'dark' | 'light'
+  const isDarkMode = themeManager.getActualTheme() === THEMES.DARK;
   
-  const leftSymbolPath = `/src/assets/images/symbols/universal/${getCosmicForceSymbol(leftForce, isDarkMode)}`;
-  const rightSymbolPath = `/src/assets/images/symbols/universal/${getCosmicForceSymbol(rightForce, isDarkMode)}`;
+  // Use imported asset URLs directly (Vite resolves them for prod)
+  const leftSymbolPath = getCosmicForceSymbol(leftForce, isDarkMode);
+  const rightSymbolPath = getCosmicForceSymbol(rightForce, isDarkMode);
   
   // Calculate bar widths as percentages
   const total = leftValue + rightValue;
@@ -128,3 +142,5 @@ export const ForceComparisonBar: React.FC<ForceComparisonProps> = ({
     </div>
   );
 };
+
+export const ForceComparisonBar = React.memo(ForceComparisonBarBase);

@@ -22,10 +22,10 @@ interface DimensionalComparisonsProps {
  * Shows all pairwise relationships between the 6 cosmic forces
  * Organized in 3 rows × 5 columns layout
  */
-export const DimensionalComparisons: React.FC<DimensionalComparisonsProps> = ({
+export const DimensionalComparisons = React.memo(({
   processedForceData,
   isCalculating = false
-}) => {
+}: DimensionalComparisonsProps) => {
   const comparisons = useMemo(() => {
     return calculateForceComparisons(processedForceData);
   }, [processedForceData]);
@@ -64,4 +64,4 @@ export const DimensionalComparisons: React.FC<DimensionalComparisonsProps> = ({
       </div>
     </div>
   );
-};
+});

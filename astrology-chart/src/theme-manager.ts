@@ -23,12 +23,15 @@ export class ThemeManager {
   private initialized: boolean;
   private mediaQuery: MediaQueryList;
   private listeners: Array<(theme: ThemeType) => void>;
+  private boundSystemListener?: (e: MediaQueryListEvent) => void;
 
   constructor() {
     this.currentTheme = THEMES.SYSTEM;
     this.initialized = false;
     this.mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     this.listeners = [];
+    // Pre-bind the system theme change handler to keep a stable reference
+    this.boundSystemListener = this.handleSystemThemeChange.bind(this);
   }
 
   /**
@@ -44,15 +47,17 @@ export class ThemeManager {
       this.currentTheme = savedTheme as ThemeType;
     }
     
-    // Setup system theme change listener
-    this.mediaQuery.addEventListener('change', this.handleSystemThemeChange.bind(this));
+    // Setup system theme change listener with stable reference
+    if (this.boundSystemListener) {
+      this.mediaQuery.addEventListener('change', this.boundSystemListener);
+    }
     
     // Apply initial theme
     this.applyTheme();
     
     this.initialized = true;
     
-    console.log(`🎨 Theme Manager initialized with theme: ${this.currentTheme}`);
+    if (import.meta.env.DEV) console.log(`🎨 Theme Manager initialized with theme: ${this.currentTheme}`);
   }
 
   /**
@@ -86,7 +91,7 @@ export class ThemeManager {
     // Notify listeners
     this.notifyListeners();
     
-    console.log(`🎨 Theme changed to: ${theme}`);
+    if (import.meta.env.DEV) console.log(`🎨 Theme changed to: ${theme}`);
   }
 
   /**
@@ -172,7 +177,9 @@ export class ThemeManager {
    * Clean up resources
    */
   cleanup(): void {
-    this.mediaQuery.removeEventListener('change', this.handleSystemThemeChange);
+    if (this.boundSystemListener) {
+      this.mediaQuery.removeEventListener('change', this.boundSystemListener);
+    }
     this.listeners = [];
   }
 }

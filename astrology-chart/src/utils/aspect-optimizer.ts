@@ -31,6 +31,7 @@ export class AspectOptimizer {
   private cache = new Map<string, AspectLookupEntry>();
   private readonly TTL = 30 * 60 * 1000; // 30 minutes cache
   private readonly POSITION_TOLERANCE = 2.0; // degrees - increased to prevent flickering
+  private readonly MAX_CACHE_ENTRIES = 500; // LRU bound to prevent unbounded growth
   
   // Pre-computed aspect definitions sorted by importance
   private readonly ASPECT_DEFINITIONS: AspectDefinition[] = [
@@ -90,9 +91,7 @@ export class AspectOptimizer {
    * Normalize angle to 0-360 range
    */
   private normalizeAngle(angle: number): number {
-    while (angle < 0) angle += 360;
-    while (angle >= 360) angle -= 360;
-    return angle;
+    return ((angle % 360) + 360) % 360;
   }
 
   /**
@@ -130,13 +129,12 @@ export class AspectOptimizer {
     const cacheKey = this.generateCacheKey(planets);
     const cachedEntry = this.cache.get(cacheKey);
     
-    // Check cache first
     if (cachedEntry && this.isValidEntry(cachedEntry, planets)) {
-      console.log(`💾 Aspect cache hit for ${planets.length} planets`);
+      if (import.meta.env.DEV) console.log(`💾 Aspect cache hit for ${planets.length} planets`);
       return cachedEntry.aspects;
     }
 
-    console.log(`🔄 Calculating aspects for ${planets.length} planets`);
+    if (import.meta.env.DEV) console.log(`🔄 Calculating aspects for ${planets.length} planets`);
     const startTime = performance.now();
     
     const aspects: CachedAspect[] = [];
@@ -196,8 +194,14 @@ export class AspectOptimizer {
       planetPositions
     });
 
+    // LRU eviction if over max size
+    if (this.cache.size > this.MAX_CACHE_ENTRIES) {
+      const firstKey = this.cache.keys().next().value;
+      if (firstKey) this.cache.delete(firstKey);
+    }
+
     const endTime = performance.now();
-    console.log(`⚡ Aspect calculation completed in ${(endTime - startTime).toFixed(2)}ms (${aspects.length} aspects found)`);
+    if (import.meta.env.DEV) console.log(`⚡ Aspect calculation completed in ${(endTime - startTime).toFixed(2)}ms (${aspects.length} aspects found)`);
     
     return aspects;
   }
@@ -229,7 +233,7 @@ export class AspectOptimizer {
    * Pre-calculate common aspect patterns
    */
   precomputeAspectPatterns(): void {
-    console.log('🔄 Precomputing common aspect patterns...');
+    if (import.meta.env.DEV) console.log('🔄 Precomputing common aspect patterns...');
     
     // Common planetary configurations for caching
     const commonConfigurations = [
@@ -242,7 +246,7 @@ export class AspectOptimizer {
     ];
 
     this.calculateAspectsOptimized(commonConfigurations);
-    console.log('✅ Aspect pattern precomputation completed');
+    if (import.meta.env.DEV) console.log('✅ Aspect pattern precomputation completed');
   }
 
   /**
@@ -274,7 +278,7 @@ export class AspectOptimizer {
       }
     }
 
-    if (removedCount > 0) {
+    if (removedCount > 0 && import.meta.env.DEV) {
       console.log(`🧹 Cleaned up ${removedCount} expired aspect cache entries`);
     }
   }
@@ -313,16 +317,37 @@ export class AspectOptimizer {
    */
   clear(): void {
     this.cache.clear();
-    console.log('🧹 Aspect cache cleared');
+    if (import.meta.env.DEV) console.log('🧹 Aspect cache cleared');
   }
 }
 
-// Singleton instance
-export const aspectOptimizer = new AspectOptimizer();
+// Singleton instance with HMR-safe global guard
+declare global {
+  // eslint-disable-next-line no-var
+  var __aspectOptimizer__: AspectOptimizer | undefined;
+  // eslint-disable-next-line no-var
+  var __aspectCleanupInterval__: number | undefined;
+}
 
-// Auto-cleanup every 15 minutes
+export const aspectOptimizer = globalThis.__aspectOptimizer__ ?? new AspectOptimizer();
+globalThis.__aspectOptimizer__ = aspectOptimizer;
+
+// Auto-cleanup every 15 minutes (guarded for HMR)
 if (typeof window !== 'undefined') {
-  setInterval(() => {
+  if (globalThis.__aspectCleanupInterval__) {
+    clearInterval(globalThis.__aspectCleanupInterval__);
+  }
+  globalThis.__aspectCleanupInterval__ = window.setInterval(() => {
     aspectOptimizer.cleanup();
-  }, 15 * 60 * 1000); // 15 minutes
+  }, 15 * 60 * 1000);
+
+  // HMR cleanup
+  if (import.meta.hot) {
+    import.meta.hot.dispose(() => {
+      if (globalThis.__aspectCleanupInterval__) {
+        clearInterval(globalThis.__aspectCleanupInterval__);
+        globalThis.__aspectCleanupInterval__ = undefined;
+      }
+    });
+  }
 }

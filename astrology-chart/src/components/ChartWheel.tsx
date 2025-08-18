@@ -9,6 +9,10 @@ import { svgTracker } from '../utils/svg-element-tracker';
 import { createSelectiveUpdater, SelectiveUpdater } from '../utils/selective-updater';
 import './CosmicSymbols.css';
 
+// Gate dev logging for production cleanliness
+const DEBUG = import.meta.env.DEV;
+const devLog = (...args: any[]) => { if (DEBUG) console.log(...args); };
+
 // Utility functions for chart angles
 const mapAngleNameToSymbol = (name: string): string => {
   if (name === 'ascendant') return 'ASC';
@@ -97,11 +101,11 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
   useEffect(() => {
     if (!svgRef.current || !chart) return;
 
-    console.log('🎨 ChartWheel rendering with chart signature:', chartSignature.slice(0, 50) + '...');
+    devLog('🎨 ChartWheel rendering with chart signature:', chartSignature.slice(0, 50) + '...');
     
     // Check if we can skip full render
     if (chartCacheRef.current && chartCacheRef.current.chart === chart) {
-      console.log('� Skipping render - chart unchanged');
+      devLog('� Skipping render - chart unchanged');
       return;
     }
 
@@ -111,10 +115,10 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
     
     // Only clear and rebuild if necessary
     if (!chartCacheRef.current) {
-      console.log('🔨 Full chart rebuild (initial render)');
+      devLog('🔨 Full chart rebuild (initial render)');
       svg.selectAll("*").remove();
     } else {
-      console.log('⚡ Optimized chart update');
+      devLog('⚡ Optimized chart update');
       // Selective updates would go here in a more advanced implementation
       svg.selectAll("*").remove();
     }
@@ -801,23 +805,23 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
 
     // Draw chart angles (ASC, DSC, MC, IC) with theme-aware colors
     if (chart.angles) {
-      console.log('🔍 Rendering chart angles:', chart.angles);
+      devLog('🔍 Rendering chart angles:', chart.angles);
       
       // Reference to the cosmic symbols for angles
       const angleSymbols = cosmicSymbols.angles;
       if (!angleSymbols) {
         console.error('❌ Angle symbols not found in cosmicSymbols:', cosmicSymbols);
       } else {
-        console.log('✅ Angle symbols loaded:', angleSymbols);
+        devLog('✅ Angle symbols loaded:', angleSymbols);
         // Debug: Check all angle symbol properties
         Object.entries(angleSymbols).forEach(([key, symbol]) => {
-          console.log(`🔎 Angle symbol ${key} details:`, symbol.symbol, symbol.fontSize, symbol.color);
+          devLog(`🔎 Angle symbol ${key} details:`, symbol.symbol, symbol.fontSize, symbol.color);
         });
       }
       
       // Draw each angle symbol with theme awareness
       Object.entries(chart.angles).forEach(([key, angle]) => {
-        console.log(`🔶 Rendering angle: ${key} at ${angle.longitude.toFixed(2)}°`);
+        devLog(`🔶 Rendering angle: ${key} at ${angle.longitude.toFixed(2)}°`);
         
         // Place angles even further out for maximum visibility
         const angleRadius = radius * 1.08; // Outermost rim (beyond zodiac symbols)
@@ -827,7 +831,7 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
         
         // Map angle name to symbol code
         const symbolKey = mapAngleNameToSymbol(key);
-        console.log(`🔄 Looking up symbol for ${key} with key: ${symbolKey}`);
+        devLog(`🔄 Looking up symbol for ${key} with key: ${symbolKey}`);
         
         const angleSymbol = angleSymbols?.[symbolKey as keyof typeof angleSymbols];
         if (!angleSymbol) {
@@ -917,7 +921,7 @@ export const ChartWheel: React.FC<ChartWheelProps> = ({
     };
     
     const renderTime = performance.now() - startTime;
-    console.log(`🎨 Chart rendering completed in ${renderTime.toFixed(2)}ms`);
+    devLog(`🎨 Chart rendering completed in ${renderTime.toFixed(2)}ms`);
 
     // Return cleanup function to remove tooltips when component unmounts
     return () => {
@@ -1196,7 +1200,7 @@ function createStaticElements(
     .attr('stroke', strokeColor)
     .attr('stroke-width', 0.5)
     .attr('opacity', 0.25);
-    
+
   gridPattern.append('path')
     .attr('d', 'M 10 0 V 20')
     .attr('stroke', strokeColor)
