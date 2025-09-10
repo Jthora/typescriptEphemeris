@@ -179,7 +179,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   margin: 0; /* override gaps */
-  z-index: 2; /* above other buttons */
+  z-index: 20; /* above other buttons and overlays */
 }
 
 .bottom-bar-section.center-toggle .bottom-drawer-toggle {
@@ -1213,23 +1213,24 @@ input:focus-visible {
   left: 0;
   right: 0;
   bottom: var(--bottombar-height, 40px); /* sit just above bottom bar */
-  height: var(--bottom-panel-height, 300px); /* full height occupied logically */
+  height: var(--bottom-panel-height, 420px); /* full height occupied logically */
   pointer-events: none; /* content disabled until open */
   z-index: calc(var(--z-index-panel) - 1);
 }
 
 .bottom-panel .bottom-panel-content-wrapper {
-  position: absolute;
-  inset: 0;
+  /* closed by default: slide fully below view */
+  transform: translateY(100%);
+  transition: transform var(--animation-duration-close, 180ms) var(--animation-easing-close, ease-out);
+  will-change: transform;
   background: var(--panel-background);
-  border-top: 1px solid var(--color-border-highlight);
-  box-shadow: 0 -4px 12px var(--color-shadow);
-  transform: translateY(calc(100% - 6px)); /* leave small lip */
-  transition: transform var(--animation-duration-close) var(--animation-easing-close);
-  pointer-events: auto;
+  border-top: var(--border-width) var(--border-style) var(--border-color);
+  box-shadow: 0 -8px 16px rgba(0,0,0,0.35);
 }
 
 .bottom-panel.open { pointer-events: auto; }
 .bottom-panel.open .bottom-panel-content-wrapper { transform: translateY(0); transition-duration: var(--animation-duration-open); }
+
+.bottom-panel.expanded { height: var(--bottom-panel-height-expanded, 560px); }
 
 .bottom-bar .bottom-drawer-toggle { min-width: 40px; justify-content: center; }
