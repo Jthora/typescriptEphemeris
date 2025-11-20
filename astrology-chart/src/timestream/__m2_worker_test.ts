@@ -5,9 +5,11 @@
  */
 import { TimestreamWorkerClient } from './workerClient';
 import { DEFAULT_BASE_STEP_MS } from './constants';
+import { MockEphemerisProvider } from './providers/mockProvider';
 
 function runWorkerTest() {
   console.group('[M2] Worker Test');
+  const provider = new MockEphemerisProvider();
   const client = new TimestreamWorkerClient(
     // Vite-friendly module URL reference for the worker source
     new URL('./timestreamWorker.ts', import.meta.url).href,
@@ -25,7 +27,8 @@ function runWorkerTest() {
         client.shutdown();
       },
       onLog: (level, message) => console.log(`[worker ${level}]`, message)
-    }
+    },
+    provider.meta
   );
 
   const now = Date.now();

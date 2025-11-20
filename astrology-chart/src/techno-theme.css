@@ -10,6 +10,7 @@
 :root {
   /* Theme mode detection (automatically set via JS) */
   color-scheme: light dark;
+  --app-color-scheme: light dark;
   
   /* Layout Variables */
   --topbar-height: 48px;
@@ -74,6 +75,7 @@
   --color-text-primary: #E0E6F0;
   --color-text-secondary: #B8C0CC;
   --color-text-disabled: #636B7A;
+  --color-heading: #F5F7FF;
   
   /* Accent Colors */
   --color-primary: #00A8FF;
@@ -113,6 +115,7 @@
     --color-text-primary: #2D3142;
     --color-text-secondary: #424B5A;
     --color-text-disabled: #8D9CAA;
+    --color-heading: #1C2230;
     
     /* Accent Colors - Remain the same but with adjusted dim variants */
     --color-primary-dim: #80D4FF;
@@ -143,6 +146,7 @@
   --color-text-primary: #E0E6F0;
   --color-text-secondary: #B8C0CC;
   --color-text-disabled: #636B7A;
+  --color-heading: #F5F7FF;
   --color-primary-dim: #00689B;
   --color-warning-dim: #997300;
   --color-error-dim: #9B2B33;
@@ -168,6 +172,7 @@
   --color-text-primary: #2D3142;
   --color-text-secondary: #424B5A;
   --color-text-disabled: #8D9CAA;
+  --color-heading: #1C2230;
   --color-primary-dim: #80D4FF;
   --color-warning-dim: #FFE07A;
   --color-error-dim: #FFA3AB;

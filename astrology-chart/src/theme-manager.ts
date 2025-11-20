@@ -26,7 +26,7 @@ export class ThemeManager {
   private boundSystemListener?: (e: MediaQueryListEvent) => void;
 
   constructor() {
-    this.currentTheme = THEMES.SYSTEM;
+  this.currentTheme = THEMES.DARK;
     this.initialized = false;
     this.mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     this.listeners = [];

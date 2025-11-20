@@ -1,11 +1,12 @@
 /**
  * Worker message protocol definitions (Milestone M2)
  */
-import type { PlanetId, TimestreamTile } from './types';
+import type { PlanetId, TimestreamTile, EphemerisProviderMeta } from './types';
 
 export interface TimestreamWorkerInitMessage {
   type: 'init';
   planets: PlanetId[];
+  provider?: EphemerisProviderMeta;
 }
 
 export interface TimestreamWorkerRequestTileMessage {

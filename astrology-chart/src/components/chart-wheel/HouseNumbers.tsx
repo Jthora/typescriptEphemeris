@@ -48,7 +48,7 @@ export const HouseNumbers: React.FC<HouseNumbersProps> = ({
             textAnchor="middle"
             dominantBaseline="middle"
             fontSize="14px"
-            fontFamily={fonts.body}
+            fontFamily={fonts.primary ?? 'Aldrich, sans-serif'}
             fill={secondaryTextColor}
           >
             {index + 1}

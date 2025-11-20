@@ -1,6 +1,7 @@
 /**
  * WebGL2 initialization helpers (Milestone M9 update: row indirection uniform)
  */
+import { DEFAULT_ELEMENT_COLOR_MAP } from '../elementColorMap';
 export interface GLResources {
   gl: WebGL2RenderingContext;
   program: WebGLProgram;
@@ -94,20 +95,18 @@ export function initGL(canvas: HTMLCanvasElement, vertSrc: string, fragSrc: stri
   rowHighlightLoc: gl.getUniformLocation(program, 'u_rowHighlight')
   } as const;
 
-  // Initialize default element color mapping uniforms if present
+  // Initialize default element color mapping uniforms (ESM import)
   if (uLocations.elemFireLoc && uLocations.elemWaterLoc) {
-    try {
-      const { DEFAULT_ELEMENT_COLOR_MAP } = require('../elementColorMap');
-      const m = DEFAULT_ELEMENT_COLOR_MAP;
-      const mat = new Float32Array([
-        m.fire[0], m.fire[1], m.fire[2],
-        m.earth[0], m.earth[1], m.earth[2],
-        m.air[0], m.air[1], m.air[2]
-      ]);
-      gl.useProgram(program);
-      gl.uniformMatrix3fv(uLocations.elemFireLoc, false, mat);
-      gl.uniform3f(uLocations.elemWaterLoc, m.water[0], m.water[1], m.water[2]);
-    } catch {}
+    const m = DEFAULT_ELEMENT_COLOR_MAP;
+    // Column-major mat3: columns are fire, earth, air
+    const mat = new Float32Array([
+      m.fire[0], m.fire[1], m.fire[2],
+      m.earth[0], m.earth[1], m.earth[2],
+      m.air[0], m.air[1], m.air[2]
+    ]);
+    gl.useProgram(program);
+    gl.uniformMatrix3fv(uLocations.elemFireLoc, false, mat);
+    gl.uniform3f(uLocations.elemWaterLoc, m.water[0], m.water[1], m.water[2]);
   }
 
   return { gl, program, vao, tex, texB, uLocations };

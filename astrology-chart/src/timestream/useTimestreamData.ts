@@ -6,6 +6,7 @@ import { DEFAULT_BASE_STEP_MS, DEFAULT_TILE_COLS, DEFAULT_MAX_RESIDENT_TILES, DE
 import { shouldRefineTile, computeRetroDensity } from './refinementLogic';
 import type { PlanetId, TimestreamTile } from './types';
 import { TimestreamWorkerClient } from './workerClient';
+import { MockEphemerisProvider } from './providers/mockProvider';
 
 export interface UseTimestreamOptions {
   centerTimeMs: number;
@@ -76,6 +77,7 @@ export function useTimestreamData(options: UseTimestreamOptions): UseTimestreamR
 
   useEffect(() => {
     if (!workerRef.current) {
+      const provider = new MockEphemerisProvider();
       workerRef.current = new TimestreamWorkerClient(
         new URL('./timestreamWorker.ts', import.meta.url).href,
         {
@@ -102,7 +104,8 @@ export function useTimestreamData(options: UseTimestreamOptions): UseTimestreamR
             else if (level === 'warn') console.warn('[TimestreamWorker]', message);
             else if (import.meta.env.DEV) console.log('[TimestreamWorker]', message); // gate noisy logs in prod
           }
-        }
+        },
+        provider.meta
       );
     }
     return () => {

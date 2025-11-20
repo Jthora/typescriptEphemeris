@@ -7,7 +7,7 @@ import { VERT_SOURCE, FRAG_SOURCE } from './gl/shaders';
 import { initGL } from './gl/initGL';
 import { computeRowHarmonicFlags } from './harmonicHighlight';
 import type { TimestreamTile } from './types';
-import { packPool } from './packPool';
+import { packTiles } from './packTiles';
 // TD1 diagnostics helpers (placed near top for scope)
 interface FrameDiag { frameId:number; ts:number; tiles:number; packedCols:number; packedRows:number; lod?:number; startMs:number; endMs:number; coveragePct:number; uploadMode?:'full'|'sub'; uploadMs?:number; drawMs?:number; glError?:number; primaryTexDims?:[number,number]; secondaryTexDims?:[number,number]; sampleHash?:string; rowHeight:number; warnings:string[]; }
 const DIAG_ENABLED = !!import.meta.env.DEV;
@@ -172,26 +172,8 @@ const TimestreamCanvas: React.FC<TimestreamCanvasProps> = ({
       }
     }
 
-    function pack(tilesArr: TimestreamTile[]): { buffer: Uint8Array; totalCols: number; rows: number } | null {
-      if (!tilesArr.length) return null;
-      let totalCols = 0; tilesArr.forEach(t=> totalCols += t.cols);
-      const rows = tilesArr[0].rows;
-      if (rows === 0 || totalCols === 0) return null;
-      const buffer = packPool.getView(totalCols * rows * 4);
-      let colOffset = 0;
-      for (const tile of tilesArr) {
-        for (let r=0;r<rows;r++) {
-          const srcRowOffset = r * tile.cols * 4;
-          const dstRowOffset = r * totalCols * 4 + colOffset * 4;
-          buffer.set(tile.buffer.subarray(srcRowOffset, srcRowOffset + tile.cols * 4), dstRowOffset);
-        }
-        colOffset += tile.cols;
-      }
-      return { buffer, totalCols, rows };
-    }
-
-  const primaryPack = pack(tiles);
-  const secondaryPack = secondaryAllowed ? pack(secondary) : null;
+  const primaryPack = packTiles(tiles);
+  const secondaryPack = secondaryAllowed ? packTiles(secondary) : null;
 
     if (!primaryPack) {
       gl.clearColor(0,0,0,1); gl.clear(gl.COLOR_BUFFER_BIT);

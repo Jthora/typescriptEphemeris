@@ -60,12 +60,16 @@ The Cardinal modality introduces sharp transitions:
 
 $$\hat{Q}\_{\text{Cardinal}} |\psi\rangle = \sum_{n=0}^{\infty} \frac{(-1)^n}{2n+1} \sin\left( (2n+1) \omega t \sqrt{3} \right) |\psi\rangle$$
 
+**Quantum Emotional Mechanics Equation:** Cardinal wave operator modulation.
+
 Frequency multiplier: $\sqrt{3} \approx 1.732$.
 
 ### Fixed Square Wave Operator
 The Fixed modality sustains states:
 
 $$\hat{Q}\_{\text{Fixed}} |\psi\rangle = \sum_{n=0}^{\infty} \frac{1}{2n+1} \sin\left( (2n+1) \omega t \cdot 2 \right) |\psi\rangle$$
+
+**Quantum Emotional Mechanics Equation:** Fixed wave operator modulation.
 
 Frequency multiplier: 2.0.
 
@@ -74,11 +78,13 @@ The Mutable modality enables smooth transitions:
 
 $$\hat{Q}_{\text{Mutable}} |\psi\rangle = \sin(\omega t) |\psi\rangle$$
 
+**Quantum Emotional Mechanics Equation:** Mutable wave operator modulation.
+
 Frequency multiplier: 1.0 (fundamental).
 
 ## Cosmic Force Interaction Matrix
 
-Interactions between Cosmic Forces are represented by a 6×6 matrix $ \mathbf{F} $:
+Interactions between Cosmic Forces are represented by a 6×6 matrix $\mathbf{F}$:
 
 $$\mathbf{F} = \begin{bmatrix}
 F_{\text{Core-Core}} & F_{\text{Core-Void}} & \cdots & F_{\text{Core-Omega}} \\
@@ -95,7 +101,7 @@ and $\delta_{ij}$ is the Kronecker delta.
 
 ## Emotional Resonance Probability
 
-The probability of an emotional state collapsing into a basis state $ |D_i\rangle $ is:
+The probability of an emotional state collapsing into a basis state $|D_i\rangle$ is:
 
 $$P_i = |\langle D_i | \psi \rangle|^2 = |\alpha_i|^2$$
 

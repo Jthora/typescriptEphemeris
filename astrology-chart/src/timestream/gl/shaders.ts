@@ -88,6 +88,11 @@ void main(){
   vec2 mappedUV = vec2(v_uv.x, mappedY);
   vec4 sA = samplePrimary(mappedUV);
   vec4 sB = sampleSecondary(mappedUV);
+  // If primary is empty (all zeros), show a dim purple diagnostic to avoid full black during bring-up
+  if (sA == vec4(0.0)) {
+    outColor = vec4(0.2, 0.0, 0.2, 1.0);
+    return;
+  }
   vec4 s = mix(sA, sB, u_crossfade);
   vec3 base = elementToRgb(s);
   vec3 blended = applyBlend(u_blendMode, base, base);

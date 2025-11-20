@@ -6,20 +6,33 @@ import { DEFAULT_PLANET_ORDER, DEFAULT_ELEMENT_MAPPING } from './constants';
 import { computeElementVector, encodeElementVector } from './elementMapping';
 import type { TimestreamWorkerInboundMessage, TimestreamWorkerOutboundMessage } from './workerMessages';
 import { validateRequestTileParams } from './workerValidation';
-import type { TimestreamTile } from './types';
-
-// Minimal placeholder planetary longitude computation.
-// TODO: Replace with astronomy-engine calls or injected ephemeris service.
-function syntheticLongitude(planetIndex: number, timeMs: number): number {
-  const minutes = timeMs / 60000;
-  return ((minutes * (0.2 + planetIndex * 0.05)) % 360 + 360) % 360;
-}
+import type { EphemerisProvider, EphemerisProviderMeta, EphemerisPlanetSample, TimestreamTile } from './types';
+import { MockEphemerisProvider } from './providers/mockProvider';
 
 function post(msg: TimestreamWorkerOutboundMessage) {
   (self as any).postMessage(msg);
 }
 
 // validation moved to workerValidation.ts
+
+let provider: EphemerisProvider = new MockEphemerisProvider();
+let providerMeta: EphemerisProviderMeta = provider.meta;
+
+function getTileSamples(startTimeMs: number, cols: number, stepMs: number, planets: string[]): EphemerisPlanetSample[][] {
+  if (provider.getTileSamples) {
+    return provider.getTileSamples({ startTimeMs, cols, stepMs, planets });
+  }
+  const samples: EphemerisPlanetSample[][] = [];
+  planets.forEach(planetId => {
+    const row: EphemerisPlanetSample[] = [];
+    for (let c = 0; c < cols; c++) {
+      const t = startTimeMs + c * stepMs;
+      row.push(provider.getPlanetSample(planetId, t));
+    }
+    samples.push(row);
+  });
+  return samples;
+}
 
 function buildTile(startTimeMs: number, cols: number, stepMs: number, lod: number, planets = DEFAULT_PLANET_ORDER): TimestreamTile {
   const tGenStart = performance.now();
@@ -33,18 +46,14 @@ function buildTile(startTimeMs: number, cols: number, stepMs: number, lod: numbe
   const retroCounts = new Uint8Array(cols); // per-column retrograde counts
   let maxRetro = 0;
   // First fill + accumulate sums
+  const tileSamples = getTileSamples(startTimeMs, cols, stepMs, planets);
   for (let p = 0; p < rows; p++) {
     for (let c = 0; c < cols; c++) {
-      const t = startTimeMs + c * stepMs;
-      const lon = syntheticLongitude(p, t);
-      // Synthetic retrograde heuristic: alternate retro periods every 2000 minutes for outer planets (index>=5)
-      if (p >= 5) {
-        const phase = Math.floor((t / 60000) / 2000);
-        const isRetro = (phase % 2) === 1;
-        if (isRetro) {
-          retroCounts[c]++;
-          if (retroCounts[c] > maxRetro) maxRetro = retroCounts[c];
-        }
+      const sample = tileSamples[p][c];
+      const lon = sample.longitudeDeg;
+      if (sample.retrograde) {
+        retroCounts[c]++;
+        if (retroCounts[c] > maxRetro) maxRetro = retroCounts[c];
       }
       const vec = computeElementVector(lon, DEFAULT_ELEMENT_MAPPING);
       const enc = encodeElementVector(vec);
@@ -97,6 +106,10 @@ self.onmessage = (e: MessageEvent<TimestreamWorkerInboundMessage>) => {
   const msg = e.data;
   switch (msg.type) {
     case 'init': {
+      if (msg.provider && msg.provider.id === 'mock-synthetic') {
+        provider = new MockEphemerisProvider();
+        providerMeta = provider.meta;
+      }
       post({ type: 'log', level: 'info', message: 'Worker initialized.' });
       break;
     }

@@ -1,0 +1,650 @@
+.share-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 6, 16, 0.68);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  z-index: 60;
+}
+
+.share-dialog {
+  width: min(760px, 100%);
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
+  background: var(--color-surface, #070b1a);
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.1));
+  border-radius: 16px;
+  box-shadow: 0 24px 72px rgba(0, 0, 0, 0.4);
+  padding: 1.5rem 1.75rem 1.5rem;
+  color: var(--color-text-primary, #f2f5ff);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  position: relative;
+}
+
+.share-dialog__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.share-dialog__header-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 1 1 auto;
+}
+
+.share-dialog__header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  letter-spacing: 0.08em;
+}
+
+.share-dialog__subtitle-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.share-dialog__subtitle {
+  margin: 0;
+  color: var(--color-text-secondary, rgba(255, 255, 255, 0.7));
+  font-size: 0.95rem;
+}
+
+.share-dialog__close {
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 999px;
+  transition: transform 0.2s ease;
+}
+
+.share-dialog__close:hover,
+.share-dialog__close:focus-visible {
+  transform: rotate(90deg);
+}
+
+
+.share-dialog__content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.share-dialog__tabs {
+  display: inline-flex;
+  gap: 0.3rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  padding: 0.25rem;
+  margin-left: auto;
+}
+
+.share-dialog__tab {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary, rgba(255, 255, 255, 0.7));
+  font-weight: 600;
+  font-size: 0.88rem;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.share-dialog__tab.is-active {
+  background: rgba(127, 140, 255, 0.18);
+  color: var(--color-primary, #7f8cff);
+}
+
+.share-dialog__tab:focus-visible {
+  outline: 2px solid var(--color-primary, #7f8cff);
+  outline-offset: 2px;
+}
+
+.share-dialog__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.share-dialog__card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.share-dialog__card--compact {
+  gap: 0.9rem;
+}
+
+.share-dialog__card--full {
+  grid-column: 1 / -1;
+  gap: 1rem;
+}
+
+.share-dialog__card-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.share-dialog__card-description {
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary, rgba(255, 255, 255, 0.7));
+  line-height: 1.4;
+}
+
+.share-dialog__card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+
+.share-dialog__option-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.65rem;
+}
+
+.share-dialog__option-grid--pair {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.share-dialog__option {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 0.6rem;
+  background: rgba(255, 255, 255, 0.02);
+  display: grid;
+  gap: 0.2rem;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.share-dialog__option--compact {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.55rem 0.6rem;
+}
+
+.share-dialog__option.is-selected {
+  border-color: var(--color-primary, #7f8cff);
+  background: rgba(127, 140, 255, 0.12);
+}
+
+.share-dialog__option:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.share-dialog__swatch {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.share-dialog__swatch--light {
+  background: linear-gradient(135deg, #f5f0e6, #fff1d8);
+}
+
+.share-dialog__swatch--dark {
+  background: linear-gradient(135deg, #04061a, #1a1552);
+}
+
+.share-dialog__swatch--transparent {
+  background: linear-gradient(45deg, rgba(255, 255, 255, 0.25) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.25) 50%, rgba(255, 255, 255, 0.25) 75%, transparent 75%, transparent);
+  background-size: 16px 16px;
+}
+
+.share-dialog__option-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.share-dialog__resolution-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.5rem;
+}
+
+.share-dialog__resolution-button {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 0.6rem 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  color: inherit;
+  font-weight: 600;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.share-dialog__resolution-button:hover,
+.share-dialog__resolution-button:focus-visible {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(127, 140, 255, 0.12);
+  color: var(--color-primary, #9aa5ff);
+}
+
+.share-dialog__resolution-button.is-selected {
+  border-color: var(--color-primary, #7f8cff);
+  background: rgba(127, 140, 255, 0.16);
+  color: var(--color-primary, #7f8cff);
+}
+
+.share-dialog__resolution-button:focus-visible {
+  outline: 2px solid var(--color-primary, #7f8cff);
+  outline-offset: 2px;
+}
+
+.share-dialog__resolution-selected {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary, rgba(255, 255, 255, 0.7));
+}
+
+.share-dialog__resolution-selected span {
+  font-weight: 600;
+  color: var(--color-text-primary, #f2f5ff);
+}
+
+.share-dialog__resolution-adjust {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--color-primary, #7f8cff);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.share-dialog__resolution-adjust:hover,
+.share-dialog__resolution-adjust:focus-visible {
+  color: var(--color-primary, #9aa5ff);
+  border-color: currentColor;
+}
+
+.share-dialog__custom-resolution-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 8, 24, 0.78);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 80;
+}
+
+.share-dialog__custom-resolution-modal {
+  background: rgba(8, 10, 28, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  width: min(360px, 100%);
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.share-dialog__custom-resolution-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.share-dialog__custom-resolution-header p {
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary, rgba(255, 255, 255, 0.7));
+  line-height: 1.5;
+}
+
+.share-dialog__custom-resolution-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.share-dialog__custom-resolution-modal input {
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.share-dialog__custom-resolution-modal input:focus-visible {
+  outline: 2px solid var(--color-primary, #7f8cff);
+  outline-offset: 2px;
+}
+
+.share-dialog__custom-resolution-error {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #ff7171;
+}
+
+.share-dialog__custom-resolution-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.share-dialog__custom-resolution-secondary,
+.share-dialog__custom-resolution-primary {
+  appearance: none;
+  border-radius: 10px;
+  padding: 0.55rem 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.share-dialog__custom-resolution-secondary {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.18);
+  color: var(--color-text-secondary, rgba(255, 255, 255, 0.75));
+}
+
+.share-dialog__custom-resolution-secondary:hover,
+.share-dialog__custom-resolution-secondary:focus-visible {
+  border-color: rgba(255, 255, 255, 0.28);
+  color: var(--color-text-primary, #f2f5ff);
+}
+
+.share-dialog__custom-resolution-primary {
+  background: rgba(127, 140, 255, 0.2);
+  border-color: rgba(127, 140, 255, 0.45);
+  color: var(--color-primary, #7f8cff);
+}
+
+.share-dialog__custom-resolution-primary:hover,
+.share-dialog__custom-resolution-primary:focus-visible {
+  background: rgba(127, 140, 255, 0.3);
+  color: var(--color-primary, #9aa5ff);
+}
+
+.share-dialog__toggle-grid {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.share-dialog__toggle {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.45rem 0.6rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.share-dialog__toggle input {
+  margin-top: 0.2rem;
+  accent-color: var(--color-primary, #7f8cff);
+}
+
+.share-dialog__toggle-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.share-dialog__share-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.share-dialog__share-button {
+  flex: 1 1 0;
+  min-width: 140px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.share-dialog__share-button--primary {
+  background: rgba(127, 140, 255, 0.18);
+  border-color: rgba(127, 140, 255, 0.35);
+  color: var(--color-primary, #7f8cff);
+}
+
+.share-dialog__share-button:hover,
+.share-dialog__share-button:focus-visible {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(127, 140, 255, 0.15);
+  color: var(--color-primary, #9aa5ff);
+}
+
+.share-dialog__share-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--color-text-secondary, rgba(255, 255, 255, 0.6));
+}
+
+.share-dialog__share-helper {
+  margin: 0.75rem 0 0;
+  font-size: 0.82rem;
+  color: var(--color-text-secondary, rgba(255, 255, 255, 0.65));
+}
+
+.share-dialog__textarea-label {
+  display: block;
+  margin: 0 0 0.4rem;
+  font-weight: 600;
+}
+
+.share-dialog textarea {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  color: inherit;
+  padding: 0.75rem;
+  resize: vertical;
+  min-height: 88px;
+}
+
+.share-dialog textarea:focus-visible {
+  outline: 2px solid var(--color-primary, #7f8cff);
+  outline-offset: 2px;
+}
+
+.share-dialog__char-count {
+  text-align: right;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  font-weight: 500;
+}
+
+.share-dialog__char-count--ok {
+  color: var(--color-text-secondary, rgba(255, 255, 255, 0.7));
+}
+
+.share-dialog__char-count--warn {
+  color: #ffbf47;
+}
+
+.share-dialog__char-count--limit {
+  color: #ff6b6b;
+}
+
+.share-dialog__personal-note {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.share-dialog__preview {
+  background: rgba(2, 4, 20, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem;
+  display: grid;
+  gap: 0.65rem;
+  max-height: 220px;
+}
+
+.share-dialog__preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--color-text-secondary, rgba(255, 255, 255, 0.7));
+  font-size: 0.85rem;
+}
+
+.share-dialog__preview pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.share-dialog__copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.share-dialog__copy:hover,
+.share-dialog__copy:focus-visible {
+  background: rgba(127, 140, 255, 0.12);
+  color: var(--color-primary, #7f8cff);
+}
+
+.share-dialog__copy-error {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #ff6b6b;
+}
+
+.share-dialog__footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+  padding-top: 0;
+  border-top: none;
+  margin-top: 0;
+}
+
+.share-dialog__status {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-height: 1.25rem;
+}
+
+.share-dialog__status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.9rem;
+}
+
+.share-dialog__status-indicator svg {
+  flex-shrink: 0;
+}
+
+.share-dialog__status-indicator--success {
+  color: #6cea9c;
+}
+
+.share-dialog__status-indicator--fallback {
+  color: #ffd166;
+}
+
+.share-dialog__status-indicator--error {
+  color: #ff6b6b;
+}
+
+.share-dialog__status-message {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary, rgba(255, 255, 255, 0.7));
+}
+
+@media (max-width: 720px) {
+  .share-dialog-overlay {
+    padding: 1rem;
+  }
+
+  .share-dialog {
+    padding: 1.25rem;
+    gap: 1.25rem;
+  }
+
+  .share-dialog__header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .share-dialog__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .share-dialog__card--full {
+    grid-column: auto;
+  }
+
+}

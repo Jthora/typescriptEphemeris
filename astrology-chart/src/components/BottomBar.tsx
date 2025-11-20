@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, ChevronUp, ChevronDown } from 'lucide-react';
+import { Clock, ChevronUp, ChevronDown, Share2, Loader2, Check, AlertTriangle } from 'lucide-react';
 import type { BirthData } from '../astrology';
+import type { ShareState } from '../utils/share/shareState';
 
 interface BottomBarProps {
   isRealTimeMode: boolean;
@@ -9,6 +10,9 @@ interface BottomBarProps {
   birthData: BirthData;
   bottomPanelOpen?: boolean;
   toggleBottomPanel?: () => void;
+  onShare?: () => void;
+  shareDisabled?: boolean;
+  shareState?: ShareState;
 }
 
 const BottomBar: React.FC<BottomBarProps> = ({
@@ -17,7 +21,10 @@ const BottomBar: React.FC<BottomBarProps> = ({
   resetToCurrentTime,
   birthData,
   bottomPanelOpen = false,
-  toggleBottomPanel
+  toggleBottomPanel,
+  onShare,
+  shareDisabled = false,
+  shareState = 'idle'
 }) => {
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
@@ -48,6 +55,21 @@ const BottomBar: React.FC<BottomBarProps> = ({
       hour12: false
     });
   };
+  const isShareBusy = shareState === 'capturing' || shareState === 'sharing';
+  const isShareSuccess = shareState === 'success';
+  const isShareError = shareState === 'error';
+  const isShareFallback = shareState === 'fallback';
+
+  const shareButtonTitle = (() => {
+    if (!onShare) return undefined;
+    if (isShareBusy) return 'Preparing chart...';
+    if (shareDisabled) return 'Share unavailable until chart is ready';
+    if (isShareSuccess) return 'Shared successfully';
+    if (isShareFallback) return 'Downloaded image (fallback)';
+    if (isShareError) return 'Share failed';
+    return 'Share chart';
+  })();
+
   return (
     <div className="bottom-bar">
       <div className="bottom-bar-content">
@@ -72,16 +94,39 @@ const BottomBar: React.FC<BottomBarProps> = ({
         
         <div className="bottom-bar-section center-toggle">
           {/* Center toggle button for bottom drawer */}
-          <button
-            className="hardware-button bottom-drawer-toggle"
-            onClick={toggleBottomPanel}
-            title={bottomPanelOpen ? 'Hide tools' : 'Show tools'}
-          >
-            {bottomPanelOpen ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
-          </button>
+          {toggleBottomPanel && (
+            <button
+              className="hardware-button bottom-drawer-toggle"
+              onClick={toggleBottomPanel}
+              title={bottomPanelOpen ? 'Hide tools' : 'Show tools'}
+            >
+              {bottomPanelOpen ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+            </button>
+          )}
         </div>
         
         <div className="bottom-bar-section controls">
+          {onShare && (
+            <button
+              type="button"
+              className={`hardware-button share-button ${isShareBusy ? 'is-loading' : ''} ${isShareSuccess ? 'is-success' : ''} ${isShareError ? 'is-error' : ''}`}
+              onClick={onShare}
+              disabled={shareDisabled || isShareBusy}
+              title={shareButtonTitle}
+              aria-live="polite"
+            >
+              {isShareBusy ? (
+                <Loader2 size={16} className="spinning" aria-hidden="true" />
+              ) : isShareSuccess ? (
+                <Check size={16} aria-hidden="true" />
+              ) : isShareError ? (
+                <AlertTriangle size={16} aria-hidden="true" />
+              ) : (
+                <Share2 size={16} aria-hidden="true" />
+              )}
+              <span className="sr-only">Share chart</span>
+            </button>
+          )}
           {/* Right side with controls */}
           <button 
             className={`hardware-button ${isRealTimeMode ? 'active' : ''}`}

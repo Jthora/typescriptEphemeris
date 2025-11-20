@@ -1,9 +1,8 @@
 // Cosmic Cypher Assets
 // Auto-generated from CosmicCypher repository assets
 
-// Import all assets
-import * as images from './images';
-import * as fonts from './fonts';
+import * as images from './images.js'
+import * as fonts from './fonts.js'
 
 // Export everything
 export const cosmicAssets = {
@@ -12,8 +11,25 @@ export const cosmicAssets = {
 };
 
 // Export helper for registering font files in CSS
+type MaybeDocument = {
+  createElement?: (tagName: string) => any
+  head?: {
+    appendChild?: (node: any) => void
+  }
+}
+
+const getDocument = (): MaybeDocument | null => {
+  if (typeof globalThis === 'undefined') return null
+  const maybeDoc = (globalThis as { document?: MaybeDocument }).document
+  if (!maybeDoc) return null
+  return maybeDoc
+}
+
 export const registerFonts = () => {
-  const fontStyles = document.createElement('style');
+  const doc = getDocument()
+  if (!doc || typeof doc.createElement !== 'function') return
+
+  const fontStyles = doc.createElement('style')
   fontStyles.textContent = `
     @font-face {
       font-family: 'Aldrich';
@@ -28,8 +44,11 @@ export const registerFonts = () => {
       font-weight: normal;
       font-style: normal;
     }
-  `;
-  document.head.appendChild(fontStyles);
-};
+  `
 
-export default cosmicAssets;
+  if (doc.head && typeof doc.head.appendChild === 'function') {
+    doc.head.appendChild(fontStyles)
+  }
+}
+
+export default cosmicAssets

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import type { AstrologyChart } from '../astrology';
 import { ZODIAC_SIGNS, PLANET_SYMBOLS } from '../astrology';
 import { fonts } from '../assets';
@@ -89,11 +89,10 @@ interface ChartWheelProps {
   height?: number;
 }
 
-export const ChartWheelPure: React.FC<ChartWheelProps> = ({ 
-  chart, 
-  width = 600, 
-  height = 600 
-}) => {
+const ChartWheelPureComponent = (
+  { chart, width = 600, height = 600 }: ChartWheelProps,
+  ref: React.ForwardedRef<SVGSVGElement>
+) => {
   // Calculate dimensions
   const radius = Math.min(width, height) / 2 - 40;
   const houseRadius = radius * 0.8;
@@ -187,6 +186,7 @@ export const ChartWheelPure: React.FC<ChartWheelProps> = ({
       width={width} 
       height={height} 
       className="chart-wheel"
+      ref={ref}
       style={{ background: 'transparent', borderRadius: '8px' }}
     >
       {/* Layer 1: Definitions */}
@@ -255,10 +255,9 @@ export const ChartWheelPure: React.FC<ChartWheelProps> = ({
               allCelestialBodies, 
               0.05, // Base opacity (very low)
               0.8,  // Max opacity
-              15    // Orb size
+              15 // Orb size
             );
-            
-            // Calculate line positions (slightly offset for side-by-side effect)
+
             const lineOffset = 1; // Small offset in pixels
             const cos = Math.cos(cuspAngleRadians);
             const sin = Math.sin(cuspAngleRadians);
@@ -444,3 +443,13 @@ export const ChartWheelPure: React.FC<ChartWheelProps> = ({
     </svg>
   );
 };
+
+const ChartWheelPureForward = forwardRef(ChartWheelPureComponent) as React.ForwardRefExoticComponent<
+  ChartWheelProps & React.RefAttributes<SVGSVGElement>
+>;
+
+ChartWheelPureForward.displayName = 'ChartWheelPure';
+
+export const ChartWheelPure = ChartWheelPureForward;
+
+export default ChartWheelPureForward;

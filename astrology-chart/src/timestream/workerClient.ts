@@ -2,7 +2,7 @@
  * Main-thread worker client (Milestone M2 initial).
  */
 import type { TimestreamWorkerOutboundMessage, TimestreamWorkerInboundMessage } from './workerMessages';
-import type { TimestreamTile } from './types';
+import type { EphemerisProviderMeta, TimestreamTile } from './types';
 
 export interface WorkerClientCallbacks {
   onTile: (tile: TimestreamTile) => void;
@@ -13,7 +13,7 @@ export class TimestreamWorkerClient {
   private worker: Worker;
   private ready = false;
 
-  constructor(url: string, private callbacks: WorkerClientCallbacks) {
+  constructor(url: string, private callbacks: WorkerClientCallbacks, private providerMeta?: EphemerisProviderMeta) {
     this.worker = new Worker(url, { type: 'module' });
     this.worker.onmessage = (e: MessageEvent<TimestreamWorkerOutboundMessage>) => {
       const msg = e.data;
@@ -23,7 +23,7 @@ export class TimestreamWorkerClient {
         this.callbacks.onLog?.(msg.level, msg.message);
       }
     };
-    this.send({ type: 'init', planets: [] });
+    this.send({ type: 'init', planets: [], provider: this.providerMeta });
   }
 
   requestTile(startTimeMs: number, cols: number, stepMs: number, lod: number) {

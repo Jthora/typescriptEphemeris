@@ -271,30 +271,30 @@ const CUSPS_COSMIC_SYMBOLS = [
 const DECANS_COSMIC_SYMBOLS = [
   // Fire + Active (Aries) decans
   {
-    image: fireActivePrime,
+    image: fireActiveChaos,
     element: 'fire',
     modality: 'active',
-    force: 'prime',
-    size: 36, // Slightly smaller than zodiac symbols
+    force: 'chaos',
+    size: 36,
     degreesStart: 0, // 0° Aries
     zodiacSign: 'Aries',
     decanPosition: 0 // First decan
   },
   {
-    image: fireActiveCore,
+    image: fireActivePrime,
     element: 'fire',
     modality: 'active',
-    force: 'core',
+    force: 'prime',
     size: 36,
     degreesStart: 10, // 10° Aries
     zodiacSign: 'Aries',
     decanPosition: 1 // Second decan
   },
   {
-    image: fireActiveChaos,
+    image: fireActiveCore,
     element: 'fire',
     modality: 'active',
-    force: 'chaos',
+    force: 'core',
     size: 36,
     degreesStart: 20, // 20° Aries
     zodiacSign: 'Aries',
@@ -303,20 +303,20 @@ const DECANS_COSMIC_SYMBOLS = [
   
   // Earth + Static (Taurus) decans
   {
-    image: earthStaticPrime,
+    image: earthStaticCore,
     element: 'earth',
     modality: 'static',
-    force: 'prime',
+    force: 'core',
     size: 36,
     degreesStart: 30, // 0° Taurus
     zodiacSign: 'Taurus',
     decanPosition: 0
   },
   {
-    image: earthStaticCore,
+    image: earthStaticPrime,
     element: 'earth',
     modality: 'static',
-    force: 'core',
+    force: 'prime',
     size: 36,
     degreesStart: 40, // 10° Taurus
     zodiacSign: 'Taurus',
@@ -335,20 +335,20 @@ const DECANS_COSMIC_SYMBOLS = [
   
   // Air + Reactive (Gemini) decans
   {
-    image: airReactivePrime,
+    image: airReactiveOrder,
     element: 'air',
     modality: 'reactive',
-    force: 'prime',
+    force: 'order',
     size: 36,
     degreesStart: 60, // 0° Gemini
     zodiacSign: 'Gemini',
     decanPosition: 0
   },
   {
-    image: airReactiveOrder,
+    image: airReactivePrime,
     element: 'air',
     modality: 'reactive',
-    force: 'order',
+    force: 'prime',
     size: 36,
     degreesStart: 70, // 10° Gemini
     zodiacSign: 'Gemini',
@@ -367,20 +367,20 @@ const DECANS_COSMIC_SYMBOLS = [
   
   // Water + Active (Cancer) decans
   {
-    image: waterActivePrime,
+    image: waterActiveVoid,
     element: 'water',
     modality: 'active',
-    force: 'prime',
+    force: 'void',
     size: 36,
     degreesStart: 90, // 0° Cancer
     zodiacSign: 'Cancer',
     decanPosition: 0
   },
   {
-    image: waterActiveVoid,
+    image: waterActivePrime,
     element: 'water',
     modality: 'active',
-    force: 'void',
+    force: 'prime',
     size: 36,
     degreesStart: 100, // 10° Cancer
     zodiacSign: 'Cancer',
@@ -399,30 +399,30 @@ const DECANS_COSMIC_SYMBOLS = [
   
   // Fire + Static (Leo) decans
   {
-    image: fireStaticPrime,
+    image: fireStaticChaos,
     element: 'fire',
     modality: 'static',
-    force: 'prime',
+    force: 'chaos',
     size: 36,
     degreesStart: 120, // 0° Leo
     zodiacSign: 'Leo',
     decanPosition: 0
   },
   {
-    image: fireStaticCore,
+    image: fireStaticPrime,
     element: 'fire',
     modality: 'static',
-    force: 'core',
+    force: 'prime',
     size: 36,
     degreesStart: 130, // 10° Leo
     zodiacSign: 'Leo',
     decanPosition: 1
   },
   {
-    image: fireStaticChaos,
+    image: fireStaticCore,
     element: 'fire',
     modality: 'static',
-    force: 'chaos',
+    force: 'core',
     size: 36,
     degreesStart: 140, // 20° Leo
     zodiacSign: 'Leo',
@@ -431,20 +431,20 @@ const DECANS_COSMIC_SYMBOLS = [
   
   // Earth + Reactive (Virgo) decans
   {
-    image: earthReactivePrime,
+    image: earthReactiveCore,
     element: 'earth',
     modality: 'reactive',
-    force: 'prime',
+    force: 'core',
     size: 36,
     degreesStart: 150, // 0° Virgo
     zodiacSign: 'Virgo',
     decanPosition: 0
   },
   {
-    image: earthReactiveCore,
+    image: earthReactivePrime,
     element: 'earth',
     modality: 'reactive',
-    force: 'core',
+    force: 'prime',
     size: 36,
     degreesStart: 160, // 10° Virgo
     zodiacSign: 'Virgo',
@@ -463,20 +463,20 @@ const DECANS_COSMIC_SYMBOLS = [
   
   // Air + Active (Libra) decans
   {
-    image: airActivePrime,
+    image: airActiveOrder,
     element: 'air',
     modality: 'active',
-    force: 'prime',
+    force: 'order',
     size: 36,
     degreesStart: 180, // 0° Libra
     zodiacSign: 'Libra',
     decanPosition: 0
   },
   {
-    image: airActiveOrder,
+    image: airActivePrime,
     element: 'air',
     modality: 'active',
-    force: 'order',
+    force: 'prime',
     size: 36,
     degreesStart: 190, // 10° Libra
     zodiacSign: 'Libra',
@@ -495,20 +495,20 @@ const DECANS_COSMIC_SYMBOLS = [
   
   // Water + Static (Scorpio) decans
   {
-    image: waterStaticPrime,
+    image: waterStaticVoid,
     element: 'water',
     modality: 'static',
-    force: 'prime',
+    force: 'void',
     size: 36,
     degreesStart: 210, // 0° Scorpio
     zodiacSign: 'Scorpio',
     decanPosition: 0
   },
   {
-    image: waterStaticVoid,
+    image: waterStaticPrime,
     element: 'water',
     modality: 'static',
-    force: 'void',
+    force: 'prime',
     size: 36,
     degreesStart: 220, // 10° Scorpio
     zodiacSign: 'Scorpio',
@@ -527,30 +527,30 @@ const DECANS_COSMIC_SYMBOLS = [
   
   // Fire + Reactive (Sagittarius) decans
   {
-    image: fireReactivePrime,
+    image: fireReactiveChaos,
     element: 'fire',
     modality: 'reactive',
-    force: 'prime',
+    force: 'chaos',
     size: 36,
     degreesStart: 240, // 0° Sagittarius
     zodiacSign: 'Sagittarius',
     decanPosition: 0
   },
   {
-    image: fireReactiveCore,
+    image: fireReactivePrime,
     element: 'fire',
     modality: 'reactive',
-    force: 'core',
+    force: 'prime',
     size: 36,
     degreesStart: 250, // 10° Sagittarius
     zodiacSign: 'Sagittarius',
     decanPosition: 1
   },
   {
-    image: fireReactiveChaos,
+    image: fireReactiveCore,
     element: 'fire',
     modality: 'reactive',
-    force: 'chaos',
+    force: 'core',
     size: 36,
     degreesStart: 260, // 20° Sagittarius
     zodiacSign: 'Sagittarius',
@@ -559,20 +559,20 @@ const DECANS_COSMIC_SYMBOLS = [
   
   // Earth + Active (Capricorn) decans
   {
-    image: earthActivePrime,
+    image: earthActiveCore,
     element: 'earth',
     modality: 'active',
-    force: 'prime',
+    force: 'core',
     size: 36,
     degreesStart: 270, // 0° Capricorn
     zodiacSign: 'Capricorn',
     decanPosition: 0
   },
   {
-    image: earthActiveCore,
+    image: earthActivePrime,
     element: 'earth',
     modality: 'active',
-    force: 'core',
+    force: 'prime',
     size: 36,
     degreesStart: 280, // 10° Capricorn
     zodiacSign: 'Capricorn',
@@ -591,20 +591,20 @@ const DECANS_COSMIC_SYMBOLS = [
   
   // Air + Static (Aquarius) decans
   {
-    image: airStaticPrime,
+    image: airStaticOrder,
     element: 'air',
     modality: 'static',
-    force: 'prime',
+    force: 'order',
     size: 36,
     degreesStart: 300, // 0° Aquarius
     zodiacSign: 'Aquarius',
     decanPosition: 0
   },
   {
-    image: airStaticOrder,
+    image: airStaticPrime,
     element: 'air',
     modality: 'static',
-    force: 'order',
+    force: 'prime',
     size: 36,
     degreesStart: 310, // 10° Aquarius
     zodiacSign: 'Aquarius',
@@ -623,20 +623,20 @@ const DECANS_COSMIC_SYMBOLS = [
   
   // Water + Reactive (Pisces) decans
   {
-    image: waterReactivePrime,
+    image: waterReactiveVoid,
     element: 'water',
     modality: 'reactive',
-    force: 'prime',
+    force: 'void',
     size: 36,
     degreesStart: 330, // 0° Pisces
     zodiacSign: 'Pisces',
     decanPosition: 0
   },
   {
-    image: waterReactiveVoid,
+    image: waterReactivePrime,
     element: 'water',
     modality: 'reactive',
-    force: 'void',
+    force: 'prime',
     size: 36,
     degreesStart: 340, // 10° Pisces
     zodiacSign: 'Pisces',

@@ -77,6 +77,7 @@ export const ChartAngles: React.FC<ChartAnglesProps> = ({
                 dominantBaseline="middle"
                 fontSize="16px"
                 fontWeight="bold"
+                fontFamily={fonts.primary ?? 'Aldrich, sans-serif'}
                 fill={fallbackColor}
               >
                 {symbolKey}
@@ -113,6 +114,7 @@ export const ChartAngles: React.FC<ChartAnglesProps> = ({
               dominantBaseline="middle"
               fontSize={angleSymbol.fontSize || '16px'}
               fontWeight={angleSymbol.fontWeight || 'bold'}
+              fontFamily={angleSymbol.fontFamily || fonts.primary || 'Aldrich, sans-serif'}
               fill={textColor}
             >
               {angleSymbol.symbol}

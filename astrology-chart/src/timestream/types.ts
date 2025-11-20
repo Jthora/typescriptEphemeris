@@ -62,3 +62,34 @@ export interface ElementComputationResult {
 export interface MockTileDebugMeta {
   sampleLongitudes: number[][]; // [planetIndex][col] = longitude
 }
+
+// TD4 Ephemeris provider contracts
+export interface EphemerisProviderMeta {
+  id: string;
+  name: string;
+  description?: string;
+  source?: string;
+  isDeterministic: boolean;
+  supportsRetrograde: boolean;
+  version?: string;
+}
+
+export interface EphemerisPlanetSample {
+  planetId: PlanetId;
+  timeMs: number;
+  longitudeDeg: number;
+  retrograde: boolean;
+}
+
+export interface EphemerisTileRequest {
+  startTimeMs: number;
+  cols: number;
+  stepMs: number;
+  planets: PlanetId[];
+}
+
+export interface EphemerisProvider {
+  readonly meta: EphemerisProviderMeta;
+  getPlanetSample(planetId: PlanetId, timeMs: number): EphemerisPlanetSample;
+  getTileSamples?(req: EphemerisTileRequest): EphemerisPlanetSample[][];
+}

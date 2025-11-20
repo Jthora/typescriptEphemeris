@@ -135,10 +135,13 @@ Ring buffer API: push(diag), getAll(), exportJSON(). Expose via window.__timestr
 5. Commit & push.
 
 ## Immediate Next Action
-Begin TD3.1: create headless render harness stub (hash baseline generation). TD1 + TD2 tasks complete as of 2025-08-18 (7 tests passing <2s).
+Start TD4.3: implement AstronomyEngineProvider (real data) + selection toggle.
 
 ## TD Log
 - 2025-08-18: TD3.1 stub added (headless-render.ts + npm script). OffscreenCanvas unavailable in current env so harness skips gracefully.
+- 2025-09-28: TD3.2 harness upgraded to use real timestream shaders + deterministic tiles, baseline hash compare with UPDATE_HEADLESS_BASELINE opt-in.
+- 2025-09-28: TD3.3 adds diff artifact emission on hash mismatch + CI runner script alias; next focus shifts to TD4 provider abstraction.
+- 2025-09-28: TD4.1 (provider contract) + TD4.2 (mock provider) + partial TD4.4 (worker handshake) landed; worker now consumes provider samples with mock default.
 
 ---
 This document is the binding plan until revised; deviations require an explicit rationale commit note.

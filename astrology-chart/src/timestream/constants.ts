@@ -8,6 +8,7 @@ export const DEFAULT_PLANET_ORDER: PlanetOrderConfig['defaultPlanets'] = [
   'Jupiter', 'Saturn', 'Uranus', 'Neptune', 'Pluto',
   'Chiron', 'MeanNode'
 ];
+export const DEFAULT_PLANETS = DEFAULT_PLANET_ORDER;
 
 export const DEFAULT_ELEMENT_MAPPING: ElementMappingConfig = {
   cuspWidthDeg: 3,
