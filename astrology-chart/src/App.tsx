@@ -32,6 +32,7 @@ import TutorialPage from './pages/TutorialPage'
 import InfoPage from './pages/InfoPage'
 
 const astrologyCalculator = new AstrologyCalculator();
+const MOBILE_MAX_WIDTH = 768;
 
 // Example location presets
 const exampleLocations = [
@@ -65,6 +66,7 @@ function ChartExperience() {
   const [leftPanelOpen, setLeftPanelOpen] = useState(false);
   const [rightPanelOpen, setRightPanelOpen] = useState(false);
   const [bottomPanelOpen, setBottomPanelOpen] = useState(false);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
   const chartSvgRef = useRef<SVGSVGElement | null>(null);
   const chartSizeRef = useRef<number>(0);
   
@@ -298,13 +300,40 @@ function ChartExperience() {
   };
 
   // Toggle panel functions (no longer mutually exclusive)
+  useEffect(() => {
+    const evaluateViewport = () => {
+      setIsMobileViewport(window.innerWidth <= MOBILE_MAX_WIDTH);
+    };
+
+    evaluateViewport();
+    window.addEventListener('resize', evaluateViewport);
+    return () => window.removeEventListener('resize', evaluateViewport);
+  }, []);
+
   const toggleLeftPanel = () => {
-    setLeftPanelOpen(prev => !prev);
+    setLeftPanelOpen((prev) => {
+      const next = !prev;
+      if (next && isMobileViewport) {
+        setRightPanelOpen(false);
+      }
+      return next;
+    });
   };
 
   const toggleRightPanel = () => {
-    setRightPanelOpen(prev => !prev);
+    setRightPanelOpen((prev) => {
+      const next = !prev;
+      if (next && isMobileViewport) {
+        setLeftPanelOpen(false);
+      }
+      return next;
+    });
   };
+
+  const closePanels = useCallback(() => {
+    setLeftPanelOpen(false);
+    setRightPanelOpen(false);
+  }, []);
 
   const toggleBottomPanel = () => {
     if (!bottomDrawerEnabled) return
@@ -598,11 +627,22 @@ function ChartExperience() {
   const shareBusy = shareState === 'capturing' || shareState === 'sharing';
   const shareUnavailable = !chart || isCalculating;
   const shareDisabled = shareUnavailable || shareBusy;
+  const anySidePanelOpen = leftPanelOpen || rightPanelOpen;
+
+  useEffect(() => {
+    if (!anySidePanelOpen) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closePanels();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [anySidePanelOpen, closePanels]);
 
   return (
     <div className="app">
-      {/* Removed panel overlay to keep chart fully visible without dimming */}
-      {/* <div className={`panel-overlay ${leftPanelOpen || rightPanelOpen ? 'active' : ''}`} onClick={handleOverlayClick} /> */}
       <main className="app-main">
         {/* Top bar */}
         <TopBar
@@ -630,6 +670,12 @@ function ChartExperience() {
           onCustomMessageChange={setCustomShareMessage}
           charCount={shareCharCount}
           onCopyShareText={handleCopyShareText}
+        />
+
+        <div
+          className={`panel-overlay ${anySidePanelOpen ? 'is-active' : ''}`}
+          onClick={closePanels}
+          aria-hidden={!anySidePanelOpen}
         />
         
         {/* Chart container - central content */}

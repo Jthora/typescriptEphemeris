@@ -28,14 +28,22 @@ const TopBar: React.FC<TopBarProps> = ({
   tutorialActive = false,
   aboutActive = false,
   onNavigateHome,
-  homeActive = false
+  homeActive = false,
+  
 }) => {
   const [showPerformanceTest, setShowPerformanceTest] = useState(false);
   return (
     <>
       <div className="top-bar hardware-panel">
         <div className="top-bar-left">
-          <img src={WingCommanderLogo} alt="Wing Commander insignia" className="wing-commander-logo" />
+          <a
+            href="https://archangel.agency/hub"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Open Archangel Agency hub"
+          >
+            <img src={WingCommanderLogo} alt="Wing Commander insignia" className="wing-commander-logo" />
+          </a>
           <div className="app-title">COSMIC CYPHER</div>
         </div>
         <div className="top-bar-controls">

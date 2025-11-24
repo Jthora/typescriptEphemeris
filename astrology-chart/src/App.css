@@ -6,9 +6,12 @@
 /* App container */
 .app {
   min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
   background-color: var(--app-background);
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   background-image: 
     linear-gradient(to right, rgba(0,0,0,0.1) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(0,0,0,0.1) 1px, transparent 1px);
@@ -60,10 +63,11 @@
 /* Main app layout with CSS Grid */
 .app-main {
   display: grid;
-  grid-template-rows: var(--topbar-height) auto 1fr var(--bottombar-height);
+  grid-template-rows: var(--topbar-height) auto minmax(0, 1fr) var(--bottombar-height);
   grid-template-columns: 1fr;
-  height: 100vh;
-  width: 100vw;
+  min-height: 100%;
+  min-height: 100dvh;
+  width: 100%;
   position: relative;
 }
 
@@ -79,7 +83,7 @@
   padding: 0;
   position: relative;
   box-shadow: 0 1px 3px var(--color-shadow);
-  height: var(--topbar-height, 48px);
+  min-height: var(--topbar-height, 48px);
 }
 
 .top-bar-left {
@@ -214,6 +218,63 @@
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 1px 2px rgba(0,0,0,0.2);
 }
 
+/* Chrome responsiveness */
+@media (max-width: 960px) {
+  .top-bar {
+    padding: 0.25rem 0.5rem;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .top-bar-left {
+    width: 100%;
+    justify-content: space-between;
+    padding-left: 0;
+  }
+
+  .app-title {
+    font-size: clamp(0.85rem, 2vw, 1.1rem);
+    letter-spacing: 0.08em;
+  }
+
+  .top-bar-controls {
+    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-right: 0;
+  }
+
+  .top-bar-controls .hardware-button,
+  .top-bar-controls .nav-button,
+  .top-bar-controls .performance-test-btn {
+    width: 34px;
+    height: 34px;
+  }
+}
+
+@media (max-width: 600px) {
+  .wing-commander-logo {
+    height: 28px;
+  }
+
+  .app-title {
+    flex: 1;
+    text-align: right;
+    font-size: 0.9rem;
+  }
+
+  .top-bar-controls {
+    justify-content: space-between;
+  }
+
+  .top-bar-controls .hardware-button,
+  .top-bar-controls .nav-button,
+  .top-bar-controls .performance-test-btn {
+    flex: 1 1 42px;
+  }
+}
+
 /* Performance test button */
 .performance-test-btn {
   display: flex;
@@ -248,7 +309,7 @@
   padding: 0;
   position: relative;
   box-shadow: 0 -1px 3px var(--color-shadow);
-  height: var(--bottombar-height, 40px);
+  min-height: var(--bottombar-height, 40px);
 }
 
 .bottom-bar-content {
@@ -296,6 +357,69 @@
   background: linear-gradient(to bottom, var(--color-base-light) 0%, var(--color-base-medium) 100%);
   border: 1px solid var(--color-border);
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 1px 2px rgba(0,0,0,0.2);
+}
+
+@media (max-width: 960px) {
+  .bottom-bar-content {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .bottom-bar-section {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .bottom-bar-section.controls {
+    margin-left: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+
+  .bottom-bar-section .hardware-button {
+    min-height: 34px;
+    padding: 0 12px;
+  }
+
+  .time-displays {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 600px) {
+  .bottom-bar-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .time-displays {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .time-displays .digital-display {
+    width: 100%;
+  }
+
+  .bottom-bar-section.center-toggle {
+    position: static;
+    transform: none;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .bottom-bar-section.controls {
+    justify-content: space-between;
+  }
+
+  .bottom-bar-section.controls .hardware-button {
+    flex: 1 1 48%;
+    justify-content: center;
+  }
 }
 
 .bottom-bar-section .hardware-button .led-indicator {
@@ -350,13 +474,33 @@
   display: flex;
   position: relative;
   width: 100%;
+  min-height: 0;
   height: 100%;
-  overflow: hidden;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   background-color: var(--chart-background);
 }
 
 /* Panel overlay background */
-.panel-overlay { display: none; }
+.panel-overlay {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(2, 6, 15, 0.6);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  z-index: calc(var(--z-index-panel) - 1);
+}
+
+.panel-overlay.is-active {
+  opacity: 1;
+  pointer-events: auto;
+}
 
 /* Panel styles - mechanical look */
 .panel {
@@ -396,6 +540,61 @@
   transform: translateX(0);
   transition-duration: var(--animation-duration-open);
   transition-timing-function: var(--animation-easing-open);
+}
+
+@media (max-width: 1200px) {
+  .panel {
+    width: min(360px, 50vw);
+  }
+}
+
+@media (max-width: 900px) {
+  .panel {
+    width: min(360px, 75vw);
+  }
+}
+
+@media (max-width: 640px) {
+  .panel {
+    width: min(420px, 100vw);
+    max-width: 100vw;
+    z-index: calc(var(--z-index-panel) - 1);
+  }
+
+  .panel-toggle {
+    display: none;
+  }
+
+  .left-panel.open .left-panel-toggle,
+  .right-panel.open .right-panel-toggle {
+    display: flex;
+    position: fixed;
+    top: calc(var(--topbar-height) + 0.75rem);
+    transform: none;
+    z-index: calc(var(--z-index-toggle) + 5);
+  }
+
+  .left-panel.open .left-panel-toggle {
+    right: 0.85rem;
+    left: auto;
+  }
+
+  .right-panel.open .right-panel-toggle {
+    left: 0.85rem;
+    right: auto;
+  }
+
+  .panel-toggle:active {
+    transform: translateY(2px);
+  }
+
+  .left-panel.open {
+    z-index: calc(var(--z-index-panel) + 2);
+  }
+
+  .right-panel.open {
+    z-index: calc(var(--z-index-panel) + 2);
+  }
 }
 
 /* Scrollable content inside panels */
@@ -690,6 +889,7 @@
   width: 100%;
   height: 100%;
   background-color: transparent;
+  padding: 1rem;
 }
 
 .chart-layout {
@@ -744,6 +944,42 @@
     100% calc(100% - 20px), calc(100% - 20px) 100%,
     20px 100%, 0 calc(100% - 20px)
   );
+}
+
+@media (max-width: 1024px) {
+  .chart-section {
+    padding: 0.75rem;
+  }
+
+  .chart-container {
+    padding: 0.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .chart-section {
+    align-items: flex-start;
+    padding: 0.5rem 0.5rem 1rem;
+  }
+
+  .birth-chart-visualization {
+    max-width: 620px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 540px) {
+  .chart-section {
+    padding: 0.25rem;
+  }
+
+  .birth-chart-visualization {
+    padding: 0.25rem;
+  }
+
+  .chart-container {
+    padding: 0.25rem;
+  }
 }
 
 /* Chart corner screws */

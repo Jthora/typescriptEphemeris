@@ -12,6 +12,8 @@ interface InfoTabData {
 
 const infoTabsConfig: InfoTabData[] = [
   { id: 'about', label: 'About' },
+  { id: 'ios-app', label: 'iOS Cosmic Cypher' },
+  { id: 'community', label: 'Community' },
   { id: 'language', label: 'Universal Language' },
   { id: 'quantum', label: 'Quantum Emotional Framework' },
   { id: 'infographics', label: 'Infographics' }
@@ -47,6 +49,64 @@ const infographicEntries = [
     thumbSrc: '/assets/cosmic-cypher/infographics/cosmic-cypher-mk3-thumb.jpg',
     fullImage: 'https://www.deviantart.com/jonothora/art/CosmicCypher-Mk3-1132274211'
   }
+]
+
+const iosAppFeatureList = [
+  'Real-time ephemeris, harmonics, and Gravimetric maps are computed on-device with CoreAstrology + SwiftAA so readings stay precise without a network connection.',
+  'The SpriteKit-powered Cosmic Alignment wheel mirrors the universal symbol grammar from this TypeScript project, giving readers the same Core/Void, Order/Chaos visuals.',
+  'PsionoStream image strips and Natura indices animate planetary motion frame-by-frame, exposing retrograde states, resonance spikes, and modality surges.',
+  'Export-ready reports (alignment maps, gravimetric JSON, resonance summaries) are formatted for downstream ML experiments or civic briefing packets.'
+]
+
+const iosAppNativeStack = [
+  {
+    title: 'CoreAstrology + SwiftAA',
+    description: 'Calculates star charts, harmonic samples, and gravimetric values with JPL-grade ephemeris data.'
+  },
+  {
+    title: 'SpriteKit + CIFilters',
+    description: 'Renders the layered chart wheel, harmonic spokes, and modality arcs at 120 FPS on iPhone and iPad.'
+  },
+  {
+    title: 'Resonance + Data Maps',
+    description: 'Outputs AlignmentMap, GravimetricMap, and Natura distributions for machine learning or archival analysis.'
+  }
+]
+
+const iosAppBridgeNotes = [
+  'Reference UI: the SwiftUI layouts act as blueprints for upcoming TypeScript/Vite components so parity stays high across platforms.',
+  'Shared math: Planetary Harmonics, ResonanceScore, and Natura calculations come from the same research, making validation between Swift and TypeScript straightforward.',
+  'Deployment insights: cosmiccypher.app documents onboarding, TestFlight notes, and governance use-cases that inform the web documentation backlog.'
+]
+
+const communityResources = [
+  {
+    label: 'Discord Chat Server',
+    url: 'https://discord.gg/AeXmhybQXk',
+    description: 'Primary Cosmic Cypher Community hub for universal symbology discussions and help threads.'
+  },
+  {
+    label: 'TestFlight iOS build',
+    url: 'https://testflight.apple.com/join/XiIed0zA',
+    description: 'Request beta access and share telemetry since Apple flags public astrology listings as spam.'
+  },
+  {
+    label: 'GitHub Project Board',
+    url: 'https://github.com/Jthora/CosmicCypher',
+    description: 'Track commits, automation updates, and issues before they land in this TypeScript repo.'
+  }
+]
+
+const communityStackLinks = [
+  { label: 'SwiftAA astronomy framework', url: 'https://github.com/onekiloparsec/SwiftAA' },
+  { label: 'Universal Symbology / Cosmic Codex', url: 'https://www.cosmiccodex.app/' },
+  { label: 'Galactic-centered astrology references', url: 'https://www.astro.com/astrology/in_ayanamsha_e.htm' }
+]
+
+const communityUseCases = [
+  'iOS app for calculating Planetary Harmonics and displaying it in easy to read Universal Symbology and 3D interfaces.',
+  'Psionic calculations are used for AI training programs, for visualizing astronomical data, graphing planetary events, and producing valuable AI training tables.',
+  'The app includes an export feature for a data scanner that produces JSON files for training LLMs on planetary position information—useful for exocraft pilot AI.'
 ]
 
 const universalLanguagePapers = [
@@ -567,6 +627,143 @@ export default function InfoPage() {
           </article>
         )
 
+      case 'ios-app':
+        return (
+          <article className="info-panel__body">
+            <section className="info-panel__section">
+              <h1>iOS Cosmic Cypher</h1>
+              <h2>Native SwiftUI build for live resonance readings</h2>
+              <p>
+                The iOS Cosmic Cypher App brings the universal symbol system to iPhone and iPad. It uses the same
+                Planetary Harmonics math as this TypeScript workspace, but wraps it in SwiftUI, SpriteKit, and CoreAstrology
+                so charts render locally with buttery frame rates and offline accuracy.
+              </p>
+              <p className="info-panel__note">
+                Per Apple&apos;s latest review policies, new astrology listings are automatically flagged as “spam,” so the
+                app is currently distributed through TestFlight and direct builds instead of the public App Store.
+              </p>
+              <div className="info-cta-row">
+                <a
+                  className="info-cta"
+                  href="https://github.com/Jthora/CosmicCypher"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  View iOS repo
+                </a>
+              </div>
+            </section>
+
+            <section className="info-app-showcase">
+              <figure className="info-app-preview">
+                <img
+                  src="/assets/cosmic-cypher/cosmiccypher_ios-screenshot.png"
+                  alt="Cosmic Cypher iOS screenshot of the harmonic chart wheel"
+                  loading="lazy"
+                />
+                <figcaption>
+                  Live resonance capture rendered with SpriteKit, CoreAstrology, and CIFilter pipelines on iOS.
+                </figcaption>
+              </figure>
+              <div className="info-app-meta">
+                <h3>Powered by native modules</h3>
+                <ul className="info-app-meta__list">
+                  {iosAppNativeStack.map((item) => (
+                    <li key={item.title}>
+                      <strong>{item.title}</strong>
+                      <span>{item.description}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+
+            <section className="info-panel__section">
+              <h2>What you get on-device</h2>
+              <ul className="info-panel__list info-app-feature-list">
+                {iosAppFeatureList.map((feature) => (
+                  <li key={feature}>{feature}</li>
+                ))}
+              </ul>
+            </section>
+
+            <section className="info-panel__section">
+              <h2>How it informs the Vite app</h2>
+              <p>
+                Keeping the Swift build open-source means every charting advancement, resonance tweak, or data export trick
+                can be mirrored here. Use the repository and public site to cross-check implementations or borrow interface
+                language for future documentation drops.
+              </p>
+              <ul className="info-panel__list">
+                {iosAppBridgeNotes.map((note) => (
+                  <li key={note}>{note}</li>
+                ))}
+              </ul>
+            </section>
+
+            <section className="info-panel__section">
+              <h2>Contribute or test</h2>
+              <p>
+                Clone the repo to explore the Swift modules, file an issue if you spot ephemeris drift, or use cosmiccypher.app
+                to request TestFlight access. Feature parity between native and web apps is tracked inside this workspace, so
+                your findings directly shape the roadmap.
+              </p>
+              <div className="info-cta-row">
+                <a className="info-cta info-cta--secondary" href="https://testflight.apple.com/join/XiIed0zA" target="_blank" rel="noreferrer">
+                  Request TestFlight build
+                </a>
+              </div>
+            </section>
+          </article>
+        )
+
+      case 'community':
+        return (
+          <article className="info-panel__body">
+            <section className="info-panel__section">
+              <span className="info-tag">Universal Symbology and Cosmic Astrology</span>
+              <h2>Cosmic Cypher Community</h2>
+              <p>
+                The community block on cosmiccypher.app links directly to the Discord chat server and TestFlight beta, making
+                it the canonical place to coordinate iOS builds and share Universal Symbology resources.
+              </p>
+              <div className="info-cta-row">
+                <a className="info-cta" href="https://discord.gg/AeXmhybQXk" target="_blank" rel="noreferrer">
+                  Join Discord
+                </a>
+              </div>
+            </section>
+
+            <section className="info-panel__section">
+              <h2>Key links</h2>
+              <div className="info-card-list">
+                {communityResources.map((resource) => (
+                  <a key={resource.label} className="info-card info-card--link" href={resource.url} target="_blank" rel="noreferrer">
+                    <div className="info-card__header">
+                      <h3>{resource.label}</h3>
+                    </div>
+                    <p>{resource.description}</p>
+                    <span className="info-card__action-label">Open link ↗</span>
+                  </a>
+                ))}
+              </div>
+            </section>
+
+            <section className="info-panel__section">
+              <h2>Stack references shared in community</h2>
+              <ul className="info-panel__list">
+                {communityStackLinks.map((item) => (
+                  <li key={item.url}>
+                    <a href={item.url} target="_blank" rel="noreferrer">
+                      {item.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </article>
+        )
+
       case 'infographics':
         return (
           <article className="info-panel__body">
@@ -619,6 +816,24 @@ export default function InfoPage() {
                 </a>
               ))}
             </div>
+
+            <section className="info-panel__section">
+              <span className="info-tag info-tag--subtle">Documentation scans</span>
+              <h2>Project notes and scanned documents</h2>
+              <p>
+                cosmiccypher.app hosts a gallery of photographed sketchbooks that show the original pencil-and-ink layouts for
+                Cosmic Cypher glyphs, harmonics tables, and UI wiring diagrams. Browse the scans to see how the infographics
+                evolved from field notes into production art.
+              </p>
+              <a
+                className="info-cta"
+                href="https://imgur.com/a/cosmic-cypher-documentation-2023-OgCeTWT#8xGGB8v"
+                target="_blank"
+                rel="noreferrer"
+              >
+                View documentation gallery
+              </a>
+            </section>
           </article>
         )
 

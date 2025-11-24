@@ -10,6 +10,8 @@
   position: relative;
   background: transparent;
   overflow: hidden; /* prevent scrollbars during resize */
+  max-width: 100%;
+  max-height: 100%;
 }
 
 /* Simplified container styling now that frame logic moved to ChartViewport */
@@ -30,6 +32,22 @@
     20px 100%, 0 calc(100% - 20px)
   );
   overflow: hidden;
+}
+
+@media (max-width: 600px) {
+  .birth-chart-visualization {
+    padding: 0.25rem;
+  }
+
+  .birth-chart-visualization .chart-wheel-container {
+    clip-path: none;
+    border-radius: 18px;
+    padding: 0.5rem;
+  }
+
+  .birth-chart-visualization .chart-measure-line {
+    display: none;
+  }
 }
 
 /* Decorative elements reused by ChartViewport */

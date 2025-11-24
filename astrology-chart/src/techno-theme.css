@@ -191,6 +191,9 @@ body {
   line-height: 1.5;
   color: var(--color-text-primary);
   background-color: var(--app-background);
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
 }
 
 h1, h2, h3, h4, h5, h6 {
