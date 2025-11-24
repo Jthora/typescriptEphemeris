@@ -7,11 +7,12 @@
 .app {
   min-height: 100vh;
   min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
   width: 100%;
   background-color: var(--app-background);
   position: relative;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden;
   background-image: 
     linear-gradient(to right, rgba(0,0,0,0.1) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(0,0,0,0.1) 1px, transparent 1px);
@@ -63,8 +64,10 @@
 /* Main app layout with CSS Grid */
 .app-main {
   display: grid;
-  grid-template-rows: var(--topbar-height) auto minmax(0, 1fr) var(--bottombar-height);
+  grid-template-rows: var(--topbar-height) auto minmax(0, 1fr) auto;
   grid-template-columns: 1fr;
+  height: 100%;
+  height: 100dvh;
   min-height: 100%;
   min-height: 100dvh;
   width: 100%;
@@ -305,124 +308,178 @@
   z-index: var(--z-index-panel);
   display: flex;
   align-items: stretch;
-  justify-content: space-between;
+  justify-content: center;
   padding: 0;
   position: relative;
   box-shadow: 0 -1px 3px var(--color-shadow);
-  min-height: var(--bottombar-height, 40px);
+  min-height: var(--computed-bottombar-height, var(--bottombar-height, 40px));
 }
 
 .bottom-bar-content {
-  display: flex;
   width: 100%;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 1rem;
-  position: relative;
+  padding: 0.4rem 0.9rem;
 }
 
-.bottom-bar-section {
+.bottom-bar-grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) auto minmax(220px, 1fr);
+  align-items: stretch;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.bottom-bar-cluster {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.4rem;
   position: relative;
   z-index: 1;
 }
 
-.bottom-bar-section.controls {
-  margin-left: auto;
+.bottom-bar-time {
+  justify-content: flex-start;
 }
 
-.bottom-bar-section.center-toggle {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  margin: 0; /* override gaps */
-  z-index: 20; /* above other buttons and overlays */
+.bottom-bar-time .time-displays {
+  margin-right: 0;
+  gap: 0.75rem;
 }
 
-.bottom-bar-section.center-toggle .bottom-drawer-toggle {
-  min-width: 48px;
+.bottom-bar-toggle {
+  justify-content: center;
 }
 
-.bottom-bar-section .hardware-button {
+.bottom-bar-controls {
+  justify-content: flex-end;
+  gap: 0.35rem;
+  flex-wrap: nowrap;
+}
+
+.bottom-bar-controls .hardware-button,
+.bottom-bar-toggle .hardware-button {
   display: flex;
   align-items: center;
   gap: 4px;
   font-size: var(--font-size-small);
-  height: 28px;
-  padding: 0 8px;
+  height: 32px;
+  padding: 0 10px;
   position: relative;
   background: linear-gradient(to bottom, var(--color-base-light) 0%, var(--color-base-medium) 100%);
   border: 1px solid var(--color-border);
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 1px 2px rgba(0,0,0,0.2);
 }
 
-@media (max-width: 960px) {
+.bottom-bar-controls .share-button {
+  width: 38px;
+  min-width: 38px;
+  height: 38px;
+  padding: 0;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.bottom-drawer-toggle--mobile {
+  display: none;
+}
+
+@media (max-width: 1024px) {
   .bottom-bar-content {
-    flex-direction: column;
+    padding: 0.35rem 0.6rem;
+  }
+
+  .bottom-bar-grid {
+    grid-template-columns: minmax(200px, 1fr) auto minmax(180px, 1fr);
     gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
   }
 
-  .bottom-bar-section {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .bottom-bar-section.controls {
-    margin-left: 0;
+  .bottom-bar-controls {
     flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 0.5rem;
-  }
-
-  .bottom-bar-section .hardware-button {
-    min-height: 34px;
-    padding: 0 12px;
-  }
-
-  .time-displays {
-    width: 100%;
-    justify-content: space-between;
   }
 }
 
-@media (max-width: 600px) {
-  .bottom-bar-section {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
+@media (max-width: 720px) {
+  :root {
+    --bottombar-height: 72px;
   }
 
-  .time-displays {
-    flex-direction: column;
-    gap: 0.5rem;
+  .bottom-bar {
+    position: static;
+  }
+
+  .bottom-bar-content {
+    padding: 0.25rem 0.5rem;
+  }
+
+  .bottom-bar-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "time"
+      "controls";
+    gap: 0.45rem;
+  }
+
+  .bottom-bar-time {
+    grid-area: time;
+    justify-content: stretch;
+  }
+
+  .bottom-bar-time .time-displays {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 0.35rem;
+    width: 100%;
+  }
+
+  .bottom-bar-controls {
+    grid-area: controls;
+    justify-content: stretch;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+  }
+
+  .bottom-bar-controls .hardware-button {
+    flex: 1 1 auto;
+    min-height: 34px;
+  }
+
+  .bottom-bar-controls .share-button {
+    flex: 0 0 auto;
+    width: 42px;
+    min-width: 42px;
+    height: 42px;
+  }
+
+  .bottom-bar-toggle {
+    display: none;
+  }
+
+  .bottom-drawer-toggle--mobile {
+    display: inline-flex;
+    width: 42px;
+    min-width: 42px;
+    height: 42px;
+    padding: 0;
+    border-radius: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .bottom-bar-controls {
+    gap: 0.2rem;
+  }
+
+  .bottom-bar-controls .hardware-button {
+    min-height: 30px;
+    height: 32px;
+    padding: 0 8px;
   }
 
   .time-displays .digital-display {
-    width: 100%;
-  }
-
-  .bottom-bar-section.center-toggle {
-    position: static;
-    transform: none;
-    width: 100%;
-    justify-content: flex-start;
-  }
-
-  .bottom-bar-section.controls {
-    justify-content: space-between;
-  }
-
-  .bottom-bar-section.controls .hardware-button {
-    flex: 1 1 48%;
-    justify-content: center;
+    padding: 4px 6px;
   }
 }
 
-.bottom-bar-section .hardware-button .led-indicator {
+.bottom-bar-controls .hardware-button .led-indicator {
   width: 6px;
   height: 6px;
   margin-right: 2px;
@@ -430,20 +487,20 @@
   opacity: 0.5;
 }
 
-.bottom-bar-section .hardware-button.active {
+.bottom-bar-controls .hardware-button.active {
   background: linear-gradient(to bottom, var(--color-primary-dim) 0%, var(--color-primary) 100%);
   color: white;
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 0 5px var(--color-primary-dim);
   border-color: var(--color-primary);
 }
 
-.bottom-bar-section .hardware-button.active .led-indicator {
+.bottom-bar-controls .hardware-button.active .led-indicator {
   background-color: #00ff00;
   opacity: 1;
   box-shadow: 0 0 5px #00ff00;
 }
 
-.bottom-bar-section .hardware-button svg {
+.bottom-bar-controls .hardware-button svg {
   width: 16px;
   height: 16px;
 }
@@ -476,7 +533,8 @@
   width: 100%;
   min-height: 0;
   height: 100%;
-  overflow: auto;
+  padding: 0;
+  overflow: hidden;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   background-color: var(--chart-background);
@@ -506,7 +564,7 @@
 .panel {
   position: fixed;
   top: var(--topbar-height);
-  bottom: var(--bottombar-height);
+  bottom: var(--computed-bottombar-height, var(--bottombar-height));
   width: var(--panel-width-mobile);
   background-color: var(--panel-background);
   border: var(--border-width) var(--border-style) var(--border-color);
@@ -889,7 +947,7 @@
   width: 100%;
   height: 100%;
   background-color: transparent;
-  padding: 1rem;
+  padding: 0;
 }
 
 .chart-layout {
@@ -947,38 +1005,25 @@
 }
 
 @media (max-width: 1024px) {
-  .chart-section {
-    padding: 0.75rem;
-  }
-
+  .chart-section,
   .chart-container {
-    padding: 0.5rem;
+    padding: 0;
   }
 }
 
 @media (max-width: 768px) {
   .chart-section {
     align-items: flex-start;
-    padding: 0.5rem 0.5rem 1rem;
-  }
-
-  .birth-chart-visualization {
-    max-width: 620px;
-    margin: 0 auto;
   }
 }
 
 @media (max-width: 540px) {
-  .chart-section {
-    padding: 0.25rem;
-  }
-
   .birth-chart-visualization {
-    padding: 0.25rem;
+    padding: 0;
   }
 
   .chart-container {
-    padding: 0.25rem;
+    min-height: calc(100dvh - var(--topbar-height) - var(--computed-bottombar-height, var(--bottombar-height)));
   }
 }
 
@@ -1423,7 +1468,7 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .app {
-    padding: 1rem;
+    padding: 0;
   }
   
   .app-header h1 {
@@ -1443,7 +1488,7 @@
   }
   
   .chart-container {
-    padding: 1rem;
+    padding: 0;
   }
   
   .chart-placeholder {
@@ -1547,7 +1592,7 @@ input:focus-visible {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: var(--bottombar-height, 40px); /* sit just above bottom bar */
+  bottom: var(--computed-bottombar-height, var(--bottombar-height, 40px)); /* sit just above bottom bar */
   height: var(--bottom-panel-height, 420px); /* full height occupied logically */
   pointer-events: none; /* content disabled until open */
   z-index: calc(var(--z-index-panel) - 1);

@@ -15,6 +15,7 @@
   /* Layout Variables */
   --topbar-height: 48px;
   --bottombar-height: 40px;
+  --computed-bottombar-height: var(--bottombar-height);
   --panel-width: 320px;
   --panel-width-mobile: min(320px, 85vw);
   --toggle-button-size: 36px;

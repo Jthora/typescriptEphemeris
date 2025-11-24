@@ -28,8 +28,11 @@ export const ChartAngles: React.FC<ChartAnglesProps> = ({
   cosmicSymbols,
   getThemeColor
 }) => {
-  // Place angles even further out for maximum visibility
-  const angleRadius = radius * 1.08; // Outermost rim (beyond zodiac symbols)
+  const sizeScale = Math.max(0.55, Math.min(1, radius / 320));
+  const circleRadius = 24 * sizeScale;
+  const fontPx = 16 * sizeScale;
+  const lineStrokeWidth = Math.max(1, 1.5 * sizeScale);
+  const angleRadius = radius * (1.02 + 0.06 * sizeScale);
 
   if (!chart.angles) {
     return null;
@@ -63,7 +66,7 @@ export const ChartAngles: React.FC<ChartAnglesProps> = ({
               <circle
                 cx={x}
                 cy={y}
-                r={24}
+                r={circleRadius}
                 fill="url(#angleGradient)"
                 stroke={strokeColor}
                 strokeWidth={1}
@@ -75,7 +78,7 @@ export const ChartAngles: React.FC<ChartAnglesProps> = ({
                 y={y}
                 textAnchor="middle"
                 dominantBaseline="middle"
-                fontSize="16px"
+                fontSize={`${fontPx}px`}
                 fontWeight="bold"
                 fontFamily={fonts.primary ?? 'Aldrich, sans-serif'}
                 fill={fallbackColor}
@@ -90,7 +93,7 @@ export const ChartAngles: React.FC<ChartAnglesProps> = ({
         const textColor = angleSymbol.color || getThemeColor('primary');
         
         // Line start position for connecting line
-        const lineStartRadius = radius * 0.95;
+  const lineStartRadius = radius * (0.9 + 0.05 * sizeScale);
         const lineStartX = Math.cos(anglePos) * lineStartRadius;
         const lineStartY = Math.sin(anglePos) * lineStartRadius;
 
@@ -100,7 +103,7 @@ export const ChartAngles: React.FC<ChartAnglesProps> = ({
             <circle
               cx={x}
               cy={y}
-              r={24}
+              r={circleRadius}
               fill="url(#angleGradient)"
               stroke={strokeColor}
               strokeWidth={1}
@@ -112,7 +115,7 @@ export const ChartAngles: React.FC<ChartAnglesProps> = ({
               y={y}
               textAnchor="middle"
               dominantBaseline="middle"
-              fontSize={angleSymbol.fontSize || '16px'}
+              fontSize={angleSymbol.fontSize || `${fontPx}px`}
               fontWeight={angleSymbol.fontWeight || 'bold'}
               fontFamily={angleSymbol.fontFamily || fonts.primary || 'Aldrich, sans-serif'}
               fill={textColor}
@@ -127,7 +130,7 @@ export const ChartAngles: React.FC<ChartAnglesProps> = ({
               x2={x}
               y2={y}
               stroke={textColor}
-              strokeWidth={1.5}
+              strokeWidth={lineStrokeWidth}
               strokeDasharray="3,2"
               opacity={0.7}
             />

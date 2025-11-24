@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef, useMemo } from 'react'
+import { useState, useCallback, useEffect, useRef, useMemo, useLayoutEffect } from 'react'
 import type { TouchEvent } from 'react'
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { CalendarDays, Play, Pause, RotateCcw, ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from 'lucide-react'
@@ -69,6 +69,7 @@ function ChartExperience() {
   const [isMobileViewport, setIsMobileViewport] = useState(false);
   const chartSvgRef = useRef<SVGSVGElement | null>(null);
   const chartSizeRef = useRef<number>(0);
+  const bottomBarRef = useRef<HTMLDivElement | null>(null);
   
   // Touch gesture handling
   const touchStartX = useRef<number | null>(null);
@@ -95,6 +96,51 @@ function ChartExperience() {
   const [shareOptions, setShareOptions] = useState<ShareOptions>(() => loadShareOptions());
   const [customShareMessage, setCustomShareMessage] = useState(() => loadCustomShareMessage());
   const [chartDimension, setChartDimension] = useState<number>(600);
+
+  useLayoutEffect(() => {
+    const bottomBarEl = bottomBarRef.current;
+    if (!bottomBarEl) {
+      return;
+    }
+
+    const ownerDocument = bottomBarEl.ownerDocument;
+    if (!ownerDocument) {
+      return;
+    }
+
+    const ownerWindow = ownerDocument.defaultView as (Window & typeof globalThis) | null;
+    if (!ownerWindow) {
+      return;
+    }
+
+    const root = ownerDocument.documentElement;
+
+    const updateHeight = () => {
+      const { height } = bottomBarEl.getBoundingClientRect();
+      root.style.setProperty('--computed-bottombar-height', `${height}px`);
+    };
+
+    updateHeight();
+
+    let resizeObserver: ResizeObserver | null = null;
+    let fallbackListenerAttached = false;
+
+    if ('ResizeObserver' in ownerWindow) {
+      resizeObserver = new ownerWindow.ResizeObserver(() => updateHeight());
+      resizeObserver.observe(bottomBarEl);
+    } else {
+      fallbackListenerAttached = true;
+      ownerWindow.addEventListener('resize', updateHeight);
+    }
+
+    return () => {
+      resizeObserver?.disconnect();
+      if (fallbackListenerAttached) {
+        ownerWindow.removeEventListener('resize', updateHeight);
+      }
+      root.style.removeProperty('--computed-bottombar-height');
+    };
+  }, []);
   
   useEffect(() => {
     saveShareOptions(shareOptions);
@@ -716,6 +762,7 @@ function ChartExperience() {
         )}
         {/* Bottom bar */}
         <BottomBar 
+          ref={bottomBarRef}
           isRealTimeMode={isRealTimeMode}
           toggleRealTimeMode={toggleRealTimeMode}
           resetToCurrentTime={resetToCurrentTime}

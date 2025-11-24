@@ -35,14 +35,9 @@
 }
 
 @media (max-width: 600px) {
-  .birth-chart-visualization {
-    padding: 0.25rem;
-  }
-
   .birth-chart-visualization .chart-wheel-container {
     clip-path: none;
     border-radius: 18px;
-    padding: 0.5rem;
   }
 
   .birth-chart-visualization .chart-measure-line {
