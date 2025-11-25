@@ -125,8 +125,10 @@ function ChartExperience() {
     let resizeObserver: ResizeObserver | null = null;
     let fallbackListenerAttached = false;
 
-    if ('ResizeObserver' in ownerWindow) {
-      resizeObserver = new ownerWindow.ResizeObserver(() => updateHeight());
+    const ResizeObserverCtor = ownerWindow.ResizeObserver;
+
+    if (typeof ResizeObserverCtor === 'function') {
+      resizeObserver = new ResizeObserverCtor(() => updateHeight());
       resizeObserver.observe(bottomBarEl);
     } else {
       fallbackListenerAttached = true;
