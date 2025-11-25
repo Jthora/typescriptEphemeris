@@ -98,22 +98,16 @@ function ChartExperience() {
   const [chartDimension, setChartDimension] = useState<number>(600);
 
   useLayoutEffect(() => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      return;
+    }
+
     const bottomBarEl = bottomBarRef.current;
     if (!bottomBarEl) {
       return;
     }
 
-    const ownerDocument = bottomBarEl.ownerDocument;
-    if (!ownerDocument) {
-      return;
-    }
-
-    const ownerWindow = ownerDocument.defaultView as (Window & typeof globalThis) | null;
-    if (!ownerWindow) {
-      return;
-    }
-
-    const root = ownerDocument.documentElement;
+    const root = document.documentElement;
 
     const updateHeight = () => {
       const { height } = bottomBarEl.getBoundingClientRect();
@@ -125,20 +119,18 @@ function ChartExperience() {
     let resizeObserver: ResizeObserver | null = null;
     let fallbackListenerAttached = false;
 
-    const ResizeObserverCtor = ownerWindow.ResizeObserver;
-
-    if (typeof ResizeObserverCtor === 'function') {
-      resizeObserver = new ResizeObserverCtor(() => updateHeight());
+    if (typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(() => updateHeight());
       resizeObserver.observe(bottomBarEl);
     } else {
       fallbackListenerAttached = true;
-      ownerWindow.addEventListener('resize', updateHeight);
+      window.addEventListener('resize', updateHeight);
     }
 
     return () => {
       resizeObserver?.disconnect();
       if (fallbackListenerAttached) {
-        ownerWindow.removeEventListener('resize', updateHeight);
+        window.removeEventListener('resize', updateHeight);
       }
       root.style.removeProperty('--computed-bottombar-height');
     };
