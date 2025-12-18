@@ -201,6 +201,11 @@ function eventsInRange(events: CalendarEvent[], start: Date, end: Date): Calenda
     .sort((a, b) => a.start.getTime() - b.start.getTime())
 }
 
+function isDailyTransit(summary?: string): boolean {
+  if (!summary) return false
+  return summary.trim().toLowerCase().startsWith('daily transit')
+}
+
 function CalendarPage() {
   const navigate = useNavigate()
   const [index, setIndex] = useState<IcsIndexItem[]>([])
@@ -462,7 +467,7 @@ function CalendarPage() {
     }
 
     return (
-      <>
+      <div className="calendar-month-section">
         <div className="calendar-month-headers" aria-hidden="true">
           {WEEKDAY_LABELS.map((label) => (
             <div key={label} className="calendar-month-header">
@@ -472,7 +477,9 @@ function CalendarPage() {
         </div>
         <div className="calendar-month-grid">
           {cells.map((day) => {
-            const dayEvents = eventsInRange(eventsForYear ?? [], startOfDay(day), endOfDay(day))
+            const dayEvents = eventsInRange(eventsForYear ?? [], startOfDay(day), endOfDay(day)).filter(
+              (event) => !isDailyTransit(event.summary)
+            )
             const inMonth = day.getUTCMonth() === selectedDate.getUTCMonth()
             const isToday = day.getTime() === today.getTime()
             return (
@@ -490,7 +497,7 @@ function CalendarPage() {
                   <span className="calendar-day-number">{day.getUTCDate()}</span>
                   {dayEvents.length > 0 && <span className="calendar-pill small">{dayEvents.length}</span>}
                 </div>
-                {dayEvents.slice(0, 3).map((event) => (
+                {dayEvents.slice(0, 2).map((event) => (
                   <div
                     key={event.uid ?? `${event.start.toISOString()}-${event.summary}`}
                     className="calendar-event-chip"
@@ -498,14 +505,14 @@ function CalendarPage() {
                     {event.summary ?? 'Untitled event'}
                   </div>
                 ))}
-                {dayEvents.length > 3 && (
-                  <div className="calendar-event-meta more">+{dayEvents.length - 3} more</div>
+                {dayEvents.length > 2 && (
+                  <div className="calendar-event-meta more">+{dayEvents.length - 2} more</div>
                 )}
               </button>
             )
           })}
         </div>
-      </>
+      </div>
     )
   }
 
