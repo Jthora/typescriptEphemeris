@@ -11,6 +11,9 @@ import {
   type CachedIcsItem,
   type IcsIndexItem
 } from '../utils/icsRepository'
+import { parseDescriptionToSymbology } from '../utils/icsSymbologyParser'
+import { ASPECT_LEGEND } from '../utils/symbology'
+import themeManager, { THEMES, type ThemeType } from '../theme-manager'
 
 type SeriesMeta = {
   series: string
@@ -30,7 +33,12 @@ type CalendarEvent = {
   description?: string
   location?: string
   allDay?: boolean
+  // Preserve original Y/M/D for all-day so we can reconstruct wall dates per TZ
+  allDayParts?: { year: number; month: number; day: number }
+  allDayEndParts?: { year: number; month: number; day: number }
 }
+
+const DEFAULT_TIME_ZONE = Intl.DateTimeFormat().resolvedOptions().timeZone ?? 'UTC'
 
 function useToast() {
   const [toast, setToast] = useState<Toast | null>(null)
@@ -81,7 +89,16 @@ function unfoldLines(input: string): string {
   return input.replace(/\r?\n[ \t]/g, '')
 }
 
-function parseIcsDate(raw: string): { date: Date | null; allDay: boolean } {
+function decodeIcsText(value?: string): string | undefined {
+  if (!value) return value
+  return value
+    .replace(/\\\\/g, '\\')
+    .replace(/\\n/gi, '\n')
+    .replace(/\\,/g, ',')
+    .replace(/\\;/g, ';')
+}
+
+function parseIcsDate(raw: string): { date: Date | null; allDay: boolean; parts?: { year: number; month: number; day: number } } {
   if (!raw) return { date: null, allDay: false }
   const value = raw.split(':').pop() ?? raw
   const isDateOnly = /VALUE=DATE/.test(raw) || value.length === 8
@@ -90,14 +107,18 @@ function parseIcsDate(raw: string): { date: Date | null; allDay: boolean } {
   if (matchDateTime) {
     const [, y, m, d, hh = '00', mm = '00', ss = '00'] = matchDateTime
     const date = new Date(Date.UTC(Number(y), Number(m) - 1, Number(d), Number(hh), Number(mm), Number(ss)))
-    return { date, allDay: isDateOnly && hh === '00' && mm === '00' && ss === '00' }
+    return {
+      date,
+      allDay: isDateOnly && hh === '00' && mm === '00' && ss === '00',
+      parts: isDateOnly ? { year: Number(y), month: Number(m), day: Number(d) } : undefined
+    }
   }
 
   const matchDateOnly = value.match(/^(\d{4})(\d{2})(\d{2})$/)
   if (matchDateOnly) {
     const [, y, m, d] = matchDateOnly
     const date = new Date(Date.UTC(Number(y), Number(m) - 1, Number(d)))
-    return { date, allDay: true }
+    return { date, allDay: true, parts: { year: Number(y), month: Number(m), day: Number(d) } }
   }
 
   return { date: null, allDay: false }
@@ -124,8 +145,8 @@ function parseIcsEvents(content: string): CalendarEvent[] {
 
     const dtStartLine = lines.find((l) => l.startsWith('DTSTART'))
     const dtEndLine = lines.find((l) => l.startsWith('DTEND'))
-    const { date: start, allDay: startAllDay } = parseIcsDate(dtStartLine ?? '')
-    const { date: end, allDay: endAllDay } = parseIcsDate(dtEndLine ?? '')
+    const { date: start, allDay: startAllDay, parts: startParts } = parseIcsDate(dtStartLine ?? '')
+    const { date: end, allDay: endAllDay, parts: endParts } = parseIcsDate(dtEndLine ?? '')
 
     if (!start) continue
 
@@ -133,10 +154,12 @@ function parseIcsEvents(content: string): CalendarEvent[] {
       uid: map.UID,
       start,
       end: end ?? start,
-      summary: map.SUMMARY,
-      description: map.DESCRIPTION,
-      location: map.LOCATION,
-      allDay: startAllDay || endAllDay
+      summary: decodeIcsText(map.SUMMARY),
+      description: decodeIcsText(map.DESCRIPTION),
+      location: decodeIcsText(map.LOCATION),
+      allDay: startAllDay || endAllDay,
+      allDayParts: startAllDay ? startParts : undefined,
+      allDayEndParts: endAllDay ? endParts : undefined
     })
   }
 
@@ -145,65 +168,194 @@ function parseIcsEvents(content: string): CalendarEvent[] {
 
 const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const
 
-function toDateInputValue(date: Date): string {
-  return date.toISOString().slice(0, 10)
+type ZonedParts = {
+  year: number
+  month: number
+  day: number
+  hour: number
+  minute: number
+  second: number
 }
 
-function startOfDay(date: Date): Date {
-  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()))
+function getZonedParts(date: Date, timeZone: string): ZonedParts {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  }).formatToParts(date)
+
+  const map: Record<string, string> = {}
+  for (const part of parts) {
+    if (part.type !== 'literal') {
+      map[part.type] = part.value
+    }
+  }
+
+  return {
+    year: Number(map.year),
+    month: Number(map.month),
+    day: Number(map.day),
+    hour: Number(map.hour ?? 0),
+    minute: Number(map.minute ?? 0),
+    second: Number(map.second ?? 0)
+  }
 }
 
-function endOfDay(date: Date): Date {
-  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 23, 59, 59, 999))
+function getTimeZoneOffsetMs(date: Date, timeZone: string): number {
+  const parts = getZonedParts(date, timeZone)
+  const asUtc = Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, parts.second)
+  return asUtc - date.getTime()
 }
 
-function startOfWeek(date: Date): Date {
-  const day = date.getUTCDay()
+function zonedStartOfDay(date: Date, timeZone: string): Date {
+  const parts = getZonedParts(date, timeZone)
+  const utcMidnight = Date.UTC(parts.year, parts.month - 1, parts.day, 0, 0, 0, 0)
+  const offset = getTimeZoneOffsetMs(new Date(utcMidnight), timeZone)
+  return new Date(utcMidnight - offset)
+}
+
+function zonedEndOfDay(date: Date, timeZone: string): Date {
+  const parts = getZonedParts(date, timeZone)
+  const utcEnd = Date.UTC(parts.year, parts.month - 1, parts.day, 23, 59, 59, 999)
+  const offset = getTimeZoneOffsetMs(new Date(utcEnd), timeZone)
+  return new Date(utcEnd - offset)
+}
+
+function toDateInputValue(date: Date, timeZone: string): string {
+  const parts = getZonedParts(date, timeZone)
+  const y = parts.year.toString().padStart(4, '0')
+  const m = parts.month.toString().padStart(2, '0')
+  const d = parts.day.toString().padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
+function startOfDay(date: Date, timeZone: string): Date {
+  return zonedStartOfDay(date, timeZone)
+}
+
+function endOfDay(date: Date, timeZone: string): Date {
+  return zonedEndOfDay(date, timeZone)
+}
+
+function startOfWeek(date: Date, timeZone: string): Date {
+  const start = startOfDay(date, timeZone)
+  const day = start.getUTCDay()
   const diff = (day + 6) % 7 // Monday start
-  const start = new Date(date)
-  start.setUTCDate(date.getUTCDate() - diff)
-  return startOfDay(start)
+  const shifted = new Date(start)
+  shifted.setUTCDate(start.getUTCDate() - diff)
+  return startOfDay(shifted, timeZone)
 }
 
-function endOfWeek(date: Date): Date {
-  const start = startOfWeek(date)
+function endOfWeek(date: Date, timeZone: string): Date {
+  const start = startOfWeek(date, timeZone)
   const end = new Date(start)
   end.setUTCDate(start.getUTCDate() + 6)
-  return endOfDay(end)
+  return endOfDay(end, timeZone)
 }
 
-function startOfMonth(date: Date): Date {
-  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1))
+function startOfMonth(date: Date, timeZone: string): Date {
+  const parts = getZonedParts(date, timeZone)
+  const utcStart = Date.UTC(parts.year, parts.month - 1, 1, 0, 0, 0, 0)
+  const offset = getTimeZoneOffsetMs(new Date(utcStart), timeZone)
+  return new Date(utcStart - offset)
 }
 
-function endOfMonth(date: Date): Date {
-  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 0, 23, 59, 59, 999))
+function endOfMonth(date: Date, timeZone: string): Date {
+  const parts = getZonedParts(date, timeZone)
+  const utcEnd = Date.UTC(parts.year, parts.month, 0, 23, 59, 59, 999)
+  const offset = getTimeZoneOffsetMs(new Date(utcEnd), timeZone)
+  return new Date(utcEnd - offset)
 }
 
-function formatRangeLabel(view: 'day' | 'week' | 'month', date: Date): string {
-  const formatter = new Intl.DateTimeFormat(undefined, { month: 'short', year: 'numeric' })
+function sameMonthYear(left: Date, right: Date, timeZone: string): boolean {
+  const l = getZonedParts(left, timeZone)
+  const r = getZonedParts(right, timeZone)
+  return l.year === r.year && l.month === r.month
+}
+
+function addDays(date: Date, days: number): Date {
+  const next = new Date(date)
+  next.setUTCDate(date.getUTCDate() + days)
+  return next
+}
+
+function normalizeEventRange(event: CalendarEvent, timeZone: string): { start: Date; end: Date } {
+  if (event.allDay) {
+    if (event.allDayParts) {
+      const { year, month, day } = event.allDayParts
+      const endParts = event.allDayEndParts ?? { year, month, day: day + 1 }
+      const startWall = new Date(Date.UTC(year, month - 1, day, 12, 0, 0))
+      const endWall = new Date(Date.UTC(endParts.year, endParts.month - 1, endParts.day, 12, 0, 0))
+      const start = startOfDay(startWall, timeZone)
+      const end = startOfDay(endWall, timeZone)
+      // If provider set DTEND equal or behind DTSTART, force a +1 day to keep half-open invariant
+      if (end.getTime() <= start.getTime()) {
+        return { start, end: startOfDay(new Date(Date.UTC(year, month - 1, day + 1, 12, 0, 0)), timeZone) }
+      }
+      return { start, end }
+    }
+
+    const start = startOfDay(event.start, timeZone)
+    const endAnchor = event.end ? startOfDay(event.end, timeZone) : startOfDay(addDays(event.start, 1), timeZone)
+    return { start, end: endAnchor }
+  }
+
+  return { start: event.start, end: event.end ?? event.start }
+}
+
+function formatRangeLabel(view: 'day' | 'week' | 'month', date: Date, timeZone: string): string {
+  const formatter = new Intl.DateTimeFormat(undefined, { month: 'short', year: 'numeric', timeZone })
   if (view === 'month') return formatter.format(date)
 
   if (view === 'week') {
-    const start = startOfWeek(date)
-    const end = endOfWeek(date)
-    const fmt = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' })
-    return `${fmt.format(start)} – ${fmt.format(end)} ${start.getUTCFullYear()}`
+    const start = startOfWeek(date, timeZone)
+    const end = endOfWeek(date, timeZone)
+    const fmt = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', timeZone })
+    return `${fmt.format(start)} – ${fmt.format(end)} ${new Intl.DateTimeFormat(undefined, { year: 'numeric', timeZone }).format(start)}`
   }
 
-  const fmt = new Intl.DateTimeFormat(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
+  const fmt = new Intl.DateTimeFormat(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', timeZone })
   return fmt.format(date)
 }
 
-function eventsInRange(events: CalendarEvent[], start: Date, end: Date): CalendarEvent[] {
+function eventsInRange(events: CalendarEvent[], start: Date, end: Date, timeZone: string): CalendarEvent[] {
   return events
-    .filter((event) => event.end >= start && event.start <= end)
+    .filter((event) => {
+      const normalized = normalizeEventRange(event, timeZone)
+      // Overlap test using half-open intervals: eventStart < rangeEnd && eventEnd > rangeStart
+      return normalized.start < end && normalized.end > start
+    })
     .sort((a, b) => a.start.getTime() - b.start.getTime())
 }
 
 function isDailyTransit(summary?: string): boolean {
   if (!summary) return false
   return summary.trim().toLowerCase().startsWith('daily transit')
+}
+
+function dedupeDailyTransitEvents(events: CalendarEvent[], timeZone: string): CalendarEvent[] {
+  const seen = new Set<string>()
+  const result: CalendarEvent[] = []
+
+  for (const event of events) {
+    if (!isDailyTransit(event.summary)) {
+      result.push(event)
+      continue
+    }
+
+    const normalized = normalizeEventRange(event, timeZone)
+    const dayKey = startOfDay(normalized.start, timeZone).toISOString()
+    if (seen.has(dayKey)) continue
+    seen.add(dayKey)
+    result.push(event)
+  }
+
+  return result
 }
 
 function CalendarPage() {
@@ -215,10 +367,22 @@ function CalendarPage() {
   const [loadingYear, setLoadingYear] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'day' | 'week' | 'month'>('month')
-  const [selectedDate, setSelectedDate] = useState<Date>(() => startOfDay(new Date()))
+  const [timeZone, setTimeZone] = useState<string>(DEFAULT_TIME_ZONE)
+  const [selectedDate, setSelectedDate] = useState<Date>(() => startOfDay(new Date(), DEFAULT_TIME_ZONE))
+  const [timeZones] = useState<string[]>(() => {
+    if (typeof Intl.supportedValuesOf === 'function') {
+      return Intl.supportedValuesOf('timeZone')
+    }
+    return ['UTC', 'America/New_York', 'Europe/London', 'Europe/Paris', 'Asia/Tokyo', 'Australia/Sydney']
+  })
+  const prevTimeZoneRef = useRef<string>(DEFAULT_TIME_ZONE)
   const [activeSeries, setActiveSeries] = useState<string | null>(null)
+  const [theme, setTheme] = useState<ThemeType>(() => {
+    if (typeof window === 'undefined') return THEMES.DARK
+    return themeManager.getActualTheme()
+  })
   const { toast, showToast } = useToast()
-  const today = useMemo(() => startOfDay(new Date()), [])
+  const today = useMemo(() => startOfDay(new Date(), timeZone), [timeZone])
 
   const seriesFilters = useMemo(() => {
     const set = new Set<string>()
@@ -234,9 +398,32 @@ function CalendarPage() {
     setActiveSeries(preferred)
   }, [activeSeries, seriesFilters])
 
-  const selectedYear = selectedDate.getUTCFullYear().toString()
+  const selectedYear = getZonedParts(selectedDate, timeZone).year.toString()
   const eventsKey = activeSeries ? `${activeSeries}-${selectedYear}` : ''
   const eventsForYear = eventsKey ? eventsByKey[eventsKey] : undefined
+
+  useEffect(() => {
+    themeManager.initialize()
+    const handleThemeChange = (nextTheme: ThemeType) => {
+      setTheme(nextTheme === THEMES.SYSTEM ? themeManager.getActualTheme() : nextTheme)
+    }
+    themeManager.addListener(handleThemeChange)
+    return () => {
+      themeManager.removeListener(handleThemeChange)
+    }
+  }, [])
+
+  const isDarkMode = theme === THEMES.DARK
+
+  useEffect(() => {
+    setSelectedDate((prev) => {
+      const prevTz = prevTimeZoneRef.current
+      const parts = getZonedParts(prev, prevTz)
+      const seed = new Date(Date.UTC(parts.year, parts.month - 1, parts.day, 12, 0, 0))
+      prevTimeZoneRef.current = timeZone
+      return startOfDay(seed, timeZone)
+    })
+  }, [timeZone])
 
   useEffect(() => {
     const loadIndex = async () => {
@@ -299,18 +486,21 @@ function CalendarPage() {
 
   const currentRange = useMemo(() => {
     if (viewMode === 'day') {
-      return { start: startOfDay(selectedDate), end: endOfDay(selectedDate) }
+      const start = startOfDay(selectedDate, timeZone)
+      return { start, end: addDays(start, 1) }
     }
     if (viewMode === 'week') {
-      return { start: startOfWeek(selectedDate), end: endOfWeek(selectedDate) }
+      const start = startOfWeek(selectedDate, timeZone)
+      return { start, end: addDays(start, 7) }
     }
-    return { start: startOfMonth(selectedDate), end: endOfMonth(selectedDate) }
-  }, [viewMode, selectedDate])
+    return { start: startOfMonth(selectedDate, timeZone), end: endOfMonth(selectedDate, timeZone) }
+  }, [viewMode, selectedDate, timeZone])
 
   const rangeEvents = useMemo(() => {
     if (!eventsForYear) return []
-    return eventsInRange(eventsForYear, currentRange.start, currentRange.end)
-  }, [eventsForYear, currentRange])
+    const overlapped = eventsInRange(eventsForYear, currentRange.start, currentRange.end, timeZone)
+    return dedupeDailyTransitEvents(overlapped, timeZone)
+  }, [eventsForYear, currentRange, timeZone])
 
   const handlePrev = () => {
     const next = new Date(selectedDate)
@@ -321,7 +511,7 @@ function CalendarPage() {
     } else {
       next.setUTCMonth(selectedDate.getUTCMonth() - 1)
     }
-    setSelectedDate(startOfDay(next))
+    setSelectedDate(startOfDay(next, timeZone))
   }
 
   const handleNext = () => {
@@ -333,10 +523,10 @@ function CalendarPage() {
     } else {
       next.setUTCMonth(selectedDate.getUTCMonth() + 1)
     }
-    setSelectedDate(startOfDay(next))
+    setSelectedDate(startOfDay(next, timeZone))
   }
 
-  const handleToday = () => setSelectedDate(startOfDay(new Date()))
+  const handleToday = () => setSelectedDate(startOfDay(new Date(), timeZone))
 
   const currentIndexEntry = useMemo(() => {
     if (!activeSeries) return null
@@ -375,7 +565,11 @@ function CalendarPage() {
 
   const handleDateChange = (value: string) => {
     if (!value) return
-    const next = startOfDay(new Date(`${value}T00:00:00Z`))
+    const [y, m, d] = value.split('-').map((v) => Number.parseInt(v, 10))
+    if (!y || !m || !d) return
+    const utc = Date.UTC(y, m - 1, d, 0, 0, 0, 0)
+    const offset = getTimeZoneOffsetMs(new Date(utc), timeZone)
+    const next = new Date(utc - offset)
     if (Number.isNaN(next.getTime())) return
     setSelectedDate(next)
   }
@@ -390,16 +584,145 @@ function CalendarPage() {
             {rangeEvents.map((event) => {
               const timeFmt = new Intl.DateTimeFormat(undefined, {
                 hour: '2-digit',
-                minute: '2-digit'
+                minute: '2-digit',
+                timeZone
               })
               const startLabel = event.allDay ? 'All day' : timeFmt.format(event.start)
               const endLabel = event.allDay ? '' : ` · ${timeFmt.format(event.end)}`
+              const parsed = event.description ? parseDescriptionToSymbology(event.description, { isDarkMode }) : null
+              const displayDescription = parsed ? parsed.otherLines.join('\n') : event.description
               return (
                 <div key={event.uid ?? `${event.start.toISOString()}-${event.summary}`} className="calendar-event">
                   <div className="calendar-event-title">{event.summary ?? 'Untitled event'}</div>
                   <div className="calendar-event-meta">{startLabel}{endLabel}</div>
                   {event.location && <div className="calendar-event-meta">{event.location}</div>}
-                  {event.description && <p className="calendar-event-desc">{event.description}</p>}
+                  {parsed && (parsed.positions.length > 0 || parsed.aspects.length > 0) && (
+                    <div className="calendar-event-symbology" aria-label="Event symbology">
+                      {parsed.positions.length > 0 && (
+                        <div className="calendar-event-block">
+                          <div className="calendar-event-block-title">Positions</div>
+                          <ul className="calendar-positions-list">
+                            {parsed.positions.map((pos, idx) => (
+                              <li key={`${event.uid ?? event.summary}-pos-${idx}`} className="calendar-position-row table">
+                                {pos.bodyIcon ? (
+                                  <span className={pos.bodyIcon.invertInDark && isDarkMode ? 'calendar-glyph dark-invert' : 'calendar-glyph'}>
+                                    <img src={pos.bodyIcon.src} alt={pos.bodyIcon.alt} loading="lazy" />
+                                  </span>
+                                ) : (
+                                  <span className="calendar-glyph placeholder" aria-hidden="true" />
+                                )}
+
+                                {pos.elementIcon ? (
+                                  <span className="calendar-glyph">
+                                    <img src={pos.elementIcon.src} alt={pos.elementIcon.alt} loading="lazy" />
+                                  </span>
+                                ) : (
+                                  <span className="calendar-glyph placeholder" aria-hidden="true" />
+                                )}
+
+                                {pos.modalityIcon ? (
+                                  <span className="calendar-glyph">
+                                    <img src={pos.modalityIcon.src} alt={pos.modalityIcon.alt} loading="lazy" />
+                                  </span>
+                                ) : (
+                                  <span className="calendar-glyph placeholder" aria-hidden="true" />
+                                )}
+
+                                {pos.signIcon ? (
+                                  <span className="calendar-glyph">
+                                    <img src={pos.signIcon.src} alt={pos.signIcon.alt} loading="lazy" />
+                                  </span>
+                                ) : (
+                                  <span className="calendar-glyph placeholder" aria-hidden="true" />
+                                )}
+
+                                {pos.decanIcon ? (
+                                  <span className="calendar-glyph">
+                                    <img src={pos.decanIcon.src} alt={pos.decanIcon.alt} loading="lazy" />
+                                  </span>
+                                ) : (
+                                  <span className="calendar-glyph placeholder" aria-hidden="true" />
+                                )}
+
+                                {pos.classicSignIcon ? (
+                                  <span className="calendar-glyph" title={pos.signLabel ?? ''}>
+                                    <img src={pos.classicSignIcon.src} alt={pos.classicSignIcon.alt} loading="lazy" />
+                                  </span>
+                                ) : (
+                                  <span className="calendar-glyph placeholder" aria-hidden="true" />
+                                )}
+
+                                <span className="calendar-position-stack">
+                                  <span className="top-line">
+                                    {pos.bodyLabel}
+                                    {pos.retrograde && <span className="calendar-position-retro"> ℞</span>}
+                                  </span>
+                                  <span className="bottom-line">
+                                    {pos.signLabel ?? ''} {pos.degreesText ?? ''}
+                                  </span>
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {parsed.aspects.length > 0 && (
+                        <div className="calendar-event-block">
+                          <div className="calendar-event-block-title">Aspects</div>
+                          <div className="calendar-aspect-legend" aria-label="Aspect legend">
+                            {ASPECT_LEGEND.map((entry) => (
+                              <span key={entry.key} className="calendar-aspect-legend-item">
+                                <span className="calendar-aspect-icon" aria-label={entry.label}>
+                                  <img src={entry.icon.src} alt={`${entry.label} icon`} loading="lazy" />
+                                </span>
+                                <span className="calendar-aspect-legend-label">{entry.label}</span>
+                              </span>
+                            ))}
+                          </div>
+                          <ul className="calendar-aspect-list">
+                            {parsed.aspects.map((aspect, idx) => (
+                              <li
+                                key={`${event.uid ?? event.summary}-asp-${idx}`}
+                                className="calendar-aspect-row"
+                                aria-label={`Aspect: ${aspect.leftBody} ${aspect.aspectLabel} ${aspect.rightBody}${aspect.tone ? `, ${aspect.tone.label}` : ''}`}
+                              >
+                                {aspect.time && <span className="calendar-aspect-time">{aspect.time}</span>}
+                                {aspect.leftIcon && (
+                                  <span className={aspect.leftIcon.invertInDark && isDarkMode ? 'calendar-glyph dark-invert' : 'calendar-glyph'}>
+                                    <img src={aspect.leftIcon.src} alt={aspect.leftIcon.alt} loading="lazy" />
+                                  </span>
+                                )}
+                                <span className="calendar-aspect-body">{aspect.leftBody}</span>
+                                {aspect.aspectIcon ? (
+                                  <span className="calendar-aspect-icon" aria-label={aspect.aspectLabel}>
+                                    <img src={aspect.aspectIcon.src} alt={aspect.aspectIcon.alt} loading="lazy" />
+                                  </span>
+                                ) : (
+                                  <span className="calendar-aspect-label">{aspect.aspectLabel}</span>
+                                )}
+                                {aspect.rightIcon && (
+                                  <span className={aspect.rightIcon.invertInDark && isDarkMode ? 'calendar-glyph dark-invert' : 'calendar-glyph'}>
+                                    <img src={aspect.rightIcon.src} alt={aspect.rightIcon.alt} loading="lazy" />
+                                  </span>
+                                )}
+                                <span className="calendar-aspect-body">{aspect.rightBody}</span>
+                                {aspect.tone && (
+                                  <span className={`calendar-tone-badge ${aspect.tone.tone}`}>{aspect.tone.label}</span>
+                                )}
+                                {aspect.note && <span className="calendar-aspect-note">{aspect.note}</span>}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                    {parsed && (parsed.positions.length > 0 || parsed.aspects.length > 0) &&
+                      displayDescription &&
+                      displayDescription.trim().length > 0 && <div className="calendar-event-divider" role="separator" />}
+                    {displayDescription && displayDescription.trim().length > 0 && (
+                      <p className="calendar-event-desc">{displayDescription}</p>
+                    )}
                 </div>
               )
             })}
@@ -421,12 +744,14 @@ function CalendarPage() {
     return (
       <div className="calendar-week-grid">
         {days.map((day) => {
-          const dayEvents = eventsInRange(eventsForYear ?? [], startOfDay(day), endOfDay(day))
+          const dayStart = startOfDay(day, timeZone)
+          const overlapped = eventsInRange(eventsForYear ?? [], dayStart, addDays(dayStart, 1), timeZone)
+          const dayEvents = dedupeDailyTransitEvents(overlapped, timeZone)
           return (
             <div key={day.toISOString()} className="calendar-day-card">
               <div className="calendar-day-card-header">
                 <span className="calendar-day-label">
-                  {new Intl.DateTimeFormat(undefined, { weekday: 'short', month: 'short', day: 'numeric' }).format(day)}
+                  {new Intl.DateTimeFormat(undefined, { weekday: 'short', month: 'short', day: 'numeric', timeZone }).format(day)}
                 </span>
                 <span className="calendar-day-count">{dayEvents.length} event{dayEvents.length === 1 ? '' : 's'}</span>
               </div>
@@ -435,12 +760,42 @@ function CalendarPage() {
               ) : (
                 <ul className="calendar-day-events">
                   {dayEvents.map((event) => {
-                    const timeFmt = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit' })
+                    const timeFmt = new Intl.DateTimeFormat(undefined, { hour: '2-digit', minute: '2-digit', timeZone })
                     const label = event.allDay ? 'All day' : `${timeFmt.format(event.start)} – ${timeFmt.format(event.end)}`
+                    const parsed = event.description ? parseDescriptionToSymbology(event.description, { isDarkMode }) : null
                     return (
                       <li key={event.uid ?? `${event.start.toISOString()}-${event.summary}`}>
                         <span className="calendar-event-title">{event.summary ?? 'Untitled event'}</span>
                         <span className="calendar-event-meta">{label}</span>
+                        {parsed && parsed.aspects.length > 0 && (
+                          <div className="calendar-aspect-inline" aria-label="Aspects">
+                            {parsed.aspects.slice(0, 1).map((aspect, idx) => (
+                              <div key={`${event.uid ?? event.summary}-asp-inline-${idx}`} className="calendar-aspect-row inline">
+                                {aspect.time && <span className="calendar-aspect-time">{aspect.time}</span>}
+                                {aspect.leftIcon && (
+                                  <span className={aspect.leftIcon.invertInDark && isDarkMode ? 'calendar-glyph dark-invert' : 'calendar-glyph'}>
+                                    <img src={aspect.leftIcon.src} alt={aspect.leftIcon.alt} loading="lazy" />
+                                  </span>
+                                )}
+                                <span className="calendar-aspect-body">{aspect.leftBody}</span>
+                                {aspect.aspectIcon ? (
+                                  <span className="calendar-aspect-icon" aria-label={aspect.aspectLabel}>
+                                    <img src={aspect.aspectIcon.src} alt={aspect.aspectIcon.alt} loading="lazy" />
+                                  </span>
+                                ) : (
+                                  <span className="calendar-aspect-label">{aspect.aspectLabel}</span>
+                                )}
+                                {aspect.rightIcon && (
+                                  <span className={aspect.rightIcon.invertInDark && isDarkMode ? 'calendar-glyph dark-invert' : 'calendar-glyph'}>
+                                    <img src={aspect.rightIcon.src} alt={aspect.rightIcon.alt} loading="lazy" />
+                                  </span>
+                                )}
+                                <span className="calendar-aspect-body">{aspect.rightBody}</span>
+                                {aspect.tone && <span className={`calendar-tone-badge ${aspect.tone.tone}`}>{aspect.tone.label}</span>}
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </li>
                     )
                   })}
@@ -454,9 +809,9 @@ function CalendarPage() {
   }
 
   const renderMonthView = () => {
-    const start = startOfMonth(selectedDate)
-    const end = endOfWeek(endOfMonth(selectedDate))
-    const firstWeekStart = startOfWeek(start)
+    const start = startOfMonth(selectedDate, timeZone)
+    const end = endOfWeek(endOfMonth(selectedDate, timeZone), timeZone)
+    const firstWeekStart = startOfWeek(start, timeZone)
     const cells: Date[] = []
     let cursor = firstWeekStart
     while (cursor <= end) {
@@ -477,18 +832,18 @@ function CalendarPage() {
         </div>
         <div className="calendar-month-grid">
           {cells.map((day) => {
-            const dayEvents = eventsInRange(eventsForYear ?? [], startOfDay(day), endOfDay(day)).filter(
+            const dayEvents = eventsInRange(eventsForYear ?? [], startOfDay(day, timeZone), endOfDay(day, timeZone), timeZone).filter(
               (event) => !isDailyTransit(event.summary)
             )
-            const inMonth = day.getUTCMonth() === selectedDate.getUTCMonth()
-            const isToday = day.getTime() === today.getTime()
+            const inMonth = sameMonthYear(day, selectedDate, timeZone)
+            const isToday = startOfDay(day, timeZone).getTime() === today.getTime()
             return (
               <button
                 key={day.toISOString()}
                 type="button"
                 className={`calendar-month-cell ${inMonth ? '' : 'muted'} ${isToday ? 'today' : ''}`}
                 onClick={() => {
-                  setSelectedDate(startOfDay(day))
+                  setSelectedDate(startOfDay(day, timeZone))
                   setViewMode('day')
                 }}
                 aria-label={`View ${day.toUTCString()}`}
@@ -585,13 +940,23 @@ function CalendarPage() {
                     Next <ChevronRight size={16} />
                   </button>
                   <span className="calendar-range-label" aria-live="polite">
-                    {formatRangeLabel(viewMode, selectedDate)}
+                    {formatRangeLabel(viewMode, selectedDate, timeZone)}
                   </span>
+                  <label className="timezone-select">
+                    <span className="sr-only">Select time zone</span>
+                    <select value={timeZone} onChange={(e) => setTimeZone(e.target.value)}>
+                      {timeZones.map((tz) => (
+                        <option key={tz} value={tz}>
+                          {tz}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
                   <label className="calendar-date-picker">
                     <span className="sr-only">Jump to date</span>
                     <input
                       type="date"
-                      value={toDateInputValue(selectedDate)}
+                      value={toDateInputValue(selectedDate, timeZone)}
                       onChange={(e) => handleDateChange(e.target.value)}
                     />
                   </label>
