@@ -1061,6 +1061,8 @@ export default function TutorialPage() {
         tutorialActive
         onOpenTutorial={() => navigate('/tutorial')}
         onOpenAbout={() => navigate('/about')}
+        onOpenCalendar={() => navigate('/calendar')}
+        onOpenCalendarDownloads={() => navigate('/calendar-downloads')}
         onNavigateHome={() => navigate('/')}
       />
 

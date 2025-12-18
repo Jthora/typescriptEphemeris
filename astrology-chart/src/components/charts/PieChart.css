@@ -116,32 +116,30 @@
 
 /* Chart container for side-by-side layout */
 .distribution-charts-container {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: var(--spacing-md);
   padding: var(--spacing-md);
   background: var(--color-surface);
   border-bottom: var(--border-width) solid var(--color-border);
-  justify-content: center;
   align-items: stretch; /* Make both charts same height */
 }
 
 .distribution-charts-container .pie-chart {
-  flex: 1; /* Equal width distribution */
   min-height: 200px; /* Ensure minimum height consistency */
+  width: 100%;
 }
 
 /* Responsive behavior */
 @media (max-width: 768px) {
   .distribution-charts-container {
-    flex-direction: column;
-    align-items: center;
+    grid-template-columns: repeat(2, minmax(140px, 1fr));
     gap: var(--spacing-sm);
     padding: var(--spacing-sm);
   }
   
-  .pie-chart {
-    width: 100%;
-    max-width: 200px;
+  .distribution-charts-container .pie-chart {
+    min-height: 180px;
   }
   
   .pie-legend {

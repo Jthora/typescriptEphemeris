@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BookOpen, Info, Home } from 'lucide-react';
+import { BookOpen, CalendarDays, Download, Info, Home } from 'lucide-react';
 import WingCommanderLogo from '../assets/WingCommanderLogo-288x162.gif';
 import type { ShareState } from '../utils/share/shareState';
 import ThemeToggle from './ThemeToggle';
@@ -13,8 +13,12 @@ interface TopBarProps {
   shareMessage?: string | null;
   onOpenTutorial?: () => void;
   onOpenAbout?: () => void;
+  onOpenCalendar?: () => void;
+  onOpenCalendarDownloads?: () => void;
   tutorialActive?: boolean;
   aboutActive?: boolean;
+  calendarActive?: boolean;
+  calendarDownloadsActive?: boolean;
   showShareButton?: boolean;
   onNavigateHome?: () => void;
   homeActive?: boolean;
@@ -25,8 +29,12 @@ const TopBar: React.FC<TopBarProps> = ({
   shareMessage,
   onOpenTutorial,
   onOpenAbout,
+  onOpenCalendar,
+  onOpenCalendarDownloads,
   tutorialActive = false,
   aboutActive = false,
+  calendarActive = false,
+  calendarDownloadsActive = false,
   onNavigateHome,
   homeActive = false,
   
@@ -57,6 +65,30 @@ const TopBar: React.FC<TopBarProps> = ({
             >
               <Home size={16} aria-hidden="true" />
               <span className="sr-only">Go to chart</span>
+            </button>
+          )}
+          {onOpenCalendar && (
+            <button
+              type="button"
+              className={`hardware-button nav-button ${calendarActive ? 'is-active' : ''}`}
+              onClick={onOpenCalendar}
+              title="Calendar view"
+              aria-pressed={calendarActive}
+            >
+              <CalendarDays size={16} aria-hidden="true" />
+              <span className="sr-only">Open calendar view</span>
+            </button>
+          )}
+          {onOpenCalendarDownloads && (
+            <button
+              type="button"
+              className={`hardware-button nav-button ${calendarDownloadsActive ? 'is-active' : ''}`}
+              onClick={onOpenCalendarDownloads}
+              title="ICS downloads"
+              aria-pressed={calendarDownloadsActive}
+            >
+              <Download size={16} aria-hidden="true" />
+              <span className="sr-only">Open ICS downloads</span>
             </button>
           )}
           {onOpenTutorial && (

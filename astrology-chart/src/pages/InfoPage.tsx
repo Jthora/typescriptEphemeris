@@ -1178,6 +1178,8 @@ F_{\text{Omega-Core}} & F_{\text{Omega-Void}} & \cdots & F_{\text{Omega-Omega}}
         aboutActive
         onOpenTutorial={() => navigate('/tutorial')}
         onOpenAbout={() => navigate('/about')}
+        onOpenCalendar={() => navigate('/calendar')}
+        onOpenCalendarDownloads={() => navigate('/calendar-downloads')}
         onNavigateHome={() => navigate('/')}
       />
 

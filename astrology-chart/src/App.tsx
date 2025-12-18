@@ -30,6 +30,8 @@ import {
 import { generateShareText } from './utils/share/shareText'
 import TutorialPage from './pages/TutorialPage'
 import InfoPage from './pages/InfoPage'
+import CalendarPage from './pages/CalendarPage'
+import CalendarDownloadsPage from './pages/CalendarDownloadsPage'
 
 const astrologyCalculator = new AstrologyCalculator();
 const MOBILE_MAX_WIDTH = 768;
@@ -52,6 +54,14 @@ function ChartExperience() {
 
   const handleOpenAbout = useCallback(() => {
     navigate('/about');
+  }, [navigate]);
+
+  const handleOpenCalendar = useCallback(() => {
+    navigate('/calendar');
+  }, [navigate]);
+
+  const handleOpenCalendarDownloads = useCallback(() => {
+    navigate('/calendar-downloads');
   }, [navigate]);
 
   const handleNavigateHome = useCallback(() => {
@@ -690,6 +700,8 @@ function ChartExperience() {
           shareMessage={shareMessage}
           onOpenTutorial={handleOpenTutorial}
           onOpenAbout={handleOpenAbout}
+          onOpenCalendar={handleOpenCalendar}
+          onOpenCalendarDownloads={handleOpenCalendarDownloads}
           onNavigateHome={handleNavigateHome}
           homeActive
         />
@@ -812,7 +824,9 @@ function App() {
     <Routes>
       <Route path="/" element={<ChartExperience />} />
       <Route path="/tutorial" element={<TutorialPage />} />
-  <Route path="/about" element={<InfoPage />} />
+      <Route path="/calendar" element={<CalendarPage />} />
+      <Route path="/calendar-downloads" element={<CalendarDownloadsPage />} />
+      <Route path="/about" element={<InfoPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
